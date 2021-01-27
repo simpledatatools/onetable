@@ -95,7 +95,6 @@
             </div>
             <div class="col-6">
                 <div class="form-group form-check">
-
                 </div>
             </div>
           </div>
@@ -105,7 +104,6 @@
     <button class="btn btn-success" id="add-form">Add Another Field</button>
     <div class="row mt-3">
       <div class="col-12">
-
       </div>
     </div>
     <div class="col-4 mt-3">
@@ -144,9 +142,11 @@
         $('#id_form-'+String(display_form_id)+'-id').next('div').removeAttr('style').removeClass('d-none');
         newForm = fieldForm[fieldForm.length-1].cloneNode(true);
         $('#id_form-'+String(display_form_id)+'-id').next('div').addClass('d-none');
+      
       } else if (type == "list-create") {
 
         newForm = fieldForm[0].cloneNode(true);
+      
       } else {
 
         console.warn("You missed passing a composing mode (create or edit)");
@@ -158,7 +158,19 @@
       newForm.innerHTML = newForm.innerHTML.replace(formRegex, `form-${formNum}-`);
       container.insertBefore(newForm, addButton);
       totalForms.setAttribute('value', `${formNum+1}`);
+      // add the required attribute in an extra list field form, to handle the validation, when user click on the update button
+      $("input[name=form-"+String(formNum)+"-field_label]").attr('required', true);
     });
+
+    const type = '{{ type | safe }}'
+    if (type === 'edit-list'){
+      
+      var initial_form = $('#id_form-INITIAL_FORMS').val();
+      // remove the required attribute in an extra list field form, to handle the validation, when user click on the update button
+      $("input[name=form-"+String(initial_form)+"-field_label]").removeAttr('required');
+      $('#id_form-'+initial_form+'-id').next('div').hide();
+      $('#id_form-'+initial_form+'-id').hide();
+    }
   });
 
   /* this code is execute when user choose the field type */
@@ -167,36 +179,38 @@
     if (field_type == "choose-from-list") {
 
       $(this).parent('div').parent('div').next('div').children('div').children('.select-type-custom').show().removeAttr('multiple', false);
+    
     } else if (field_type == "choose-multiple-from-list") {
 
       $(this).parent('div').parent('div').next('div').children('div').children('.select-type-custom').show().attr('multiple', true);
+    
     } else {
 
       $(this).parent('div').parent('div').next('div').children('div').children('.select-type-custom').hide();
     }
   });
 
-  $(document).ready(() => {
+  /* not used this code (update this code on top) */
+  // $(document).ready(() => {
+    // const field_type_object = $('.field-type-custom');
+    // field_type_object.each(function(index, data){
+    //   if ($(this).val() == "choose-from-list") {
+    //     $(this).parent('div').parent('div').next('div').children('div').children('.select-type-custom').show().removeAttr('multiple', false);
+    //   } else if ($(this).val() == "choose-multiple-from-list") {
+    //     $(this).parent('div').parent('div').next('div').children('div').children('.select-type-custom').show().attr('multiple', true);
+    //   }
+    // });
 
-    const field_type_object = $('.field-type-custom');
-    field_type_object.each(function(index, data){
-      if ($(this).val() == "choose-from-list") {
-        $(this).parent('div').parent('div').next('div').children('div').children('.select-type-custom').show().removeAttr('multiple', false);
-      } else if ($(this).val() == "choose-multiple-from-list") {
-        $(this).parent('div').parent('div').next('div').children('div').children('.select-type-custom').show().attr('multiple', true);
-      }
-    });
+    // const type = "{{ type | safe }}";
 
-    const type = "{{ type | safe }}";
-    if (type == "edit-list") {
-
-      var initial_form = $('#id_form-INITIAL_FORMS').val();
-      $('#id_form-'+initial_form+'-id').next('div').hide();
-      $('#id_form-'+initial_form+'-id').remove('div');
-    } else {
+    // if (type == "edit-list") {
+    //   var initial_form = $('#id_form-INITIAL_FORMS').val();
+    //   $('#id_form-'+initial_form+'-id').next('div').hide();
+      // $('#id_form-'+initial_form+'-id').remove('div');
+    // } else {
       // Do nothing for now
-    }
-  });
+    // }
+  // });
 
   /* code for remove the list field */
   $(document).on('click', '.remove-list-field', function(){
@@ -213,6 +227,8 @@
     const totalForms = $("#id_form-TOTAL_FORMS").val();
     $("#id_form-TOTAL_FORMS").val(Number(totalForms)-1);
     $(this).parent('div').parent('div').parent('div').parent('div').hide();
+    // remove the required attribute in an extra list field form, to handle the validation, when user click on the update button
+    $("input[name=form-"+String(totalForms-1)+"-field_label]").removeAttr('required');
   });
 
   /* code for Up Arrow Functionality with changing the id, name attribute value */

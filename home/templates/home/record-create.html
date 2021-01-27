@@ -57,7 +57,13 @@
                   {% endfor %}
                 </select>
               </div>
+              {% elif field.field_type == 'date' %}
+              <div class="form-group">
+                <label for="field_{{ field.field_id }}">{{ field.field_label }}{% if field.required %}*{% endif %}</label>
+                <input class="form-control form-control-solid record-field" id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" type="date" {% if field.value %}value='{{ field.value }}'{% endif %} {% if field.required %}required{% endif %}>
+              </div>
               {% endif %}
+
             {% endfor %}
         </form>
       </div>
@@ -117,8 +123,6 @@
     if (record) {
       data.record_id = record;
     }
-    console.log('=============record_id', record);
-    console.log('=============data', data);
     if (submit === required){
       $.ajax({
         type: "POST",
