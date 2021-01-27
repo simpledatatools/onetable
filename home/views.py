@@ -465,6 +465,9 @@ def create_list(request, organization_pk, app_pk):
             list_field_order = 0
             change_from_select_list = False
             for index, form in enumerate(formset):
+                print('===============================================')
+                print(form)
+                print('===============================================')
                 # Save the list field
                 list_field = form.save(commit=False)
                 list_field.field_id = randStr(N=10)
@@ -477,6 +480,8 @@ def create_list(request, organization_pk, app_pk):
                     list_field.primary = True
                     list_field.required = True
                     list_field.visible = True
+                else:
+                    list_field.primary = False
 
                 list_field.save()
                 list_field.field_id = list_field.id
@@ -559,6 +564,8 @@ def edit_list(request, organization_pk, app_pk, list_pk):
                         list_field.primary = True
                         list_field.required = True
                         list_field.visible = True
+                    else:
+                        list_field.primary = False
                     list_field.save()
 
                     list_field_order += 1
@@ -655,6 +662,7 @@ def add_record(request, organization_pk, app_pk, list_pk):
             field_object['select_record'] = RecordField.objects.filter(record__list=list_field.select_list.id, record__status="active", status="active", list_field__primary=True).values_list('record', 'value')
         fields.append(field_object)
     fields.reverse()
+    print(fields)
 
     if request.is_ajax() and request.method == "GET":
         # Call is ajax, just load main content needed here
