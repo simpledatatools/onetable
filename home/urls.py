@@ -32,7 +32,8 @@ urlpatterns = [
     path('organizations/<int:organization_pk>/apps/<int:app_pk>/lists/<int:list_pk>/records/<int:record_pk>/', views.record, name='record'), # Forward without details to details
     path('organizations/<int:organization_pk>/apps/<int:app_pk>/lists/<int:list_pk>/records/<int:record_pk>/details', views.record_details, name='record_details'),
     path('organizations/<int:organization_pk>/apps/<int:app_pk>/lists/<int:list_pk>/records/<int:record_pk>/tasks', views.record_tasks, name='record_tasks'),
-
+    path('organizations/<int:organization_pk>/apps/<int:app_pk>/lists/<int:list_pk>/records/<int:record_pk>/task/<int:task_pk>', views.edit_task, name='edit_task'),
+    path('organizations/<int:organization_pk>/apps/<int:app_pk>/lists/<int:list_pk>/records/<int:record_pk>/task/<int:task_pk>/kind/<str:task_kind>/move_to/<str:move_to>', views.remove_mark_complete_tasks, name='remove_mark_complete_task'),
     path('organizations/<int:organization_pk>/apps/<int:app_pk>/lists/<int:list_pk>/records/<int:record_pk>/links', views.record_links, name='record_links'),
     path('organizations/<int:organization_pk>/apps/<int:app_pk>/lists/<int:list_pk>/records/<int:record_pk>/edit', views.edit_record, name='edit_record'),
 
