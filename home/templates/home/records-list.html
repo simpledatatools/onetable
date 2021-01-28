@@ -8,35 +8,49 @@
                 {{ record.primary_field.value }}
               </a>
               <div class="dropdown no-caret">
-                  <button class="btn btn-transparent-dark btn-icon dropdown-toggle" id="dropdownMenuButton" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="text-gray-500" data-feather="more-vertical"></i></button>
+                  <button class="btn btn-transparent-dark btn-icon dropdown-toggle" id="dropdownMenuButton" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-bars"></i></button>
                   <div class="dropdown-menu dropdown-menu-right animated--fade-in-up" aria-labelledby="dropdownMenuButton">
-                      <a class="dropdown-item" href="#">
+                      <a class="dropdown-item" href="{% url 'edit_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}">
                           <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="list"></i></div>
                           Edit Record
                       </a>
-                      <a class="dropdown-item" href="#">
+                      <a class="dropdown-item" href="{% url 'archive_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}">
                           <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="list"></i></div>
                           Archive Record
                       </a>
                   </div>
               </div>
           </div>
+          {% if record.record_fields|length > 1 %}
           <div class="card-body">
-            {% if record.record_fields %}
-              {% for field in record.record_fields %}
-                {# {% if field.list_field.visible and field.list_field.primary is False and field.value %} #}
-                {% if field.list_field.primary is False and field.value %}
-                  {% if field.list_field.field_type == "choose-from-list" %}
-                    <p>{{ field.list_field.field_label }}: <a href="{% url 'list' organization_pk=record.list.app.organization.pk app_pk=record.list.app.pk list_pk=field.list_field.select_list_id %}"><span class="badge badge-primary">{{ field.value }}</span></a></p>
-                  {% else %}
-                    <p>{{ field.list_field.field_label }}: {{ field.value }}</p>
+            {% for field in record.record_fields %}
+              {% if field.list_field.visible and field.list_field.primary is False %}
+                {% if field.list_field.field_type == "choose-from-list" %}
+                <p><b>{{ field.list_field.field_label }}:</b>
+                  {% if field.selected_record.status == 'active' %}
+                  <a href="{% url 'record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=field.selected_record.pk %}">
+                    <span class="badge badge-primary p-2">{{ field.selected_record.primary_field.value }}
+                    </span>
+                  </a>
                   {% endif %}
+                </p>
+                {% elif field.list_field.field_type == "url" %}
+                  <p><b>{{ field.list_field.field_label }}:</b> <a href="{{ field.value }}" target="_blank">{{ field.value }}</a></p>
+                {% else %}
+                  <p><b>{{ field.list_field.field_label }}:</b> {{ field.value }}</p>
                 {% endif %}
-              {% endfor %}
-            {% endif %}
+              {% endif %}
+            {% endfor %}
           </div>
+          {% endif %}
       </div>
     </div>
   {% endfor %}
+</div>
+{% else %}
+<div class="row">
+  <div class="col-lg-12">
+    <p>No records to display</p>
+  <div>
 </div>
 {% endif %}
