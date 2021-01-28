@@ -81,8 +81,9 @@ class TaskForm(forms.ModelForm): #(Workspaces)
         fields = ('task',)
 
         widgets = {
-            'task': forms.TextInput(attrs={'class':'form-control form-control-solid'})
+            'task': forms.Textarea(attrs={'class':'form-control form-control-solid', 'placeholder': 'Enter a task description', 'rows': 3})
         }
+
 
 class NoteForm(forms.ModelForm): #(Workspaces)
 

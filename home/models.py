@@ -195,6 +195,7 @@ class ListField(models.Model):
         ('number', 'Number'),
         ('url', 'Url'),
         ('choose-from-list', 'Choose from List'),
+        ('date', 'Date')
         #('choose-multiple-from-list', 'Choose multiple from List'),
     )
 
@@ -346,6 +347,7 @@ class Task(models.Model):
         ('active', 'Active'),
         ('archived', 'Archived'),
         ('deleted', 'Deleted'),
+        ('completed', 'Completed'),
     )
 
     status = models.CharField(
@@ -356,7 +358,7 @@ class Task(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return self.task
 
 
 class Note(models.Model):
@@ -380,4 +382,4 @@ class Note(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return self.note
