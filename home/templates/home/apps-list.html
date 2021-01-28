@@ -1,14 +1,26 @@
 {% if apps %}
 <div class="row">
-    {% for app in apps %}
-    <div class="col-lg-4 mb-5">
-        <a class="card lift h-100" href="{% url 'app_details' organization_pk=organization.pk app_pk=app.pk %}">
-          <div class="card-body">
-              <h4 class="card-title mb-2">{{ app.name }}</h4>
+  {% for app in apps %}
+    <div class="col-lg-4 mb-4">
+      <div class="card card-header-actions lift lift-sm h-100">
+          <div class="card-header bg-white">
+              <a href="{% url 'app_details' organization_pk=organization.pk app_pk=app.pk %}">{{ app.name }}</a>
+              <div class="dropdown no-caret">
+                  <button class="btn btn-transparent-dark btn-icon dropdown-toggle" id="dropdownMenuButton" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="text-gray-500" data-feather="more-vertical"></i></button>
+                  <div class="dropdown-menu dropdown-menu-right animated--fade-in-up" aria-labelledby="dropdownMenuButton">
+                      <a class="dropdown-item" href="{% url 'app_settings' organization_pk=organization.pk app_pk=app.pk %}">
+                          <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="list"></i></div>
+                          Settings
+                      </a>
+                  </div>
+              </div>
           </div>
-        </a>
+          <div class="card-body py-5">
+              <p class="card-text">{{ app.description }}</p>
+          </div>
+          <div class="card-footer bg-white"><div class="small text-muted">3 users in this workspace</div></div>
+      </div>
     </div>
-    {% endfor %}
-  </div>
-  <hr class="mt-5" />
+  {% endfor %}
+</div>
 {% endif %}

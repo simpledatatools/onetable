@@ -1,0 +1,113 @@
+<header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+  <div class="container-fluid">
+      <div class="page-header-content">
+          <div class="row align-items-center justify-content-between pt-3">
+              <div class="col-auto mb-3">
+                  <h1 class="page-header-title">
+                      {{ record.primary_field.value }}
+                  </h1>
+              </div>
+          </div>
+      </div>
+  </div>
+</header>
+<!-- Main page content-->
+<div class="container mt-4">
+  <!-- Account page navigation-->
+  <nav class="nav nav-borders">
+      <a class="nav-link" id="record-details-link" href="javascript:void(0);" onclick="getRecordView('{% url 'record_details' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}');">Details</a>
+      <a class="nav-link" id="record-notes-link" href="javascript:void(0);" onclick="getRecordView('{% url 'record_notes' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}');">Notes</a>
+      <a class="nav-link" id="record-tasks-link" href="javascript:void(0);" onclick="getRecordView('{% url 'record_tasks' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}');">Tasks</a>
+  </nav>
+  <hr class="mt-0 mb-4" />
+  <div id="record-view-content">
+
+
+      {% block recorddetailscontent %}
+        {% if record_view == 'record-details' %}
+          {% include 'home/record-details.html' %}
+        {% elif record_view == 'record-notes' %}
+          {% include 'home/record-notes.html' %}
+        {% elif record_view == 'record-tasks' %}
+          {% include 'home/record-tasks.html' %}
+        {% else %}
+          {# Load default dashboard #}
+          {% include 'home/record-details.html' %}
+        {% endif %}
+
+      {% endblock %}
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+
+  // Setup the correct link on initial / url load
+
+  const showActiveLink = (record_view) => {
+    if (record_view === 'record-details') {
+      // Activate details link
+      $('#record-details-link').addClass("active ml-0")
+      $('#record-notes-link').removeClass("active ml-0")
+      $('#record-tasks-link').removeClass("active ml-0")
+    } else if (record_view === 'record-notes') {
+      // Activate notes link
+      $('#record-details-link').removeClass("active ml-0")
+      $('#record-notes-link').addClass("active ml-0")
+      $('#record-tasks-link').removeClass("active ml-0")
+    } else if (record_view == 'record-tasks') {
+      // Activate tasks link
+      $('#record-details-link').removeClass("active ml-0")
+      $('#record-notes-link').removeClass("active ml-0")
+      $('#record-tasks-link').addClass("active ml-0")
+    } else {
+      // Load default details
+      // Activate details link
+      $('#record-details-link').addClass("active ml-0")
+      $('#record-notes-link').removeClass("active ml-0")
+      $('#record-tasks-link').removeClass("active ml-0")
+    }
+  }
+
+  $(document).ready(() => {
+
+    const record_view = "{{ record_view | safe }}"
+    showActiveLink(record_view)
+
+    $('#record-details-link').click(() => {
+      showActiveLink('record-details')
+    })
+  
+    $('#record-notes-link').click(() => {
+      showActiveLink('record-notes')
+    })
+  
+    $('#record-tasks-link').click(() => {
+      showActiveLink('record-tasks')
+    })
+  })
+
+  function getRecordView(url) {
+    $.ajax({
+        type: "GET",
+        url: url,
+        data: {
+            'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+        },
+        success: function(data) {
+            // append html to the posts div
+            $('#record-view-content').html(data['html_from_view']);
+        },
+        error: function(xhr, status, error) {
+            // shit happens friends!
+        }
+    }).always(()=> {
+
+      window.history.pushState({}, '', url);
+
+    });
+  }
+
+</script>

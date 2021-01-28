@@ -1,0 +1,59 @@
+{% extends "home/layouts/layout-no-side-nav.html" %}
+{% load static %}
+
+{% block title %}
+    OneTable - {% if not user_object.get_full_name %}{{ user_object.get_username|title }}{% else %}{{ user_object.get_full_name|title }}{% endif %} Profile
+{% endblock %}
+
+{% block headername %}
+  OneTable
+{% endblock %}
+
+{% block headerlink %}
+  {% url 'home' %}
+{% endblock %}
+
+{% block header %}
+  {% include 'home/layouts/component-header-home.html' %}
+{% endblock %}
+
+{% block bodyclass %}
+  class="bg-grey"
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-xl-5 col-lg-6 col-md-8 col-sm-11">
+          <!-- Social login form-->
+          <div class="card my-5">
+              <div class="card-body p-5 text-center">
+                  <div class="h3 font-weight-light mb-3">
+                    {% if not user_object.get_full_name %}{{ user_object.get_username|title }}{% else %}{{ user_object.get_full_name|title }}{% endif %}
+                      Profile
+                    </div>
+              </div>
+              <hr class="my-0" />
+              <div class="card-body p-5">
+                  <!-- Profile form-->
+                  <div class="form-group">
+                    <form method="post">
+                      {% csrf_token %}
+                      {% if form.errors %}
+                        <p>{{form.errors}}</p>
+                      {% endif %}
+                      {{ form.as_p }}
+                      <button class="btn btn-primary">Update Account</button>
+                    </form>
+                  </div>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+</script>
+{% endblock %}

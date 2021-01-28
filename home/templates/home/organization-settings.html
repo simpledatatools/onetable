@@ -1,0 +1,79 @@
+{% extends "home/layouts/layout-no-side-nav.html" %}
+{% load static %}
+
+{% block title %}
+    OneTable - Organization Settings
+{% endblock %}
+
+{% block headername %}
+  OneTable
+{% endblock %}
+
+{% block headerlink %}
+  {% url 'home' %}
+{% endblock %}
+
+{% block header %}
+  {% include 'home/layouts/component-header-workspace.html' %}
+{% endblock %}
+
+{% block bodyclass %}
+  class="bg-white"
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+  <!-- Account page navigation-->
+  <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+    <div class="container-fluid">
+        <div class="page-header-content">
+            <div class="row align-items-center justify-content-between pt-3">
+                <div class="col-auto mb-3">
+                    <h1 class="page-header-title">
+                        <div class="page-header-icon"><i data-feather="settings"></i></div>
+                        Settings for {{ organization.name }}
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+  </header>
+  <!-- Main page content-->
+  <div class="container">
+  <div class="row">
+      <div class="col-lg-8">
+          <!-- Email notifications preferences card-->
+          <div class="card card-header-actions mb-4">
+              <div class="card-header">
+                  Details
+              </div>
+              <div class="card-body">
+                <form method="POST" action="{% url 'edit_organization' organization_pk=organization.pk %}">{% csrf_token %}
+                  {{ form.as_p }}
+                  <button type="submit" class="btn btn-lg btn-primary font-weight-500 mr-3">
+                    Update Organization
+                  </button>
+                </form>
+              </div>
+          </div>
+      </div>
+      <div class="col-lg-4">
+          <!-- Notifications preferences card-->
+          <div class="card">
+              <div class="card-header">Archive Organization</div>
+              <div class="card-body">
+                  <p>You can archive this organization if you will no longer use it. Data will still be available under the archived filter.
+                  <form method="POST" action="{% url 'archive_organization' organization_pk=organization.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" name="project_id" class="btn btn-danger-soft text-danger">
+                      Archive this organization
+                    </button>
+                  </form>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+{% endblock %}

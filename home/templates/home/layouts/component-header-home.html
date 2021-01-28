@@ -1,0 +1,14 @@
+{% load static %}
+
+<ul class="navbar-nav align-items-center ml-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'about' %}"><div class="font-weight-500">About</div></a>
+  </li>
+  {% if user.is_authenticated %}
+    {% include 'home/layouts/widget-my-account-dropdown.html' %}
+  {% else %}
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'login' %}"><div class="font-weight-500">Login</div></a>
+    </li>
+  {% endif %}
+</ul>

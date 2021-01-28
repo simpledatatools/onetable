@@ -1,1 +1,23 @@
-<p>Lists works!</p>
+<header class="page-header page-header-light bg-white pb-10">
+  <div class="container">
+      <div class="page-header-content pt-4">
+          <div class="row align-items-center justify-content-between">
+              <div class="col-auto mt-4">
+                  <h1 class="page-header-title">
+                    Lists
+                  </h1>
+              </div>
+              <div class="col-12 col-xl-auto mb-3">
+                <div class="page-header-subtitle"><a href="{% url 'create_list' organization_pk=organization.pk app_pk=app.pk %}">Add new list</a></div>
+              </div>
+          </div>
+      </div>
+  </div>
+</header>
+<!-- Main page content-->
+<div class="container bg-white mt-n10">
+<!-- Main page content-->
+  <div id="lists-list">
+    {% include "home/lists-list.html" %}
+  </div>
+</div>

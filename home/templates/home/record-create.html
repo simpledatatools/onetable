@@ -1,0 +1,147 @@
+{% load static %}
+<header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+  <div class="container-fluid">
+      <div class="page-header-content">
+          <div class="row align-items-center justify-content-between pt-3">
+              <div class="col-auto mb-3">
+                  <h1 class="page-header-title">
+                      <div class="page-header-icon"><i data-feather="file"></i></div>
+                      Add record in {{ list.name }}
+                  </h1>
+              </div>
+              <div class="col-12 col-xl-auto mb-3">
+                  <button class="btn btn-primary py-2" href="javascript:void(0);" onclick="saveRecord();">Save Record</button>
+              </div>
+          </div>
+      </div>
+  </div>
+</header>
+<div class="container">
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="sbp-preview-content">
+        <form id="record-form">{% csrf_token %}
+            {% for field in fields %}
+              {% if field.field_type == 'text' or field.field_type == 'url' %}
+                <div class="form-group">
+                  <label for="field_{{ field.field_id }}">{{ field.field_label }}{% if field.required %}*{% endif %}</label>
+                  <input class="form-control form-control-solid record-field" id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" type="text" placeholder="Input response here" {% if field.value %}value='{{ field.value }}'{% endif %} {% if field.required %}required{% endif %}>
+                </div>
+              {% elif field.field_type == 'long-text' %}
+                <div class="form-group">
+                  <label for="field_{{ field.field_id }}">{{ field.field_label }}{% if field.required %}*{% endif %}</label>
+                  <textarea data-attr="{{field.field_type}}" class="form-control form-control-solid record-field" id="field_{{ field.field_id }}" rows="3" placeholder="Input response here" {% if field.required %}required{% endif %}>{% if field.value %}{{ field.value }}{% endif %}</textarea>
+                </div>
+              {% elif field.field_type == 'number' %}
+                <div class="form-group">
+                  <label for="field_{{ field.field_id }}">{{ field.field_label }}{% if field.required %}*{% endif %}</label>
+                  <input class="form-control form-control-solid record-field" id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" type="number" placeholder="Input response here" {% if field.value %}value='{{ field.value }}'{% endif %} {% if field.required %}required{% endif %}>
+                </div>
+              {% elif field.field_type == 'choose-from-list' %}
+              <div class="form-group">
+                <label for="field_{{ field.field_id }}">{{ field.field_label }}{% if field.required %}*{% endif %}</label>
+                <select class="form-control form-control-solid record-field" id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" {% if field.required %}required{% endif %}>
+                  {% if field.value %}
+                  {% for id, data in field.select_record %}
+                  {% if field.value == data %}
+                  <option value="{{id}}" data-value="{{data}}">{{data}}</option>
+                  {% endif %}
+                  {% endfor %}
+                  {% else %}
+                  <option value="">------</option>
+                  {% endif %}
+                  {% for id, data in field.select_record %}
+                  {% if field.value != data %}
+                  <option value="{{id}}" data-value="{{data}}">{{data}}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+              {% elif field.field_type == 'date' %}
+              <div class="form-group">
+                <label for="field_{{ field.field_id }}">{{ field.field_label }}{% if field.required %}*{% endif %}</label>
+                <input class="form-control form-control-solid record-field" id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" type="date" {% if field.value %}value='{{ field.value }}'{% endif %} {% if field.required %}required{% endif %}>
+              </div>
+              {% endif %}
+
+            {% endfor %}
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Include JS here that does not need template tags -->
+
+<!-- Include JS here that needs template tags -->
+<script>
+  $('.record-field').on('focusin', function(){
+    $(this).removeClass('border-danger');
+  });
+
+  function saveRecord() {
+    // Get the values from the form
+    var field_values = [];
+    var submit = 0;
+    var required = 0;
+
+    $(".record-field").each(function(){
+      if ($(this).is(':required')){
+        required += 1;
+        if ($(this).val().length !== 0){
+          submit += 1;
+        }
+        else{
+          $(this).addClass('border-danger');
+        }
+      };
+
+      var id = $(this).attr('id').replace("field_","");
+      var val = $(this).val();
+      var field_type = $(this).attr('data-attr');
+      field = {};
+      field['fieldId'] = id;
+      field['fieldValue'] = val;
+      field['fieldType'] = field_type;
+      if (field_type === "choose-from-list"){
+        var listValue = $(this).find(':selected').data('value');
+        if (typeof listValue === "undefined"){
+          field['selectListValue'] = false;
+        }
+        else{
+          field['selectListValue'] = listValue;
+        }
+      }
+      field_values.push(field);
+    });
+
+    const data = {
+      'field_values': JSON.stringify(field_values),
+      'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+    };
+    const record = "{{ record | safe }}";
+    if (record) {
+      data.record_id = record;
+    }
+    if (submit === required){
+      $.ajax({
+        type: "POST",
+        dataType: 'json',
+        url: "{% url 'save_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk %}",
+        data: data,
+        success: function(data) {
+          if (data.success) {
+            window.location.href = "{% url 'list' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk %}";
+              // Go to the record page here
+          } else {
+            alert("There was an error, please try again!");
+          }
+        },
+        error: function(xhr, status, error) {
+          console.log(xhr, status, error);
+          // shit happens friends!
+        }
+      });
+    }
+  };
+</script>

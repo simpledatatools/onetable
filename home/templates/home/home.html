@@ -1,18 +1,27 @@
-{% extends "home/base.html" %}
+{% extends "home/layouts/layout-no-side-nav.html" %}
 {% load static %}
 
 {% block title %}
-    OneTable - Home
+    OneTable - Login
 {% endblock %}
 
-{% block topbar %}
-  {% include "home/home-header.html" %}
+{% block headername %}
+  OneTable
+{% endblock %}
+
+{% block headerlink %}
+  {% url 'home' %}
+{% endblock %}
+
+{% block header %}
+  {% include 'home/layouts/component-header-home.html' %}
+{% endblock %}
+
+{% block bodyclass %}
+  class="bg-grey"
 {% endblock %}
 
 {% block content %}
 
-<div class="jumbotron">
-  <h1>Home</h1>
-</div>
 
 {% endblock %}

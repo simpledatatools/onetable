@@ -1,0 +1,29 @@
+{% if lists %}
+<div class="row">
+  {% for list in lists %}
+    <div class="col-lg-4 mb-4">
+      <div class="card card-header-actions lift lift-sm h-100">
+          <div class="card-header bg-white">
+              <a href="javascript:void(0);" onclick="getPage('{% url 'list' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk %}');">{{ list.name }}</a>
+              <div class="dropdown no-caret">
+                  <button class="btn btn-transparent-dark btn-icon dropdown-toggle" id="dropdownMenuButton" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="text-gray-500" data-feather="more-vertical"></i></button>
+                  <div class="dropdown-menu dropdown-menu-right animated--fade-in-up" aria-labelledby="dropdownMenuButton">
+                      <a class="dropdown-item" href="javascript:void(0);" onclick="getPage('{% url 'edit_list' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk %}');">
+                          <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="list"></i></div>
+                          Edit List Fields
+                      </a>
+                      <a class="dropdown-item" href="javascript:void(0);" onclick="getPage('{% url 'list_settings' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk %}');">
+                          <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="settings"></i></div>
+                          List Settings
+                      </a>
+                  </div>
+              </div>
+          </div>
+          <div class="card-body py-3">
+              <div class="small text-muted">{{list.total_record}} records in this list</div>
+          </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}

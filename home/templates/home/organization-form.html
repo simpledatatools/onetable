@@ -1,32 +1,53 @@
-{% extends "home/base.html" %}
+{% extends "home/layouts/layout-no-side-nav.html" %}
 {% load static %}
 
 {% block title %}
-    OneTable - About
+    OneTable - Create Organizations
 {% endblock %}
 
-{% block topbar %}
-  {% include "home/home-header.html" %}
+{% block headername %}
+  OneTable
+{% endblock %}
+
+{% block headerlink %}
+  {% url 'home' %}
+{% endblock %}
+
+{% block header %}
+  {% include 'home/layouts/component-header-workspace.html' %}
+{% endblock %}
+
+{% block bodyclass %}
+  class="bg-grey"
 {% endblock %}
 
 {% block content %}
-<div class ="row">
-  <div class="col-lg-12">
-    <h1 class="mb-5">Create Organization</h1>
-    <div class="form-group">
-      <form method="POST">{% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-lg btn-primary font-weight-500 mr-3">
-          Add Organization
-        </button>
-      </form>
-    </div>
+<div class="container">
+  <div class="row justify-content-center">
+      <!-- Create Organization-->
+      <div class="col-xl-5 col-lg-6 col-md-8 col-sm-11">
+          <div class="card mt-5">
+              <div class="card-body p-5 text-center">
+                  <div class="icons-org-create align-items-center mx-auto">
+                      <i class="icon-users" data-feather="users"></i>
+                      <i class="icon-plus fas fa-plus"></i>
+                  </div>
+                  <div class="h3 text-primary font-weight-300 mb-0">Create an Organization</div>
+              </div>
+              <hr class="m-0" />
+              <div class="card-body p-5">
+                <div class="form-group">
+                  <form method="POST">{% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-lg btn-primary font-weight-500 mr-3">
+                      Create
+                    </button>
+                  </form>
+                </div>
+              </div>
+          </div>
+      </div>
   </div>
 </div>
-
-{% endblock %}
-
-
-{% block extra_js %}
 
 {% endblock %}

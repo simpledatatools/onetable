@@ -13,7 +13,7 @@ DATABASES['default'] =  dj_database_url.config()
 #DATABASES['default'].update(db_from_env)
 
 ALLOWED_HOSTS = [
-    'one-table.herokuapp.com',
+    'onetable.herokuapp.com',
     #'www.onetableapp.com',
     '127.0.0.1',
 ]

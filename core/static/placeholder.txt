@@ -1,0 +1,2 @@
+Fix later - heroku bugging out on the root static file missing
+Adding here for quick testing / deploy

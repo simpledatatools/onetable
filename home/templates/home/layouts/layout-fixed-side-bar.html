@@ -1,0 +1,44 @@
+{% extends "home/layouts/layout-base.html" %}
+{% load static %}
+
+{% block bodyclass %}
+  class="nav-fixed"
+{% endblock %}
+
+{% block layoutcontent %}
+
+  <nav class="topnav navbar navbar-expand shadow justify-content-between justify-content-sm-start navbar-light bg-white" id="sidenavAccordion">
+
+      <a class="navbar-brand" href="{% block headerlink %}{% endblock %}">
+
+        {% block headername %}
+        {% endblock %}
+
+      </a>
+
+      <!-- Sidenav Toggle Button-->
+      <button class="btn btn-icon btn-transparent-dark order-1 order-lg-0 mr-lg-2" id="sidebarToggle"><i data-feather="menu"></i></button>
+
+      {% block header %}
+      {% endblock %}
+
+  </nav>
+
+  <div id="layoutSidenav">
+
+      {% block sidebar %}
+      {% endblock %}
+
+      <div id="layoutSidenav_content">
+          <main>
+            <div id="main-content">
+
+              {% block content %}
+              {% endblock %}
+
+            </div>
+          </main>
+      </div>
+  </div>
+
+{% endblock %}

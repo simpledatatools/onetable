@@ -1,30 +1,50 @@
-{% extends "home/base.html" %}
+{% extends "home/layouts/layout-no-side-nav.html" %}
 {% load static %}
 
 {% block title %}
-    OneTable - About
+    OneTable - My Organizations
 {% endblock %}
 
-{% block topbar %}
-  {% include "home/app-header.html" %}
+{% block headername %}
+  OneTable
+{% endblock %}
+
+{% block headerlink %}
+  {% url 'home' %}
+{% endblock %}
+
+{% block header %}
+  {% include 'home/layouts/component-header-workspace.html' %}
+{% endblock %}
+
+{% block bodyclass %}
+  class="bg-grey"
 {% endblock %}
 
 {% block content %}
-
-<div class="row my-5">
-  <div class="col-12-lg">
-    <h1>My Organizations</h1>
+  <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
+    <div class="container">
+        <div class="page-header-content pt-4">
+            <div class="row align-items-center justify-content-between">
+                <div class="col-auto mt-4">
+                    <h1 class="page-header-title">
+                      My organizations
+                    </h1>
+                    <a href="{% url 'organizations' %}"><div class="page-header-subtitle"><i data-feather="arrow-left" class="page-header-subtitle"></i> My Account</div></a>
+                </div>
+                <div class="col-12 col-xl-auto mb-3">
+                  <a class="" href="{% url 'add_organization' %}">
+                    <div class="page-header-subtitle">Add new organization</div>
+                  </a>
+                </div>
+              </div>
+            </div>
+        </div>
+  </header>
+  <!-- Main page content-->
+  <div class="container mt-n10">
+    <div id="organizations-list">
+      {% include "home/organizations-list.html" %}
+    </div>
   </div>
-</div>
-<div class="row mb-5">
-  <div class="col-12-lg">
-    <a class="btn btn-lg btn-primary font-weight-500" href="{% url 'add_organization' %}">
-      Add Organization
-    </a>
-  </div>
-</div>
-<div id="organizations-list">
-  {% include "home/organizations-list.html" %}
-</div>
-
 {% endblock %}

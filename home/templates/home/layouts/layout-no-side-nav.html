@@ -1,0 +1,33 @@
+{% extends "home/layouts/layout-base.html" %}
+{% load static %}
+
+{% block bodyclass %}
+  class="nav-fixed"
+{% endblock %}
+
+{% block layoutcontent %}
+  <nav class="topnav navbar navbar-expand shadow justify-content-between justify-content-sm-start navbar-light bg-white">
+
+      <a class="navbar-brand" href="{% block headerlink %}{% endblock %}">
+
+        {% block headername %}
+        {% endblock %}
+
+      </a>
+
+      {% block header %}
+      {% endblock %}
+
+  </nav>
+
+  <div id="layoutAuthentication">
+    <div id="layoutAuthentication_content">
+        <main>
+
+          {% block content %}
+          {% endblock %}
+
+        </main>
+    </div>
+  </div>
+{% endblock %}

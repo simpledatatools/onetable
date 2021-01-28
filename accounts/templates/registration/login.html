@@ -1,38 +1,58 @@
-{% extends "home/base.html" %}
+{% extends "home/layouts/layout-no-side-nav.html" %}
 {% load static %}
 
 {% block title %}
     OneTable - Login
 {% endblock %}
 
-{% block topbar %}
-  {% include "home/home-header.html" %}
+{% block headername %}
+  OneTable
+{% endblock %}
+
+{% block headerlink %}
+  {% url 'home' %}
+{% endblock %}
+
+{% block header %}
+  {% include 'home/layouts/component-header-home.html' %}
+{% endblock %}
+
+{% block bodyclass %}
+  class="bg-grey"
 {% endblock %}
 
 {% block content %}
-<section class="bg-white mt-10 mb-10">
   <div class="container">
-      <div class="row justify-content-center">
-          <div class="col-lg-6">
-
-            <h1 class="mb-5">Login</h1>
-
-            <div class="form-group">
-              <form method="post" action="{% url 'login' %}">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button class="btn btn-primary">Login</button>
-              </form>
-            </div>
-
-            <a href="{% url 'register' %}">Register</a>
-
-            {% if form.errors %}
-              <p>Your username and password didn't match. Please try again.</p>
-            {% endif %}
-
+    <div class="row justify-content-center">
+      <div class="col-xl-5 col-lg-6 col-md-8 col-sm-11">
+          <!-- Social login form-->
+          <div class="card my-5">
+              <div class="card-body p-5 text-center">
+                  <div class="h3 font-weight-light mb-3">Log In</div>
+              </div>
+              <hr class="my-0" />
+              <div class="card-body p-5">
+                  <!-- Login form-->
+                  <div class="form-group">
+                    <form method="post" action="{% url 'login' %}">
+                      {% csrf_token %}
+                      {{ form.as_p }}
+                      <button class="btn btn-primary">Login</button>
+                    </form>
+                  </div>
+                  {% if form.errors %}
+                    <p>Your username and password didn't match. Please try again.</p>
+                  {% endif %}
+              </div>
+              <hr class="my-0" />
+              <div class="card-body px-5 py-4">
+                  <div class="small text-center">
+                      New user?
+                      <a href="{% url 'register' %}">Create an account!</a>
+                  </div>
+              </div>
           </div>
       </div>
+    </div>
   </div>
-</section>
 {% endblock %}

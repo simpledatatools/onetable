@@ -1,0 +1,8 @@
+{% if menus %}
+{% for menu in menus %}
+<a class="nav-link menu-link" id="menu_{{ menu.id }}" href="#!">
+    <div class="nav-link-icon"></div>
+    {{ menu.name }}
+</a>
+{% endfor %}
+{% endif %}

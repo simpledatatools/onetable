@@ -1,0 +1,22 @@
+{% load static %}
+<!-- Topbar header Items-->
+<ul class="navbar-nav align-items-center ml-auto">
+  <!-- Organizations link -->
+  {% if organization.pk %}
+    <li class="nav-item no-caret d-none d-sm-block mr-3">
+        <a class="nav-link dropdown-toggle" href="{% url 'organizations' %}" role="button" aria-haspopup="false" aria-expanded="false">
+            <div class="font-weight-500">Organizations</div>
+        </a>
+    </li>
+  {% endif %}
+  <!-- Apps link -->
+  {% if app.pk %}
+    <li class="nav-item no-caret d-none d-sm-block mr-3">
+        <a class="nav-link dropdown-toggle" href="{% url 'apps' organization_pk=organization.pk %}" role="button" aria-haspopup="false" aria-expanded="false">
+            <div class="font-weight-500">Apps</div>
+        </a>
+    </li>
+  {% endif %}
+  <!-- My Account -->
+  {% include 'home/layouts/widget-my-account-dropdown.html' %}
+</ul>

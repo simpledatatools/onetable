@@ -1,29 +1,50 @@
-{% extends "home/base.html" %}
+{% extends "home/layouts/layout-no-side-nav.html" %}
 {% load static %}
 
 {% block title %}
-    OneTable - About
+    OneTable - Workspaces
 {% endblock %}
 
-{% block topbar %}
-  {% include "home/app-header.html" %}
+{% block headername %}
+  OneTable
+{% endblock %}
+
+{% block headerlink %}
+  {% url 'home' %}
+{% endblock %}
+
+{% block header %}
+  {% include 'home/layouts/component-header-workspace.html' %}
+{% endblock %}
+
+{% block bodyclass %}
+  class="bg-grey"
 {% endblock %}
 
 {% block content %}
-<div class="row my-5">
-  <div class="col-12-lg">
-    <h1>Apps for {{ organization.name }}</h1>
+  <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
+    <div class="container">
+        <div class="page-header-content pt-4">
+            <div class="row align-items-center justify-content-between">
+                <div class="col-auto mt-4">
+                    <h1 class="page-header-title">
+                      Workspaces for {{ organization.name }}
+                    </h1>
+                    <a href="{% url 'organizations' %}"><div class="page-header-subtitle"><i data-feather="arrow-left" class="page-header-subtitle"></i> Organizations</div></a>
+                </div>
+                <div class="col-12 col-xl-auto mb-3">
+                  <a class="" href="{% url 'add_app' organization_pk=organization.pk %}">
+                    <div class="page-header-subtitle">Add new workspace</div>
+                  </a>
+                </div>
+            </div>
+        </div>
+    </div>
+  </header>
+  <!-- Main page content-->
+  <div class="container mt-n10">
+    <div id="apps-list">
+      {% include "home/apps-list.html" %}
+    </div>
   </div>
-</div>
-<div class="row mb-5">
-  <div class="col-12-lg">
-    <a class="btn btn-lg btn-primary font-weight-500" href="{% url 'add_app' organization_pk=organization.pk %}">
-      Add App
-    </a>
-  </div>
-</div>
-<div id="apps-list">
-  {% include "home/apps-list.html" %}
-</div>
-
 {% endblock %}
