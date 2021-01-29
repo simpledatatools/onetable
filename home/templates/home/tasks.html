@@ -11,24 +11,32 @@
               <div class="col-12 col-xl-auto mb-3">
                 <!-- <div class="page-header-subtitle"><a href="">Add new task</a></div> -->
               </div>
-              {% for task in all_tasks %}
-                <div class="card col-xl-12 mt-3">
-                  <div class="card-body">
-                    <h6 class="card-title text-justify">{{task.task}}</h6>
-                    <a href="{% url 'record' organization_pk=organization.pk app_pk=app.pk list_pk=task.record.list.pk record_pk=task.record.pk %}">
-                      <span class="badge badge-primary p-2">{{task.record.primary_field.value.title}}
-                      </span>
-                    </a>
-                    <hr>
-                    <div class="text-right">
-                      <a href="{% url 'remove_mark_complete_task' organization_pk=organization.pk app_pk=app.pk list_pk=task.record.list.pk record_pk=task.record.pk task_pk=task.pk task_kind='remove' move_to='all' %}" style="text-decoration: none;">Remove</a>
-                      <a href="{% url 'edit_task' organization_pk=organization.pk app_pk=app.pk list_pk=task.record.list.pk record_pk=task.record.pk task_pk=task.id %}" class="ml-5" style="text-decoration: none;">Edit</a>
-                      <a href="{% url 'remove_mark_complete_task' organization_pk=organization.pk app_pk=app.pk list_pk=task.record.list.pk record_pk=task.record.pk task_pk=task.pk task_kind='complete' move_to='all' %}" class="ml-5" style="text-decoration: none;">Mark Complete</a>
-                    </div>
-                  </div>
-                </div>
-              {% endfor %}
           </div>
+          <div class="card mt-3">
+            <div class="card-body">
+              <div class="sbp-preview-content">
+                  <input type="hidden">
+                    <div class="form-group mb-0 d-flex">
+                      <input type="text" class="form-control search-field-record mr-3" name="search" placeholder="Search Task" aria-label="Search Task" aria-describedby="search_button">
+                      <button class="btn btn-primary" type="button" id="search_button" onclick="getPage('{% url 'tasks' organization_pk=organization.pk app_pk=app.pk %}');">Search</button>
+                    </div>
+              </div>
+            </div>
+          </div>
+          {% for task in all_tasks %}
+            <div class="card col-xl-12 mt-3">
+              <div class="card-body">
+                <h6 class="card-title text-justify">{{task.task}}</h6>
+                <span class="badge rounded-pill bg-primary text-white px-3 py-2" style="font-size: 15px;">{{task.record.primary_field.value.title}}</span>
+                <hr>
+                <div class="text-right">
+                  <a href="{% url 'remove_mark_complete_task' organization_pk=organization.pk app_pk=app.pk list_pk=task.record.list.pk record_pk=task.record.pk task_pk=task.pk task_kind='remove' move_to='all' %}" style="text-decoration: none;">Remove</a>
+                  <a href="{% url 'edit_task' organization_pk=organization.pk app_pk=app.pk list_pk=task.record.list.pk record_pk=task.record.pk task_pk=task.id %}" class="ml-5" style="text-decoration: none;">Edit</a>
+                  <a href="{% url 'remove_mark_complete_task' organization_pk=organization.pk app_pk=app.pk list_pk=task.record.list.pk record_pk=task.record.pk task_pk=task.pk task_kind='complete' move_to='all' %}" class="ml-5" style="text-decoration: none;">Mark Complete</a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
       </div>
   </div>
 </header>
