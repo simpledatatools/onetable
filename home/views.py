@@ -325,6 +325,9 @@ def tasks(request, organization_pk, app_pk):
     all_tasks = Task.objects.filter(status="active").order_by('record')
 
     if request.is_ajax() and request.method == "GET":
+        search_value = request.GET.get('search_value')
+        if search_value:
+            all_tasks = Task.objects.filter(task__icontains=search_value, status="active").order_by('record')
         # Call is ajax, just load main content needed here
 
         html = render_to_string(
@@ -365,7 +368,6 @@ def lists(request, organization_pk, app_pk):
     lists = List.objects.filter(status='active', app=app).order_by('name',)
 
     if request.is_ajax() and request.method == "GET":
-
         # Call is ajax, just load main content needed here
 
         html = render_to_string(
@@ -382,7 +384,6 @@ def lists(request, organization_pk, app_pk):
         return JsonResponse(data=data_dict, safe=False)
 
     else:
-
         # If accessing the url directly, load full page
 
         context = {
@@ -394,16 +395,21 @@ def lists(request, organization_pk, app_pk):
 
         return render(request, 'home/workspace.html', context=context)
 
+
 @login_required
 def list(request, organization_pk, app_pk, list_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
 
-    records = Record.objects.all().filter(status='active', list=list)
+    records = Record.objects.filter(status='active', list=list)
 
     if request.is_ajax() and request.method == "GET":
-
+        search_value = request.GET.get('search_value')
+        if search_value:
+            record_fields = RecordField.objects.filter(record__list=list, value__icontains=search_value)
+            record_ids = [i['record_id'] for i in record_fields.values('record_id')]
+            records = Record.objects.filter(id__in=record_ids, status='active', list=list)
         # Call is ajax, just load main content needed here
 
         html = render_to_string(
@@ -432,6 +438,7 @@ def list(request, organization_pk, app_pk, list_pk):
         }
 
         return render(request, 'home/workspace.html', context=context)
+
 
 @login_required
 def create_list(request, organization_pk, app_pk):
