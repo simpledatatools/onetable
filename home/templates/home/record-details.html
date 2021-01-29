@@ -1,45 +1,251 @@
 <div class="row mb-5">
-  <div class="col-xl-12">
+   <div class="col-xl-12">
       <!-- Account details card-->
       <div class="card card-header-actions">
-          <div class="card-header bg-white">
-              {{ record.primary_field.value }}
-              <div class="dropdown no-caret">
-                  <button class="btn btn-transparent-dark btn-icon dropdown-toggle" id="dropdownMenuButton" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-bars"></i></button>
-                  <div class="dropdown-menu dropdown-menu-right animated--fade-in-up" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="{% url 'edit_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}">
-                        <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="list"></i></div>
-                        Edit Record
-                    </a>
-                    <a class="dropdown-item" href="{% url 'archive_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}">
-                        <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="list"></i></div>
-                        Archive Record
-                    </a>
-                  </div>
-              </div>
-          </div>
-          <div class="card-body">
+         <div class="card-header bg-white">
+            {{ record.primary_field.value }}
+            <div class="dropdown no-caret">
+               <button class="btn btn-transparent-dark btn-icon dropdown-toggle" id="dropdownMenuButton" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-bars"></i></button>
+               <div class="dropdown-menu dropdown-menu-right animated--fade-in-up" aria-labelledby="dropdownMenuButton">
+                  <a class="dropdown-item" href="{% url 'edit_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}">
+                     <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="list"></i></div>
+                     Edit Record
+                  </a>
+                  <a class="dropdown-item" href="{% url 'archive_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}">
+                     <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="list"></i></div>
+                     Archive Record
+                  </a>
+               </div>
+            </div>
+         </div>
+         <div class="card-body">
             {% if record.record_fields %}
-              {% for field in record.record_fields %}
-                {% if field.list_field.primary is False %}
-                  {% if field.list_field.field_type == "choose-from-list" %}
-                    <p><b>{{ field.list_field.field_label }}:</b>
-                      {% if field.selected_record.status == 'active' %}
-                      <a href="{% url 'record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=field.selected_record.pk %}">
-                        <span class="badge badge-primary p-2">{{ field.selected_record.primary_field.value }}
-                        </span>
-                      </a>
-                      {% endif %}
-                    </p>
-                  {% elif field.list_field.field_type == "url" %}
-                    <p><b>{{ field.list_field.field_label }}:</b> <a href="{{ field.value }}" target="_blank">{{ field.value }}</a></p>
-                  {% else %}
-                    <p><b>{{ field.list_field.field_label }}:</b> {{ field.value }}</p>
-                  {% endif %}
-                {% endif %}
-              {% endfor %}
+            {% for field in record.record_fields %}
+            {% if field.list_field.primary is False %}
+            {% if field.list_field.field_type == "choose-from-list" %}
+            <p><b>{{ field.list_field.field_label }}:</b>
+               {% if field.selected_record.status == 'active' %}
+               <a href="{% url 'record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=field.selected_record.pk %}">
+               <span class="badge badge-primary p-2">{{ field.selected_record.primary_field.value }}
+               </span>
+               </a>
+               {% endif %}
+            </p>
+            {% elif field.list_field.field_type == "url" %}
+            <p><b>{{ field.list_field.field_label }}:</b> <a href="{{ field.value }}" target="_blank">{{ field.value }}</a></p>
+            {% else %}
+            <p><b>{{ field.list_field.field_label }}:</b> {{ field.value }}</p>
             {% endif %}
-          </div>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+         </div>
       </div>
-  </div>
+   </div>
 </div>
+
+
+<div class="p-5 container">
+   <div class="mb-3 row no-gutters" >
+      <div class="col-6">
+         <h5>Files and Uploads</h5>
+      </div>
+      <div class="col-6">
+         <div id="postRecordFile" class="btn btn-primary float-right" action="{% url 'post_record_file' organization.pk app.pk list.pk record.pk %}">
+            Add File
+         </div>
+      </div>
+   </div>
+   <hr>
+   <div id="fileslist" class="row">
+      <div id="template-preview" class="d-none"></div>
+      {% for file in files %}
+      <div class="col-6">
+         <div class="text-center m-3 card">
+            <div class="card-body">
+               <p class="card-text text-left">{{file.filename}}</p>
+            </div>
+            <div class="card-footer bg-white"><a class="btn btn-link float-right" href="{{file.delete_url}}">Remove</a><a class="btn btn-link float-right" href="{{file.url}}">Download</a></div>
+         </div>
+      </div>
+      {% endfor %}
+   </div>
+</div>
+</div>
+
+
+<div class="p-5 container">
+   <div class="mb-3 row no-gutters" >
+      <div class="col-6">
+         <h5>Images and Videos</h5>
+      </div>
+      <div class="col-6">
+         <div id="postRecordMedia" class="btn btn-primary float-right" action="{% url 'post_record_media' organization.pk app.pk list.pk record.pk %}">
+            Add File
+         </div>
+      </div>
+   </div>
+   <hr>
+   <div id="medialist" class="row">
+      <div id="template-preview" class="d-none"></div>
+      {% for file in media %}
+      <div class="col-3 h-100">
+         <div class="text-center m-3 card">
+            <div class="card-body">
+               <p class="card-text text-left">
+                <img src="{{file.url}}" class="img-fluid"/>
+               </p>
+            </div>
+            <div class="card-footer bg-white"><a class="btn btn-link float-right" href="{{file.delete_url}}">Remove</a><a class="btn btn-link float-right" href="{{file.url}}">Download</a></div>
+         </div>
+      </div>
+      {% endfor %}
+   </div>
+</div>
+</div>
+
+<div class="p-5 container">
+<h5>Comments</h5>
+<hr/>
+<form id="post_record_comment"  method="POST" action="{% url 'post_record_comments' organization.pk app.pk list.pk record.pk %}">
+{% csrf_token %}
+<input id="content" class="form-control bg-light mb-3" name="content" type="text" placeholder="Enter a comment here"/>
+<div class="text-right"><input class="btn btn-primary" type="submit"/></div>
+</form>
+
+<div class="d-block" id="record_comments">
+{% for comment in comments %}
+<div class="card text-center m-3"><div class="card-body"><p class="card-text text-left">{{comment.content}}</p></div><div class="card-footer bg-white"><a class="btn btn-link float-right" href="{{comment.delete_url}}">Remove</a><input class="btn btn-link float-right" type="button" value="edit"></div></div>
+{% endfor %}
+</div>
+</div>
+<script>
+var record_files = $('#fileslist');
+var record_media = $('#medialist');
+function getCookie(c_name) {
+    var c_value = " " + document.cookie;
+    var c_start = c_value.indexOf(" " + c_name + "=");
+    if (c_start == -1) {
+        c_value = null;
+    } else {
+        c_start = c_value.indexOf("=", c_start) + 1;
+        var c_end = c_value.indexOf(";", c_start);
+        if (c_end == -1) {
+            c_end = c_value.length;
+        }
+        c_value = unescape(c_value.substring(c_start, c_end));
+    }
+    return c_value;
+}
+
+Dropzone.autoDiscover = false;
+
+let cookie = document.cookie;
+var csrftoken = getCookie('csrftoken');
+var post_file_url = $('#postRecordFile').attr('action');
+var post_media_url = $('#postRecordMedia').attr('action');
+$(function() {
+        var myDrop = new Dropzone("div#postRecordFile", {
+            url: post_file_url,
+            method: "post",
+            headers: {
+                "csrfmiddlewaretoken": csrftoken
+            },
+            previewsContainer: null,
+            previewTemplate: document.getElementById('fileslist').innerHTML
+        });
+
+        myDrop.on("success", function(file, data) {
+            data = JSON.parse(data);
+            console.log(data);
+            var file_div = '<div class="col-6"><div class="text-center m-3 card"><div class="card-body"><p class="card-text text-left">' + data['file_name'] + '</p></div><div class="card-footer bg-white"><a class="btn btn-link float-right" href="' + data.file_url + '">Download</a><a href="'+data.delete_url+'" class="btn btn-link float-right">Remove</a></div></div></div>';
+            record_files.prepend(file_div);
+        });
+    });
+
+
+
+$(function() {
+        var myDrop = new Dropzone("div#postRecordMedia", {
+            url: post_media_url,
+            method: "post",
+            headers: {
+                "csrfmiddlewaretoken": csrftoken
+            },
+            previewsContainer: null,
+            previewTemplate: document.getElementById('medialist').innerHTML
+        });
+
+        myDrop.on("success", function(file, data) {
+            data = JSON.parse(data);
+            var media_div = '<div class="col-3"><div class="text-center m-3 card"><div class="card-body"><p class="card-text text-left"><img src="'+data.file_url+'" class="img-fluid"/></p></div><div class="card-footer bg-white"><a href="'+data.delete_url+'" class="btn btn-link float-right">Remove</a><a class="btn btn-link float-right" href="' + data.file_url + '">Download</a></div></div></div>';
+            record_media.prepend(media_div);
+        });
+    });
+
+ 
+    $(document).ready(function() {
+
+        $(function() {
+            var frm = $('#post_record_comment');
+            frm.value = '';
+            var record_comments = $('#record_comments');
+
+            frm.submit(function(ev) {
+                ev.preventDefault();
+                console.log(frm.serialize('content'));
+
+                function getCookie(name) {
+                    var cookieValue = null;
+                    if (document.cookie && document.cookie !== '') {
+                        var cookies = document.cookie.split(';');
+                        for (var i = 0; i < cookies.length; i++) {
+                            var cookie = jQuery.trim(cookies[i]);
+                            // Does this cookie string begin with the name we want?
+                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                }
+
+
+                function csrfSafeMethod(method) {
+                    // these HTTP methods do not require CSRF protection
+                    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+                }
+
+                $.ajaxSetup({
+                    beforeSend: function(xhr, settings) {
+                        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        }
+                    }
+                })
+
+
+
+                $.ajax({
+
+                    type: frm.attr('method'),
+                    url: frm.attr('action'),
+                    data: frm.serialize(),
+                    headers: {
+                        'X-CSRFToken': csrftoken
+                    },
+                    success: function(data) {
+                        var content = $('#content').val();
+                        $('#content').val('');
+                        console.log(data);
+                        data= JSON.parse(data);
+                        var comment_div = '<div class="card text-center m-3"><div class="card-body"><p class="card-text text-left">' + content + '</p></div><div class="card-footer bg-white"><a class="btn btn-link float-right" href="'+data.delete_url+'" >Remove</a><input class="btn btn-link float-right" type="button" value="edit"/></div></div>';
+                        record_comments.prepend(comment_div);
+                    }
+                });
+                ev.preventDefault();
+            });
+        });
+    });
+</script>
