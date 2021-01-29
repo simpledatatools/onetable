@@ -1,26 +1,44 @@
-<div class="col-auto mb-3">
-    <a href="{% url 'edit_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}">Edit Record</a>
-</div>
-<div class="row">
+<div class="row mb-5">
   <div class="col-xl-12">
       <!-- Account details card-->
-      <div class="card mb-4">
+      <div class="card card-header-actions">
+          <div class="card-header bg-white">
+              {{ record.primary_field.value }}
+              <div class="dropdown no-caret">
+                  <button class="btn btn-transparent-dark btn-icon dropdown-toggle" id="dropdownMenuButton" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-bars"></i></button>
+                  <div class="dropdown-menu dropdown-menu-right animated--fade-in-up" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="{% url 'edit_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}">
+                        <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="list"></i></div>
+                        Edit Record
+                    </a>
+                    <a class="dropdown-item" href="{% url 'archive_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}">
+                        <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="list"></i></div>
+                        Archive Record
+                    </a>
+                  </div>
+              </div>
+          </div>
           <div class="card-body">
             {% if record.record_fields %}
               {% for field in record.record_fields %}
                 {% if field.list_field.primary is False %}
                   {% if field.list_field.field_type == "choose-from-list" %}
-                  <p>{{ field.list_field.field_label }}: <a href="{% url 'list' organization_pk=record.list.app.organization.pk app_pk=record.list.app.pk list_pk=field.list_field.select_list_id %}"><span class="badge badge-primary">{{ field.value }}</span></a></p>
+                    <p><b>{{ field.list_field.field_label }}:</b>
+                      {% if field.selected_record.status == 'active' %}
+                      <a href="{% url 'record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=field.selected_record.pk %}">
+                        <span class="badge badge-primary p-2">{{ field.selected_record.primary_field.value }}
+                        </span>
+                      </a>
+                      {% endif %}
+                    </p>
+                  {% elif field.list_field.field_type == "url" %}
+                    <p><b>{{ field.list_field.field_label }}:</b> <a href="{{ field.value }}" target="_blank">{{ field.value }}</a></p>
                   {% else %}
-                    <p>{{ field.list_field.field_label }}: {{ field.value }}</p>
+                    <p><b>{{ field.list_field.field_label }}:</b> {{ field.value }}</p>
                   {% endif %}
                 {% endif %}
               {% endfor %}
             {% endif %}
-          </div>
-
-          <div class="offset-sm-10 text-right mr-3 mb-3">
-            <a href="{% url 'archive_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}" class="btn btn-primary">Archive Record</a>
           </div>
       </div>
   </div>

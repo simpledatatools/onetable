@@ -32,7 +32,6 @@ class RecordRelationAdmin(admin.ModelAdmin):
         except:
             pass
 
-
 class TaskAdmin(admin.ModelAdmin):
     list_display = ['id', 'task', 'record_id', 'created_at', 'created_user', 'last_updated', 'status']
 

@@ -8,4 +8,7 @@ urlpatterns = [
     # Otherwise, route to django auth stuff
     path('', include('django.contrib.auth.urls')),
     path('', include('accounts.urls')),
+
+    # Third party stuff
+    path('tinymce/', include('tinymce.urls')),
 ]

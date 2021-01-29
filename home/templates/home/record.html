@@ -16,20 +16,19 @@
   <!-- Account page navigation-->
   <nav class="nav nav-borders">
       <a class="nav-link" id="record-details-link" href="javascript:void(0);" onclick="getRecordView('{% url 'record_details' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}');">Details</a>
-      <a class="nav-link" id="record-notes-link" href="javascript:void(0);" onclick="getRecordView('{% url 'record_notes' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}');">Notes</a>
+      <a class="nav-link" id="record-links-link" href="javascript:void(0);" onclick="getRecordView('{% url 'record_links' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}');">Links</a>
       <a class="nav-link" id="record-tasks-link" href="javascript:void(0);" onclick="getRecordView('{% url 'record_tasks' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}');">Tasks</a>
   </nav>
   <hr class="mt-0 mb-4" />
   <div id="record-view-content">
 
-
       {% block recorddetailscontent %}
         {% if record_view == 'record-details' %}
           {% include 'home/record-details.html' %}
-        {% elif record_view == 'record-notes' %}
-          {% include 'home/record-notes.html' %}
         {% elif record_view == 'record-tasks' %}
           {% include 'home/record-tasks.html' %}
+        {% elif record_view == 'record-links' %}
+          {% include 'home/record-links.html' %}
         {% else %}
           {# Load default dashboard #}
           {% include 'home/record-details.html' %}
@@ -49,25 +48,25 @@
   const showActiveLink = (record_view) => {
     if (record_view === 'record-details') {
       // Activate details link
-      $('#record-details-link').addClass("active ml-0")
-      $('#record-notes-link').removeClass("active ml-0")
-      $('#record-tasks-link').removeClass("active ml-0")
-    } else if (record_view === 'record-notes') {
-      // Activate notes link
-      $('#record-details-link').removeClass("active ml-0")
-      $('#record-notes-link').addClass("active ml-0")
-      $('#record-tasks-link').removeClass("active ml-0")
+      $('#record-details-link').addClass("active")
+      $('#record-tasks-link').removeClass("active")
+      $('#record-links-link').removeClass("active")
     } else if (record_view == 'record-tasks') {
       // Activate tasks link
-      $('#record-details-link').removeClass("active ml-0")
-      $('#record-notes-link').removeClass("active ml-0")
-      $('#record-tasks-link').addClass("active ml-0")
+      $('#record-details-link').removeClass("active")
+      $('#record-tasks-link').addClass("active")
+      $('#record-links-link').removeClass("active")
+    } else if (record_view == 'record-links') {
+      // Activate tasks link
+      $('#record-details-link').removeClass("active")
+      $('#record-tasks-link').removeClass("active")
+      $('#record-links-link').addClass("active")
     } else {
       // Load default details
       // Activate details link
-      $('#record-details-link').addClass("active ml-0")
-      $('#record-notes-link').removeClass("active ml-0")
-      $('#record-tasks-link').removeClass("active ml-0")
+      $('#record-details-link').addClass("active")
+      $('#record-tasks-link').removeClass("active")
+      $('#record-links-link').removeClass("active")
     }
   }
 
@@ -79,13 +78,11 @@
     $('#record-details-link').click(() => {
       showActiveLink('record-details')
     })
-  
-    $('#record-notes-link').click(() => {
-      showActiveLink('record-notes')
-    })
-  
     $('#record-tasks-link').click(() => {
       showActiveLink('record-tasks')
+    })
+    $('#record-links-link').click(() => {
+      showActiveLink('record-links')
     })
   })
 
