@@ -71,7 +71,7 @@
       {% endfor %}
    </div>
 </div>
-</div>
+
 
 
 <div class="p-5 container">
@@ -102,7 +102,7 @@
       {% endfor %}
    </div>
 </div>
-</div>
+
 
 <div class="p-5 container">
 <h5>Comments</h5>
@@ -110,12 +110,12 @@
 <form id="post_record_comment"  method="POST" action="{% url 'post_record_comments' organization.pk app.pk list.pk record.pk %}">
 {% csrf_token %}
 <input id="content" class="form-control bg-light mb-3" name="content" type="text" placeholder="Enter a comment here"/>
-<div class="text-right"><input class="btn btn-primary" type="submit"/></div>
+<div class="text-right"><input class="btn btn-primary" id="post_record_button" type="submit"/></div>
 </form>
 
 <div class="d-block" id="record_comments">
 {% for comment in comments %}
-<div class="card text-center m-3"><div class="card-body"><p class="card-text text-left">{{comment.content}}</p></div><div class="card-footer bg-white"><a class="btn btn-link float-right" href="{{comment.delete_url}}">Remove</a><input class="btn btn-link float-right" type="button" value="edit"></div></div>
+<div id="comment-{{comment.pk}}" class="card text-center m-3"><div class="card-body"><p class="card-text text-left content">{{comment.content}}</p></div><div class="card-footer bg-white"><a class="btn btn-link float-right" href="{{comment.delete_url}}">Remove</a><a  href="{{comment.edit_url}}" data-comment-id="{{comment.id}}" class="btn btn-link float-right edit-comment" >edit</a></div></div>
 {% endfor %}
 </div>
 </div>
@@ -210,7 +210,7 @@ $(function() {
                     }
                     return cookieValue;
                 }
-
+            
 
                 function csrfSafeMethod(method) {
                     // these HTTP methods do not require CSRF protection
@@ -240,12 +240,57 @@ $(function() {
                         $('#content').val('');
                         console.log(data);
                         data= JSON.parse(data);
-                        var comment_div = '<div class="card text-center m-3"><div class="card-body"><p class="card-text text-left">' + content + '</p></div><div class="card-footer bg-white"><a class="btn btn-link float-right" href="'+data.delete_url+'" >Remove</a><input class="btn btn-link float-right" type="button" value="edit"/></div></div>';
+                        var comment_div = '<div id="comment-'+data.id+'" class="card text-center m-3"><div class="card-body"><p class="card-text text-left content">'+data.content+'</p></div><div class="card-footer bg-white"><a class="btn btn-link float-right" href="'+data.delete_url+'">Remove</a><a  href="'+data.edit_url+'" data-comment-id="'+data.id+'" class="btn btn-link float-right edit-comment" >edit</a></div></div>';
                         record_comments.prepend(comment_div);
+                        EditPost();
                     }
                 });
                 ev.preventDefault();
             });
         });
+        
+        function EditPost(){
+         var edit_mode =false;
+         var current_edit=null;
+        $('.edit-comment').on('click',function(ev){
+           ev.preventDefault();
+           var comment_id = $(this).attr('data-comment-id');
+           
+           var content = $('#comment-'+comment_id + ' .content');
+           var content_message=content.html()
+           if(edit_mode==false){
+              if(current_edit==null){
+               $(this).html('Save');
+               content.html('<textarea id="comment-content-'+comment_id+'" class="bg-light text-dark form-control w-100">'+content_message+'</textarea>');
+               edit_mode = true;
+               current_edit=$(this).attr('data-comment-id');
+              }
+           }else{
+              this_comment = $(this).attr('data-comment-id');
+              console.log(this_comment);
+              console.log(current_edit);
+              if(this_comment == current_edit){
+              edit_url = $(this).attr('href');
+              var new_comment = $('#comment-content-'+comment_id).val();
+              content.html(new_comment);
+              edit_mode=false;
+              current_edit=null;
+              $(this).html('Edit');
+              $.post(edit_url,{
+                 "content" : new_comment
+              },function(data){
+                 console.log(data)
+              });
+               }
+              }
+           
+           }
+
+           );
+        }
+
+        EditPost();
+           
+        
     });
 </script>

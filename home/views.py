@@ -20,7 +20,7 @@ from django.views.decorators.csrf import csrf_exempt
 # On all views, @login_required prevents users not logged in, but need method and
 # approach for making sure users are viewing / editing / creating / etc. only in
 # the apps and organizations they have been added to and (eventually) have the
-# correct permissions for.
+# correct permissions for.git
 
 
 # TODO
@@ -839,7 +839,12 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
                 'organization': organization,
                 'app': app,
                 'list': list,
-                'record': record
+                'record': record,
+                'type': 'record',
+                'record_view': 'record-details',
+                'comments' : comments,
+                'files':files,
+                "media":media
             }
         )
 
@@ -890,7 +895,10 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
                 'app': app,
                 'list': list,
                 'record': record,
-                'note_form': note_form
+                'note_form': note_form,
+                "comments":comments,
+                "files": files,
+                "media":media
 
             }
         )
@@ -1004,7 +1012,7 @@ def edit_record(request, organization_pk, app_pk, list_pk, record_pk):
 
     # We are not using the following here:
     # 1) Django form.Forms (couldn't find a way to create dynamic forms this approach,
-    # but we may be able to find eventually)
+    # but we may be able to  find eventually)
     # 2) the models.Model @property for list.list_fields or the record.record_fields >>
     # needed an object with both the field inforation and value included so we can edit prvious values here
 
@@ -1102,10 +1110,13 @@ def post_record_comment(request,organization_pk, app_pk, list_pk, record_pk):
         if request.POST['content'] != '':
             record_comment = RecordComment(created_user=request.user,content = request.POST['content'],record_id=record_pk)
             record_comment.save()
-            final = {}
-            final['delete_url'] = record_comment.delete_url()
-            final =json.dumps(final)
-            return JsonResponse(data=final, safe=False)
+            comment_json = {}
+            comment_json['delete_url'] = record_comment.delete_url()
+            comment_json['content'] = record_comment.content
+            comment_json['edit_url'] = record_comment.edit_url()
+            comment_json['id'] = record_comment.pk
+            comment_json =json.dumps(comment_json)
+            return JsonResponse(data=comment_json, safe=False)
     else:
         return HttpResponse('Unauthorized', status=401)
 
@@ -1182,3 +1193,18 @@ def delete_record_comment(request,record_comment_pk,organization_pk, app_pk, lis
         'app_pk':record_Comment.record.list.app.pk,
         'record_pk':record_Comment.record.pk,
     }))
+
+@csrf_exempt
+def edit_record_comment(request,organization_pk, app_pk, list_pk, record_pk,record_comment_pk):
+    if request.method == "POST":
+        comment = RecordComment.objects.get(pk=record_comment_pk)
+        if request.user == comment.created_user:
+            comment.content = request.POST['content']
+            comment.save()
+        else:
+            HttpResponse('Unauthorized', status=401)
+        return JsonResponse({
+            "comment_edited":"true"
+        })
+    else:
+        return HttpResponse('method not allowed')

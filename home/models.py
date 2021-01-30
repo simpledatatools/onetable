@@ -400,6 +400,15 @@ class RecordComment(models.Model):
     def __str__(self):
         content = (self.content[:10] + '..') if len(self.content) > 10 else self.content
         return (content + ' by ' + self.created_user.username +' of #'+ str(self.record.pk))
+    
+    def edit_url(self):
+        return reverse('edit_record_comment', kwargs={
+            'organization_pk':self.record.list.app.organization.pk,
+            'list_pk':self.record.list.pk,
+            'app_pk':self.record.list.app.pk,
+            'record_pk':self.record.pk,
+            'record_comment_pk':self.pk
+            })
 
     def delete_url(self):
         return reverse('delete_record_comment', kwargs={
