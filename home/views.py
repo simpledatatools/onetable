@@ -839,7 +839,12 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
                 'organization': organization,
                 'app': app,
                 'list': list,
-                'record': record
+                'record': record,
+                'type': 'record',
+                'record_view': 'record-details',
+                'comments' : comments,
+                'files':files,
+                "media":media
             }
         )
 
@@ -890,7 +895,10 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
                 'app': app,
                 'list': list,
                 'record': record,
-                'note_form': note_form
+                'note_form': note_form,
+                "comments":comments,
+                "files": files,
+                "media":media
 
             }
         )
@@ -1004,7 +1012,7 @@ def edit_record(request, organization_pk, app_pk, list_pk, record_pk):
 
     # We are not using the following here:
     # 1) Django form.Forms (couldn't find a way to create dynamic forms this approach,
-    # but we may be able to find eventually)
+    # but we may be able to  find eventually)
     # 2) the models.Model @property for list.list_fields or the record.record_fields >>
     # needed an object with both the field inforation and value included so we can edit prvious values here
 
