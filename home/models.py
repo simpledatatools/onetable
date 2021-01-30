@@ -410,30 +410,6 @@ class RecordComment(models.Model):
             'record_comment_pk':self.pk
             })
 
-class Task(models.Model):
-    task = HTMLField()
-    record = models.ForeignKey('Record', on_delete=models.SET_NULL, null=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
-    created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-    last_updated = models.DateTimeField(auto_now_add=True)
-
-    TASK_STATUS = (
-        ('active', 'Active'),
-        ('archived', 'Archived'),
-        ('deleted', 'Deleted'),
-        ('completed', 'Completed'),
-    )
-
-    status = models.CharField(
-        max_length=25,
-        choices=TASK_STATUS,
-        blank=False,
-        default='active',
-    )
-
-    def __str__(self):
-        return self.task
-
 
 class Note(models.Model):
     note = HTMLField()

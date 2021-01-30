@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import modelformset_factory
-from .models import Organization, App, List, ListField, Task, Note
+from .models import Organization, App, List, ListField, Note
 
 
 class OrganizationForm(forms.ModelForm):
@@ -73,16 +73,6 @@ ListFieldFormset = modelformset_factory(
         )
     }
 )
-
-class TaskForm(forms.ModelForm): #(Workspaces)
-
-    class Meta:
-        model = Task
-        fields = ('task',)
-
-        widgets = {
-            'task': forms.Textarea(attrs={'class':'form-control form-control-solid', 'placeholder': 'Enter a task description', 'rows': 3})
-        }
 
 
 class NoteForm(forms.ModelForm): #(Workspaces)

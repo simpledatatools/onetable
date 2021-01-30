@@ -17,7 +17,6 @@
   <nav class="nav nav-borders">
       <a class="nav-link" id="record-details-link" href="javascript:void(0);" onclick="getRecordView('{% url 'record_details' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}');">Details</a>
       <a class="nav-link" id="record-links-link" href="javascript:void(0);" onclick="getRecordView('{% url 'record_links' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}');">Links</a>
-      <a class="nav-link" id="record-tasks-link" href="javascript:void(0);" onclick="getRecordView('{% url 'record_tasks' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}');">Tasks</a>
   </nav>
   <hr class="mt-0 mb-4" />
   <div id="record-view-content">

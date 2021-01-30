@@ -32,11 +32,7 @@ class RecordRelationAdmin(admin.ModelAdmin):
         except:
             pass
 
-class TaskAdmin(admin.ModelAdmin):
-    list_display = ['id', 'task', 'record_id', 'created_at', 'created_user', 'last_updated', 'status']
 
-    def record_id(self, obj):
-        return obj.record_id
 
 class RecordCommentAdmin(admin.ModelAdmin):
     list_display = ['id', 'content','Record','created_user']
@@ -61,7 +57,6 @@ admin.site.register(ListField, ListFieldAdmin)
 admin.site.register(Record, RecordAdmin)
 admin.site.register(RecordField, RecordFieldAdmin)
 admin.site.register(RecordRelation, RecordRelationAdmin)
-admin.site.register(Task, TaskAdmin)
 admin.site.register(RecordComment,RecordCommentAdmin)
 admin.site.register(RecordFile,RecordFileAdmin)
 admin.site.register(RecordMedia,RecordMediaAdmin)
