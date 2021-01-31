@@ -303,7 +303,7 @@ $(document).ready(function() {
                     $('#content').val('');
                     console.log(data);
                     data = JSON.parse(data);
-                    var comment_div = '<div class="card m-3" id="comment-' + data.id + '" class="card text-center m-3"><div class="card-body"><p class="card-text text-left content">' + data.content + '</p></div><div class="card-footer bg-white"><button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-comment-' + data.id + '">Remove</button><a  href="' + data.edit_url + '"  class="btn btn-link float-right edit-comment" >Edit</a></div></div><div class="modal fade" id="remove-comment-' + data.id + '" tabindex="-1" role="dialog" aria-labelledby="Remove-comment" aria-hidden="true"><div class="modal-dialog modal-dialog-centered" role="document"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="exampleModalCenterTitle">Are you sure that you want to remove the comment?</h5><button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div><div class="modal-body">' + data.content + '</div><div class="modal-footer"><span class="btn btn-danger remove-record-comment" type="button" data-dismiss="modal" href="' + data.delete_url + '" data-content-id="' + data.id + '">Confirm</span><span class="btn btn-light" type="button" data-dismiss="modal">No</span></div></div></div></div>';
+                    var comment_div = '<div class="card m-3" id="comment-' + data.id + '" class="card text-center m-3"><div class="card-body"><p class="card-text text-left content">' + data.content + '</p></div><div class="card-footer bg-white"><button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-comment-' + data.id + '">Remove</button><a data-comment-id="'+data.id+'"  href="' + data.edit_url + '"  class="btn btn-link float-right edit-comment" >Edit</a></div></div><div class="modal fade" id="remove-comment-' + data.id + '" tabindex="-1" role="dialog" aria-labelledby="Remove-comment" aria-hidden="true"><div class="modal-dialog modal-dialog-centered" role="document"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="exampleModalCenterTitle">Are you sure that you want to remove the comment?</h5><button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div><div class="modal-body">' + data.content + '</div><div class="modal-footer"><span class="btn btn-danger remove-record-comment" type="button" data-dismiss="modal" href="' + data.delete_url + '" data-content-id="' + data.id + '">Confirm</span><span class="btn btn-light" type="button" data-dismiss="modal">No</span></div></div></div></div>';
                     record_comments.prepend(comment_div);
                     EditPost();
                     RemoveContent('.remove-record-comment', 'comment');
@@ -312,6 +312,8 @@ $(document).ready(function() {
             ev.preventDefault();
         });
     });
+   
+   
 
     function EditPost() {
         var edit_mode = false;
