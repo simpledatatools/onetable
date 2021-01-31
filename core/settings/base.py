@@ -36,8 +36,6 @@ INSTALLED_APPS = [
     'accounts',
     'home',
 
-    'tinymce',
-
 ]
 
 MIDDLEWARE = [
@@ -100,9 +98,9 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'one-table-local',
+        'NAME': 'one-table-local-2',
         'USER': 'postgres',
-        'PASSWORD': '1234',
+        'PASSWORD': 'postgres',
         'HOST': 'localhost',
         'PORT': '',
     }

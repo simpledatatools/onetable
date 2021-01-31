@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 from datetime import date
 from django.utils import timezone
 from django.db.models import JSONField
-from tinymce.models import HTMLField
 import os
 
 class Organization(models.Model):
@@ -347,14 +346,14 @@ class RecordFile(models.Model):
 
     def __str__(self):
         return (str(self.record.list.name) + ' ' + str(self.created_user) )
-        
+
     def filename(self):
         return os.path.basename(self.file.name)
 
     def url(self):
         if self.file and hasattr(self.file, 'url'):
             return self.file.url
-    
+
     def delete_url(self):
         return reverse('delete_record_file', kwargs={
             'organization_pk':self.record.list.app.organization.pk,
@@ -375,7 +374,7 @@ class RecordMedia(models.Model):
 
     def __str__(self):
         return (str(self.record.list.name) + ' ' + str(self.created_user) )
-        
+
     def filename(self):
         return os.path.basename(self.file.name)
 
@@ -400,7 +399,7 @@ class RecordComment(models.Model):
     def __str__(self):
         content = (self.content[:10] + '..') if len(self.content) > 10 else self.content
         return (content + ' by ' + self.created_user.username +' of #'+ str(self.record.pk))
-    
+
     def edit_url(self):
         return reverse('edit_record_comment', kwargs={
             'organization_pk':self.record.list.app.organization.pk,
@@ -418,27 +417,3 @@ class RecordComment(models.Model):
             'record_pk':self.record.pk,
             'record_comment_pk':self.pk
             })
-
-
-class Note(models.Model):
-    note = HTMLField()
-    record = models.ForeignKey('Record', on_delete=models.SET_NULL, null=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
-    created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-    last_updated = models.DateTimeField(auto_now_add=True)
-
-    NOTE_STATUS = (
-        ('active', 'Active'),
-        ('archived', 'Archived'),
-        ('deleted', 'Deleted'),
-    )
-
-    status = models.CharField(
-        max_length=25,
-        choices=NOTE_STATUS,
-        blank=False,
-        default='active',
-    )
-
-    def __str__(self):
-        return self.note
