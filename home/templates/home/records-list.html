@@ -1,7 +1,7 @@
 {% if records %}
 <div class="row">
   {% for record in records %}
-    <div class="col-lg-12 mb-4">
+    <div id="record-{{record.pk}}" class="col-lg-12 mb-4">
       <div class="card card-header-actions lift lift-sm h-100">
           <div class="card-header bg-white">
               <a href="javascript:void(0);" onclick="getPage('{% url 'record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}');">
@@ -14,13 +14,14 @@
                           <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="list"></i></div>
                           Edit Record
                       </a>
-                      <a class="dropdown-item" href="{% url 'archive_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}">
-                          <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="list"></i></div>
-                          Archive Record
-                      </a>
+                      <button data-toggle="modal" data-target="#archive_record_{{record.id}}" class="dropdown-item" href="{% url 'archive_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}">
+                     <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="list"></i></div>
+                     Archive Record
+                  </button>
                   </div>
               </div>
           </div>
+          
           {% if record.record_fields|length > 1 %}
           <div class="card-body">
             {% for field in record.record_fields %}
@@ -45,6 +46,18 @@
           {% endif %}
       </div>
     </div>
+    <div class="modal fade" id="archive_record_{{record.id}}" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Are you sure that you want to Archive {{record.list}}?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            
+            <div class="modal-footer"><span class="btn btn-primary archive-record" data-record-id="{{record.pk}}" type="button" data-dismiss="modal" href="{% url 'archive_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}" data-content-id="{{file.id}}">Archive</span><span class="btn btn-light" type="button" data-dismiss="modal">No</span></div>
+         </div>
+         </div>
+         </div>
   {% endfor %}
 </div>
 {% else %}
@@ -54,3 +67,22 @@
   <div>
 </div>
 {% endif %}
+
+<script>
+$(document).ready(function() {
+  function ArchiveRecord(){
+        $('.archive-record').on('click',function(ev){
+           ev.preventDefault();
+           var archive_url = $(this).attr('href');
+           var record_id=$(this).attr('data-record-id');
+           $.get(archive_url,function(data){
+                 console.log(data);
+                 var record = $('#record-'+record_id);
+                 record.remove();
+              });
+               }
+           );
+        }
+        ArchiveRecord();
+});
+</script>

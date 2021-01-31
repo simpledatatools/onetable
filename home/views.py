@@ -974,6 +974,7 @@ def record_links(request, organization_pk, app_pk, list_pk, record_pk):
                 'app': app,
                 'list': list,
                 'record': record,
+                'type':record,
                 'records': records
 
             }
@@ -1081,11 +1082,12 @@ def edit_record(request, organization_pk, app_pk, list_pk, record_pk):
 
 # TODO need view for archiving records
 def archive_record(request, organization_pk, app_pk, list_pk, record_pk):
-    #   this functional is call when user click on the "Archive Record" button on Record Detail Page
     record = get_object_or_404(Record, pk=record_pk)
     record.status = "archived"
     record.save()
-    return redirect('list', organization_pk=organization_pk, app_pk=app_pk, list_pk=list_pk)
+    return JsonResponse({
+            "record_archieved":"true"
+        })
 
 
 
@@ -1131,6 +1133,7 @@ def post_record_file(request,organization_pk, app_pk, list_pk, record_pk):
     final['file_name'] = record_file.filename()
     final['file_url'] = record_File.url()
     final['delete_url'] = record_File.delete_url()
+    final['id']=record_file.pk
     final =json.dumps(final)
     return JsonResponse(data=final, safe=False)
 
@@ -1144,6 +1147,7 @@ def post_record_media(request,organization_pk, app_pk, list_pk, record_pk):
     final['file_name'] = record_file.filename()
     final['file_url'] = record_File.url()
     final['delete_url'] = record_File.delete_url()
+    final['id']=record_file.pk
     final =json.dumps(final)
     return JsonResponse(data=final, safe=False)
 
@@ -1187,12 +1191,10 @@ def delete_record_comment(request,record_comment_pk,organization_pk, app_pk, lis
     final = {}
     final['deleted'] = "deleted"
     final =json.dumps(final)
-    return redirect(reverse('record',kwargs={
-        'organization_pk':record_Comment.record.list.app.organization.pk,
-        'list_pk':record_Comment.record.list.pk,
-        'app_pk':record_Comment.record.list.app.pk,
-        'record_pk':record_Comment.record.pk,
-    }))
+    return JsonResponse({
+            "comment_deleted":"true"
+        })
+
 
 @csrf_exempt
 def edit_record_comment(request,organization_pk, app_pk, list_pk, record_pk,record_comment_pk):
