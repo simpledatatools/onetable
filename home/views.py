@@ -14,14 +14,14 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 from .models import *
-from .forms import OrganizationForm, AppForm, ListForm, ListFieldFormset, NoteForm
+from .forms import OrganizationForm, AppForm, ListForm, ListFieldFormset
 from django.views.decorators.csrf import csrf_exempt
 
 # TODO
 # On all views, @login_required prevents users not logged in, but need method and
 # approach for making sure users are viewing / editing / creating / etc. only in
 # the apps and organizations they have been added to and (eventually) have the
-# correct permissions for.git
+# correct permissions for.
 
 
 # TODO
@@ -312,10 +312,50 @@ def dashboard(request, organization_pk, app_pk):
 
         # If accessing the url directly, load full page
 
+        # Else if not ajax, render entire workspace.html page
+        # When rendered, workspace.html will "look for" the right content tempate
+
         context = {
             'organization': organization,
             'app': app,
             'type': 'dashboard'
+        }
+
+        return render(request, 'home/workspace.html', context=context)
+
+@login_required
+def tasks(request, organization_pk, app_pk):
+    organization = get_object_or_404(Organization, pk=organization_pk)
+    app = get_object_or_404(App, pk=app_pk)
+    all_tasks = Task.objects.filter(status="active").order_by('record')
+
+    if request.is_ajax() and request.method == "GET":
+        search_value = request.GET.get('search_value')
+        if search_value:
+            all_tasks = Task.objects.filter(task__icontains=search_value, status="active").order_by('record')
+        # Call is ajax, just load main content needed here
+
+        html = render_to_string(
+            template_name="home/tasks.html",
+            context={
+                'organization': organization,
+                'app': app,
+                'all_tasks': all_tasks,
+            }
+        )
+
+        data_dict = {"html_from_view": html}
+
+        return JsonResponse(data=data_dict, safe=False)
+
+    else:
+        # If accessing the url directly, load full page
+
+        context = {
+            'organization': organization,
+            'app': app,
+            'type': 'tasks',
+            'all_tasks': all_tasks,
         }
 
         return render(request, 'home/workspace.html', context=context)
@@ -844,7 +884,7 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
     comments = RecordComment.objects.filter(record_id=record_pk).order_by('-pk')
     files = RecordFile.objects.filter(record_id=record_pk).order_by('-pk')
     media = RecordMedia.objects.filter(record_id=record_pk).order_by('-pk')
-    
+
 
     if request.is_ajax() and request.method == "GET":
 
@@ -856,12 +896,7 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
                 'organization': organization,
                 'app': app,
                 'list': list,
-                'record': record,
-                'type': 'record',
-                'record_view': 'record-details',
-                'comments' : comments,
-                'files':files,
-                "media":media
+                'record': record
             }
         )
 
@@ -872,6 +907,7 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
     else:
 
         # If accessing the url directly, load full page
+        # Same as dashboard, else if accessing fir
 
         context = {
             'organization': organization,
@@ -912,10 +948,7 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
                 'app': app,
                 'list': list,
                 'record': record,
-                'note_form': note_form,
-                "comments":comments,
-                "files": files,
-                "media":media
+                'note_form': note_form
 
             }
         )
@@ -965,6 +998,155 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
             return render(request, 'home/workspace.html', context=context)
 
 
+#=========================================================================================
+# Tasks Views
+#=========================================================================================
+# View for create Task
+@login_required
+@csrf_exempt
+def record_tasks(request, organization_pk, app_pk, list_pk, record_pk):
+    # Record details page (placeholder for now)
+    organization = get_object_or_404(Organization, pk=organization_pk)
+    app = get_object_or_404(App, pk=app_pk)
+    list = get_object_or_404(List, pk=list_pk)
+    record = get_object_or_404(Record, pk=record_pk)
+    tasks = Task.objects.filter(status="active", record_id=record_pk).order_by('-created_at')
+    comments = RecordComment.objects.filter(record_id=record_pk).order_by('-pk')
+    task_form = TaskForm()
+
+    if request.is_ajax() and request.method == "GET":
+        # Call is ajax, just load main content needed here
+
+        html = render_to_string(
+            template_name="home/record-tasks.html",
+            context = {
+            'organization': organization,
+            'app': app,
+            'list': list,
+            'record': record,
+            'task_form': task_form,
+            'type': 'record',
+            'record_view': 'record-tasks',
+            'tasks': tasks,
+            }
+        )
+        data_dict = {"html_from_view": html}
+
+        return JsonResponse(data=data_dict, safe=False)
+
+    elif request.method == "POST":
+        task_form = TaskForm(request.POST)
+
+        if task_form.is_valid():
+            form = task_form.save(commit=False)
+            form.task = request.POST.get('task')
+            form.record_id = record_pk
+            form.created_user = request.user
+            form.save()
+        else:
+            print(task_form.errors)
+
+        return redirect('record_tasks', organization_pk=organization_pk, app_pk=app_pk, list_pk=list_pk, record_pk=record_pk)
+
+    else:
+        # If accessing the url directly, load full page
+
+        context = {
+            'organization': organization,
+            'app': app,
+            'list': list,
+            'record': record,
+            'task_form': task_form,
+            'type': 'record',
+            'record_view': 'record-tasks',
+            'tasks': tasks,
+        }
+
+        return render(request, 'home/workspace.html', context=context)
+
+
+# View for Edit Task
+@login_required
+@csrf_exempt
+def edit_task(request, organization_pk, app_pk, list_pk, record_pk, task_pk):
+    # Record details page (placeholder for now)
+    organization = get_object_or_404(Organization, pk=organization_pk)
+    app = get_object_or_404(App, pk=app_pk)
+    list = get_object_or_404(List, pk=list_pk)
+    record = get_object_or_404(Record, pk=record_pk)
+    tasks = Task.objects.filter(status="active", record_id=record_pk).order_by('-created_at').exclude(id=task_pk)
+    current_task = get_object_or_404(Task, pk=task_pk)
+    task_form = TaskForm(instance=current_task)
+
+    if request.is_ajax() and request.method == "GET":
+        # Call is ajax, just load main content needed here
+
+        html = render_to_string(
+            template_name="home/record-tasks.html",
+            context = {
+            'organization': organization,
+            'app': app,
+            'list': list,
+            'record': record,
+            'task_form': task_form,
+            'type': 'record',
+            'record_view': 'record-tasks',
+            'tasks': tasks,
+            'task_type': 'edit',
+            }
+        )
+        data_dict = {"html_from_view": html}
+
+        return JsonResponse(data=data_dict, safe=False)
+
+    elif request.method == "POST":
+        task_form = TaskForm(request.POST, instance=current_task)
+
+        if task_form.is_valid():
+            form = task_form.save(commit=False)
+            form.task = request.POST.get('task')
+            form.record_id = record_pk
+            form.created_user = request.user
+            form.last_updated = timezone.now()
+            form.save()
+        else:
+            print(task_form.errors)
+
+        return redirect('record_tasks', organization_pk=organization_pk, app_pk=app_pk, list_pk=list_pk, record_pk=record_pk)
+
+    else:
+        # If accessing the url directly, load full page
+
+        context = {
+            'organization': organization,
+            'app': app,
+            'list': list,
+            'record': record,
+            'task_form': task_form,
+            'type': 'record',
+            'record_view': 'record-tasks',
+            'tasks': tasks,
+            'task_type': 'edit',
+        }
+
+        return render(request, 'home/workspace.html', context=context)
+
+
+# View for Remove and Mark Complete Task
+def remove_mark_complete_tasks(request, organization_pk, app_pk, list_pk, record_pk, task_pk, task_kind, move_to):
+    task = get_object_or_404(Task, pk=task_pk)
+    if task_kind == "remove":
+        task.status = "deleted"
+    elif task_kind == "complete":
+        task.status = "completed"
+    task.save()
+    if move_to == "individual":
+        return redirect('record_tasks', organization_pk=organization_pk, app_pk=app_pk, list_pk=list_pk, record_pk=record_pk)
+    elif move_to == "all":
+        return redirect('tasks', organization_pk=organization_pk, app_pk=app_pk)
+#=========================================================================================
+# End Tasks Views
+#=========================================================================================
 
 @login_required
 def record_links(request, organization_pk, app_pk, list_pk, record_pk):
@@ -991,7 +1173,6 @@ def record_links(request, organization_pk, app_pk, list_pk, record_pk):
                 'app': app,
                 'list': list,
                 'record': record,
-                'type':record,
                 'records': records
 
             }
@@ -1030,7 +1211,7 @@ def edit_record(request, organization_pk, app_pk, list_pk, record_pk):
 
     # We are not using the following here:
     # 1) Django form.Forms (couldn't find a way to create dynamic forms this approach,
-    # but we may be able to  find eventually)
+    # but we may be able to find eventually)
     # 2) the models.Model @property for list.list_fields or the record.record_fields >>
     # needed an object with both the field inforation and value included so we can edit prvious values here
 
@@ -1099,14 +1280,17 @@ def edit_record(request, organization_pk, app_pk, list_pk, record_pk):
 
 # TODO need view for archiving records
 def archive_record(request, organization_pk, app_pk, list_pk, record_pk):
+    #   this functional is call when user click on the "Archive Record" button on Record Detail Page
     record = get_object_or_404(Record, pk=record_pk)
     record.status = "archived"
     record.save()
-    return JsonResponse({
-            "record_archieved":"true"
-        })
+    return redirect('list', organization_pk=organization_pk, app_pk=app_pk, list_pk=list_pk)
 
+# TODO need view for create task, edit task, archive task, get tasks (will use
+# standard django forms for this)
 
+# TODO need view for create note, edit note, archive note, get notes (will use
+# standard django forms for this)
 
 #===============================================================================
 # Records
@@ -1129,20 +1313,17 @@ def post_record_comment(request,organization_pk, app_pk, list_pk, record_pk):
         if request.POST['content'] != '':
             record_comment = RecordComment(created_user=request.user,content = request.POST['content'],record_id=record_pk)
             record_comment.save()
-            comment_json = {}
-            comment_json['delete_url'] = record_comment.delete_url()
-            comment_json['content'] = record_comment.content
-            comment_json['edit_url'] = record_comment.edit_url()
-            comment_json['id'] = record_comment.pk
-            comment_json =json.dumps(comment_json)
-            return JsonResponse(data=comment_json, safe=False)
+            final = {}
+            final['delete_url'] = record_comment.delete_url()
+            final =json.dumps(final)
+            return JsonResponse(data=final, safe=False)
     else:
         return HttpResponse('Unauthorized', status=401)
 
 
 
 @csrf_exempt
-def post_record_file(request,organization_pk, app_pk, list_pk, record_pk):      
+def post_record_file(request,organization_pk, app_pk, list_pk, record_pk):
     record_file = RecordFile(file=request.FILES['file'],record_id=record_pk,created_user = request.user)
     record_file.save()
     record_File = RecordFile.objects.get(pk=record_file.pk)
@@ -1150,13 +1331,12 @@ def post_record_file(request,organization_pk, app_pk, list_pk, record_pk):
     final['file_name'] = record_file.filename()
     final['file_url'] = record_File.url()
     final['delete_url'] = record_File.delete_url()
-    final['id']=record_file.pk
     final =json.dumps(final)
     return JsonResponse(data=final, safe=False)
 
 
 @csrf_exempt
-def post_record_media(request,organization_pk, app_pk, list_pk, record_pk):      
+def post_record_media(request,organization_pk, app_pk, list_pk, record_pk):
     record_file = RecordMedia(file=request.FILES['file'],record_id=record_pk,created_user = request.user)
     record_file.save()
     record_File = RecordMedia.objects.get(pk=record_file.pk)
@@ -1164,14 +1344,13 @@ def post_record_media(request,organization_pk, app_pk, list_pk, record_pk):
     final['file_name'] = record_file.filename()
     final['file_url'] = record_File.url()
     final['delete_url'] = record_File.delete_url()
-    final['id']=record_file.pk
     final =json.dumps(final)
     return JsonResponse(data=final, safe=False)
 
 
 
 @csrf_exempt
-def delete_record_media(request,organization_pk, app_pk, list_pk, record_pk,record_media_pk):      
+def delete_record_media(request,organization_pk, app_pk, list_pk, record_pk,record_media_pk):
     record_File = RecordMedia.objects.get(pk=record_media_pk)
     record_File.delete()
     final = {}
@@ -1187,7 +1366,7 @@ def delete_record_media(request,organization_pk, app_pk, list_pk, record_pk,reco
 
 
 @csrf_exempt
-def delete_record_file(request,organization_pk, app_pk, list_pk, record_pk,record_file_pk):      
+def delete_record_file(request,organization_pk, app_pk, list_pk, record_pk,record_file_pk):
     record_File = RecordFile.objects.get(pk=record_file_pk)
     record_File.delete()
     final = {}
@@ -1202,16 +1381,18 @@ def delete_record_file(request,organization_pk, app_pk, list_pk, record_pk,recor
 
 
 @csrf_exempt
-def delete_record_comment(request,record_comment_pk,organization_pk, app_pk, list_pk, record_pk):      
+def delete_record_comment(request,record_comment_pk,organization_pk, app_pk, list_pk, record_pk):
     record_Comment = RecordComment.objects.get(pk=record_comment_pk)
     record_Comment.delete()
     final = {}
     final['deleted'] = "deleted"
     final =json.dumps(final)
-    return JsonResponse({
-            "comment_deleted":"true"
-        })
-
+    return redirect(reverse('record',kwargs={
+        'organization_pk':record_Comment.record.list.app.organization.pk,
+        'list_pk':record_Comment.record.list.pk,
+        'app_pk':record_Comment.record.list.app.pk,
+        'record_pk':record_Comment.record.pk,
+    }))
 
 @csrf_exempt
 def edit_record_comment(request,organization_pk, app_pk, list_pk, record_pk,record_comment_pk):

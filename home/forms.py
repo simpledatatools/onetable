@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import modelformset_factory
-from .models import Organization, App, List, ListField, Note
+from .models import Organization, App, List, ListField
 
 
 class OrganizationForm(forms.ModelForm):
@@ -73,14 +73,3 @@ ListFieldFormset = modelformset_factory(
         )
     }
 )
-
-
-class NoteForm(forms.ModelForm): #(Workspaces)
-
-    class Meta:
-        model = Note
-        fields = ('note',)
-
-        widgets = {
-            'note': forms.TextInput(attrs={'class':'form-control form-control-solid'})
-        }
