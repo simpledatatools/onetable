@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 from datetime import date
 from django.utils import timezone
 from django.db.models import JSONField
-from tinymce.models import HTMLField
 import os
 
 class Organization(models.Model):
@@ -421,7 +420,7 @@ class RecordComment(models.Model):
 
 
 class Note(models.Model):
-    note = HTMLField()
+    note = models.TextField()
     record = models.ForeignKey('Record', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)

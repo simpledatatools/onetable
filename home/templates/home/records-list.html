@@ -59,7 +59,40 @@
          </div>
          </div>
   {% endfor %}
+
+
 </div>
+
+<div class="float-left">Display 
+<a class="btn-link p-3" style="border-radius:5px" id="perpage-10" class="per_page">10</a>
+<a  class="btn-link p-3" style="border-radius:5px" id="perpage-25" class="per_page">25</a>
+<a  class="btn-link  p-3" style="border-radius:5px" id="perpage-50" class="per_page">50</a>
+<a  class="btn-link p-3" style="border-radius:5px" id="perpage-100" class="per_page">100</a>
+<br/><br/>
+</div>
+  {% if records.has_other_pages %}
+  <ul class="float-right pagination">
+    {% if records.has_previous %}
+      <li><a href="?page={{ records.previous_page_number }}">&laquo; </a></li>
+    {% else %}
+      <li class="disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in records.paginator.page_range %}
+    {% if records.number|add:"1" < i < records.number|add:"2"   %}
+      {% if records.number == i %}
+        <li style="border-radius:5px;" class="active btn-primary text-white p-3"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li><a style="border-radius:5px;"  class="btn-link p-3" href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+      {% endif %}
+    {% endfor %}
+    {% if records.has_next %}
+      <li><a href="?page={{ records.next_page_number }}">&raquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+{% endif %}
 {% else %}
 <div class="row">
   <div class="col-lg-12">
@@ -84,5 +117,62 @@ $(document).ready(function() {
            );
         }
         ArchiveRecord();
+
+        function updateURLParameter(url, param, paramVal){
+    var newAdditionalURL = "";
+    var tempArray = url.split("?");
+    var baseURL = tempArray[0];
+    var additionalURL = tempArray[1];
+    var temp = "";
+    if (additionalURL) {
+        tempArray = additionalURL.split("&");
+        for (var i=0; i<tempArray.length; i++){
+            if(tempArray[i].split('=')[0] != param){
+                newAdditionalURL += temp + tempArray[i];
+                temp = "&";
+            }
+        }
+    }
+
+    var rows_txt = temp + "" + param + "=" + paramVal;
+    return baseURL + "?" + newAdditionalURL + rows_txt;
+}
+
+      function perpage(perpage){
+      var item = $('#perpage-'+perpage);
+      var  url = window.location.href ;
+      var url_string = new URL(url);
+      var perpagevalue = url_string.searchParams.get("per_page");
+      if(perpagevalue == undefined){
+        $('#perpage-10').addClass('btn-primary');
+        $('#perpage-10').addClass('text-white');
+
+        }else{
+          if(item.html() == perpagevalue){
+        item.addClass('btn-primary');
+        item.addClass('text-white');
+      }
+        }
+      
+      if (url.includes("?")){
+        if(url.includes("per_page")){
+          var href = window.location.href ;
+          href=updateURLParameter(url, "per_page", item.html());
+          console.log(href);
+          item.attr('href',href);
+        }else{
+        var  href = url + '&per_page='+ item.html();
+        console.log(href);
+        item.attr('href',href);
+        }
+      }else{
+        
+          var href = url + '?per_page='+ item.html();
+          console.log(href);
+          item.attr('href',href);
+        }
+      };
+      perpage(10); perpage(25);
+       perpage(50); perpage(100);
 });
 </script>

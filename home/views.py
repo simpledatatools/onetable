@@ -10,6 +10,7 @@ from django.core import serializers
 import uuid
 import random
 import string
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 from .models import *
@@ -359,7 +360,7 @@ def lists(request, organization_pk, app_pk):
 
         return render(request, 'home/workspace.html', context=context)
 
-
+@csrf_exempt
 @login_required
 def list(request, organization_pk, app_pk, list_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
@@ -367,7 +368,20 @@ def list(request, organization_pk, app_pk, list_pk):
     list = get_object_or_404(List, pk=list_pk)
 
     records = Record.objects.filter(status='active', list=list)
-
+    per_page = request.GET.get('per_page', None)
+    print(request.GET.get('per_page', None))
+    if per_page != None:
+        paginator = Paginator(records,per_page)
+    else:
+        paginator = Paginator(records, 10)
+    page_number = request.GET.get('page', None)
+    print(type(request.GET.get('page', None)))
+    records_page = paginator.get_page(1)
+    if page_number != '':
+        records_page = paginator.get_page(page_number)
+    else:
+        records_page = paginator.get_page(1)
+   
     if request.is_ajax() and request.method == "GET":
         search_value = request.GET.get('search_value')
         if search_value:
@@ -375,14 +389,16 @@ def list(request, organization_pk, app_pk, list_pk):
             record_ids = [i['record_id'] for i in record_fields.values('record_id')]
             records = Record.objects.filter(id__in=record_ids, status='active', list=list)
         # Call is ajax, just load main content needed here
-
+        #paginator = Paginator(records, 10)
+        
+        
         html = render_to_string(
             template_name="home/list.html",
             context={
                 'organization': organization,
                 'app': app,
                 'list': list,
-                'records': records
+                'records': records_page
             }
         )
 
@@ -392,12 +408,13 @@ def list(request, organization_pk, app_pk, list_pk):
 
     else:
         # If accessing the url directly, load full page
-
+        
+            
         context = {
             'organization': organization,
             'app': app,
             'list': list,
-            'records': records,
+            'records': records_page,
             'type': 'list'
         }
 
@@ -1210,3 +1227,11 @@ def edit_record_comment(request,organization_pk, app_pk, list_pk, record_pk,reco
         })
     else:
         return HttpResponse('method not allowed')
+
+
+# @csrf_exempt
+# def edit_file(request,file_id,new_name):
+#     file = RecordFile.objects.get(pk=file_id)
+#     filename = file.filename
+#     filename = filename.split('.')[0]
+    
