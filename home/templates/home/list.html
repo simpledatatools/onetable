@@ -14,11 +14,15 @@
           <div class="card mt-3">
             <div class="card-body">
               <div class="sbp-preview-content">
-              <form action="" method="">
+              <form id="search" action="" method="POST">
                   <input type="hidden">
                     <div class="form-group mb-0 d-flex">
-                      <input type="text" class="form-control search-field-record mr-3" name="search" placeholder="Search Record" aria-label="Search Record" aria-describedby="search_button">
-                      <button class="btn btn-primary" type="button" id="search_button" onclick="getPage('{% url 'list' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk %}');">Search</button>
+                     <div class="input-group">
+                       <input type="text" class="form-control" id="search_value" placeholder="Search...">
+                       <button id='erase_search_button' type="button" class="btn bg-transparent" style="margin-left: -40px; z-index: 100;">
+                       <i class="fa fa-times"></i>
+                       </button>
+                      </div>
                     </div>
                 </form>
               </div>
@@ -35,3 +39,32 @@
   </div>
   
 </div>
+<script>
+
+$(document).ready(function(){
+
+$('#search').submit(function(ev){
+  ev.preventDefault();
+  var next_url =  window.location.pathname + '?search='+$('#search_value').val();
+  getPage(next_url);
+  
+  
+  
+});
+var url_string = window.location.href;
+  var url = new URL(url_string);
+  var search_value = url.searchParams.get("search");
+  $('#search_value').val(search_value);
+if(search_value != null){
+  $('#search_value').focus();
+}
+
+
+$('#erase_search_button').click(function(ev){
+  ev.preventDefault();
+  var next_url =  window.location.pathname ;
+  getPage(next_url);  
+});
+
+});
+</script>

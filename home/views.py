@@ -11,11 +11,10 @@ import uuid
 import random
 import string
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
-
 from .models import *
 from .forms import OrganizationForm, AppForm, ListForm, ListFieldFormset, NoteForm
 from django.views.decorators.csrf import csrf_exempt
+import subprocess
 
 # TODO
 # On all views, @login_required prevents users not logged in, but need method and
@@ -366,14 +365,24 @@ def list(request, organization_pk, app_pk, list_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
+    search = request.GET.get('search', None)
 
-    records = Record.objects.filter(status='active', list=list)
+    if search != None:
+        fields = RecordField.objects.filter(value__icontains=search)
+        list_of_records=fields.values_list('record_id',flat=True)
+        records=Record.objects.filter(pk__in=list_of_records)
+    else:
+        records = Record.objects.filter(status='active', list=list)
+
     per_page = request.GET.get('per_page', None)
     print(request.GET.get('per_page', None))
+    search = request.GET.get('search', None)
+
     if per_page != None:
         paginator = Paginator(records,per_page)
     else:
         paginator = Paginator(records, 10)
+
     page_number = request.GET.get('page', None)
     print(type(request.GET.get('page', None)))
     records_page = paginator.get_page(1)
@@ -1147,9 +1156,15 @@ def post_record_file(request,organization_pk, app_pk, list_pk, record_pk):
     record_file.save()
     record_File = RecordFile.objects.get(pk=record_file.pk)
     final = {}
-    final['file_name'] = record_file.filename()
+    splited_name = record_file.filename().split('.')
+    record_file.name_of_file = splited_name[0]
+    record_file.file_extension ='.'+splited_name[-1] 
+    record_file.save()
+    final['file_name'] = splited_name[0]
+    final['file_extension'] = '.'+splited_name[-1] 
     final['file_url'] = record_File.url()
     final['delete_url'] = record_File.delete_url()
+    final['edit_url']=record_File.edit_url()
     final['id']=record_file.pk
     final =json.dumps(final)
     return JsonResponse(data=final, safe=False)
@@ -1161,8 +1176,13 @@ def post_record_media(request,organization_pk, app_pk, list_pk, record_pk):
     record_file.save()
     record_File = RecordMedia.objects.get(pk=record_file.pk)
     final = {}
+    record_file.name_of_file = record_file.filename()   
+    record_file.save()
     final['file_name'] = record_file.filename()
-    final['file_url'] = record_File.url()
+    if record_file.type == "V":
+       final['file_url'] = record_File.image_thumbnail.url
+    else:
+        final['file_url'] = record_File.url()
     final['delete_url'] = record_File.delete_url()
     final['id']=record_file.pk
     final =json.dumps(final)
@@ -1223,7 +1243,7 @@ def edit_record_comment(request,organization_pk, app_pk, list_pk, record_pk,reco
         else:
             HttpResponse('Unauthorized', status=401)
         return JsonResponse({
-            "comment_edited":"true"
+            "content":  comment.content
         })
     else:
         return HttpResponse('method not allowed')
@@ -1235,3 +1255,13 @@ def edit_record_comment(request,organization_pk, app_pk, list_pk, record_pk,reco
 #     filename = file.filename
 #     filename = filename.split('.')[0]
     
+
+@csrf_exempt
+def edit_record_file(request,organization_pk, app_pk, list_pk, record_pk,record_file_pk):      
+    record_File = RecordFile.objects.get(pk=record_file_pk)
+    new_name = request.POST['content']
+    record_File.name_of_file = new_name
+    record_File.save()
+    return JsonResponse({
+            "content":new_name
+        })

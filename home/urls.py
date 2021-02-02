@@ -37,8 +37,8 @@ urlpatterns = [
     path('organizations/<int:organization_pk>/apps/<int:app_pk>/lists/<int:list_pk>/records/<int:record_pk>/details/delete_media/<record_media_pk>/', views.delete_record_media, name='delete_record_media'),
     path('organizations/<int:organization_pk>/apps/<int:app_pk>/lists/<int:list_pk>/records/<int:record_pk>/details/delete_comment/<record_comment_pk>/', views.delete_record_comment, name='delete_record_comment'),
     path('organizations/<int:organization_pk>/apps/<int:app_pk>/lists/<int:list_pk>/records/<int:record_pk>/details/edit_comment/<record_comment_pk>/', views.edit_record_comment, name='edit_record_comment'),
-        path('organizations/<int:organization_pk>/apps/<int:app_pk>/lists/<int:list_pk>/records/<int:record_pk>/details/delete_file/<record_file_pk>/', views.delete_record_file, name='delete_record_file'),
-    
+    path('organizations/<int:organization_pk>/apps/<int:app_pk>/lists/<int:list_pk>/records/<int:record_pk>/details/delete_file/<record_file_pk>/', views.delete_record_file, name='delete_record_file'),
+    path('organizations/<int:organization_pk>/apps/<int:app_pk>/lists/<int:list_pk>/records/<int:record_pk>/details/edit_file/<record_file_pk>/', views.edit_record_file, name='edit_record_file'),
     path('organizations/<int:organization_pk>/apps/<int:app_pk>/lists/<int:list_pk>/records/<int:record_pk>/links', views.record_links, name='record_links'),
     path('organizations/<int:organization_pk>/apps/<int:app_pk>/lists/<int:list_pk>/records/<int:record_pk>/edit', views.edit_record, name='edit_record'),
 

@@ -7,6 +7,11 @@ from datetime import date
 from django.utils import timezone
 from django.db.models import JSONField
 import os
+from django.conf import settings
+from django.db import models
+from imagekit.processors import ResizeToFit
+from imagekit.models import ImageSpecField
+from .utils import save_frame_from_video
 
 class Organization(models.Model):
     name = models.CharField(max_length=200)
@@ -339,10 +344,13 @@ def record_file_path(self, filename):
     return os.path.join(new_path, filename)
 
 
+
 class RecordFile(models.Model):
     file = models.FileField(upload_to=record_file_path)
     record = models.ForeignKey(Record,on_delete=models.CASCADE,related_name="files")
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True)
+    name_of_file = models.CharField(max_length=200,default='')
+    file_extension = models.CharField(max_length=200,default='')
 
     def __str__(self):
         return (str(self.record.list.name) + ' ' + str(self.created_user) )
@@ -363,6 +371,15 @@ class RecordFile(models.Model):
             'record_file_pk':self.pk
             })
 
+    def edit_url(self):
+        return reverse('edit_record_file', kwargs={
+            'organization_pk':self.record.list.app.organization.pk,
+            'list_pk':self.record.list.pk,
+            'app_pk':self.record.list.app.pk,
+            'record_pk':self.record.pk,
+            'record_file_pk':self.pk
+            })
+
 def record_media_path(self, filename):
     new_path = "record" + "/media/" + str(self.record.pk) + '/'
     return os.path.join(new_path, filename)
@@ -371,6 +388,28 @@ class RecordMedia(models.Model):
     file = models.FileField(upload_to=record_media_path)
     record = models.ForeignKey(Record,on_delete=models.CASCADE,related_name="media")
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True)
+    image_types = ['image/jpeg', 'image/gif', 'image/png']
+    video_types = ['video/mp4', 'video/x-matroska',
+                               'video/ogg','video/quicktime', 'video/x-ms-wmv',
+                               'video/webm']
+
+    IMAGE = 'I'
+    VIDEO = 'V'
+    TYPES = [
+        (IMAGE, 'Image'),
+        (VIDEO, 'Video'),
+    ]
+    thumbnail_millisecond = models.IntegerField(default=0)
+    type = models.CharField(max_length=1, choices=TYPES, blank=True)
+    thumbnail_source_image = models.ImageField(upload_to='post_files/%Y/%m/%d/', null=True, blank=True)
+    image_thumbnail = ImageSpecField(source='thumbnail_source_image',
+                                     processors=[
+                                         ResizeToFit(300,
+                                                     300,
+                                                     mat_color=(230, 230, 230)),
+                                     ],
+                                     format='JPEG',
+                                     options={'quality': 95})
 
     def __str__(self):
         return (str(self.record.list.name) + ' ' + str(self.created_user) )
@@ -390,6 +429,43 @@ class RecordMedia(models.Model):
             'record_pk':self.record.pk,
             'record_media_pk':self.pk
             })
+
+    def _set_type(self):
+        # max bytes to read for file type detection
+        read_size = 500 * (1024 * 1024)  # 5MB
+
+        # read mime type of file
+        from magic import from_buffer
+        mime = from_buffer(self.file.read(read_size), mime=True)
+
+        if mime in self.image_types:
+            self.type = self.IMAGE
+        elif mime in self.video_types:
+            self.type = self.VIDEO
+
+    def _set_thumbnail_source_image(self):
+        if self.type == self.IMAGE:
+            self.thumbnail_source_image = self.file
+        elif self.type == self.VIDEO:
+            # create thumbnail source file
+            image_path = os.path.splitext(self.file.path)[0] + '_thumbnail_src_image.jpg'
+            save_frame_from_video(self.file.path, int(self.thumbnail_millisecond), image_path)
+
+            # generate path relative to media root, because this is the version that ImageField accepts
+            media_image_path = os.path.relpath(image_path, settings.MEDIA_ROOT)
+
+            self.thumbnail_source_image = media_image_path
+
+    def save(self, *args, **kwargs):
+        if self.type == '':
+            self._set_type()
+        # if there is no source image
+        if not bool(self.thumbnail_source_image):
+            # we need to save first, for django to generate path for file in "file" field
+            super().save(*args, **kwargs)
+            self._set_thumbnail_source_image()
+
+        super().save(*args, **kwargs)
 
 class RecordComment(models.Model):
     record = models.ForeignKey(Record,on_delete=models.CASCADE,null=True,blank=True)
