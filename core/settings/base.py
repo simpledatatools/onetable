@@ -35,9 +35,6 @@ INSTALLED_APPS = [
 
     'accounts',
     'home',
-
-    'tinymce',
-
 ]
 
 MIDDLEWARE = [
@@ -107,6 +104,17 @@ DATABASES = {
 #         'PORT': '',
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'one-table-local-2',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'localhost',
+        'PORT': '',
+    }
+}
 
 
 # Password validation

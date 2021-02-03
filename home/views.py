@@ -10,9 +10,11 @@ from django.core import serializers
 import uuid
 import random
 import string
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from .models import Organization, OrganizationUser, App, AppUser, Menu, List, ListField, Record, RecordField, RecordRelation, Task
-from .forms import OrganizationForm, AppForm, ListForm, ListFieldFormset, TaskForm, NoteForm
+
+from .models import *
+from .forms import OrganizationForm, AppForm, ListForm, ListFieldFormset
 from django.views.decorators.csrf import csrf_exempt
 
 # TODO
@@ -310,6 +312,9 @@ def dashboard(request, organization_pk, app_pk):
 
         # If accessing the url directly, load full page
 
+        # Else if not ajax, render entire workspace.html page
+        # When rendered, workspace.html will "look for" the right content tempate
+
         context = {
             'organization': organization,
             'app': app,
@@ -395,7 +400,7 @@ def lists(request, organization_pk, app_pk):
 
         return render(request, 'home/workspace.html', context=context)
 
-
+@csrf_exempt
 @login_required
 def list(request, organization_pk, app_pk, list_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
@@ -403,7 +408,20 @@ def list(request, organization_pk, app_pk, list_pk):
     list = get_object_or_404(List, pk=list_pk)
 
     records = Record.objects.filter(status='active', list=list)
-
+    per_page = request.GET.get('per_page', None)
+    print(request.GET.get('per_page', None))
+    if per_page != None:
+        paginator = Paginator(records,per_page)
+    else:
+        paginator = Paginator(records, 10)
+    page_number = request.GET.get('page', None)
+    print(type(request.GET.get('page', None)))
+    records_page = paginator.get_page(1)
+    if page_number != '':
+        records_page = paginator.get_page(page_number)
+    else:
+        records_page = paginator.get_page(1)
+   
     if request.is_ajax() and request.method == "GET":
         search_value = request.GET.get('search_value')
         if search_value:
@@ -411,14 +429,16 @@ def list(request, organization_pk, app_pk, list_pk):
             record_ids = [i['record_id'] for i in record_fields.values('record_id')]
             records = Record.objects.filter(id__in=record_ids, status='active', list=list)
         # Call is ajax, just load main content needed here
-
+        #paginator = Paginator(records, 10)
+        
+        
         html = render_to_string(
             template_name="home/list.html",
             context={
                 'organization': organization,
                 'app': app,
                 'list': list,
-                'records': records
+                'records': records_page
             }
         )
 
@@ -428,12 +448,13 @@ def list(request, organization_pk, app_pk, list_pk):
 
     else:
         # If accessing the url directly, load full page
-
+        
+            
         context = {
             'organization': organization,
             'app': app,
             'list': list,
-            'records': records,
+            'records': records_page,
             'type': 'list'
         }
 
@@ -860,6 +881,10 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
     record = get_object_or_404(Record, pk=record_pk)
+    comments = RecordComment.objects.filter(record_id=record_pk).order_by('-pk')
+    files = RecordFile.objects.filter(record_id=record_pk).order_by('-pk')
+    media = RecordMedia.objects.filter(record_id=record_pk).order_by('-pk')
+
 
     if request.is_ajax() and request.method == "GET":
 
@@ -882,6 +907,7 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
     else:
 
         # If accessing the url directly, load full page
+        # Same as dashboard, else if accessing fir
 
         context = {
             'organization': organization,
@@ -889,7 +915,10 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
             'list': list,
             'record': record,
             'type': 'record',
-            'record_view': 'record-details'
+            'record_view': 'record-details',
+            'comments' : comments,
+            'files':files,
+            "media":media
         }
 
         return render(request, 'home/workspace.html', context=context)
@@ -903,6 +932,9 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
     record = get_object_or_404(Record, pk=record_pk)
+    comments = RecordComment.objects.filter(record_id=record_pk).order_by('-pk')
+    media = RecordMedia.objects.filter(record_id=record_pk).order_by('-pk')
+    files = RecordFile.objects.filter(record_id=record_pk).order_by('-pk')
     note_form = NoteForm()
 
     if request.is_ajax() and request.method == "GET":
@@ -938,7 +970,10 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
             'record': record,
             'note_form': note_form,
             'type': 'record',
-            'record_view': 'record-details'
+            'record_view': 'record-details',
+            "comments":comments,
+            "files": files,
+            "media":media
         }
 
         return render(request, 'home/workspace.html', context=context)
@@ -976,6 +1011,7 @@ def record_tasks(request, organization_pk, app_pk, list_pk, record_pk):
     list = get_object_or_404(List, pk=list_pk)
     record = get_object_or_404(Record, pk=record_pk)
     tasks = Task.objects.filter(status="active", record_id=record_pk).order_by('-created_at')
+    comments = RecordComment.objects.filter(record_id=record_pk).order_by('-pk')
     task_form = TaskForm()
 
     if request.is_ajax() and request.method == "GET":
@@ -1001,6 +1037,20 @@ def record_tasks(request, organization_pk, app_pk, list_pk, record_pk):
     elif request.method == "POST":
         task_form = TaskForm(request.POST)
         
+        if task_form.is_valid():
+            form = task_form.save(commit=False)
+            form.task = request.POST.get('task')
+            form.record_id = record_pk
+            form.created_user = request.user
+            form.save()
+        else:
+            print(task_form.errors)
+
+        return redirect('record_tasks', organization_pk=organization_pk, app_pk=app_pk, list_pk=list_pk, record_pk=record_pk)
+
+    elif request.method == "POST":
+        task_form = TaskForm(request.POST)
+
         if task_form.is_valid():
             form = task_form.save(commit=False)
             form.task = request.POST.get('task')
@@ -1062,11 +1112,11 @@ def edit_task(request, organization_pk, app_pk, list_pk, record_pk, task_pk):
         data_dict = {"html_from_view": html}
 
         return JsonResponse(data=data_dict, safe=False)
-    
+
     elif request.method == "POST":
         task_form = TaskForm(request.POST, instance=current_task)
-        
-        if task_form.is_valid():  
+
+        if task_form.is_valid():
             form = task_form.save(commit=False)
             form.task = request.POST.get('task')
             form.record_id = record_pk
@@ -1270,3 +1320,113 @@ def generate_random_string(string_length=10):
 
 def randStr(chars = string.ascii_uppercase + string.ascii_lowercase + string.digits, N=10):
 	return ''.join(random.choice(chars) for _ in range(N))
+
+
+def post_record_comment(request,organization_pk, app_pk, list_pk, record_pk):
+    if request.method == "POST":
+        if request.POST['content'] != '':
+            record_comment = RecordComment(created_user=request.user,content = request.POST['content'],record_id=record_pk)
+            record_comment.save()
+            final = {}
+            final['delete_url'] = record_comment.delete_url()
+            final =json.dumps(final)
+            return JsonResponse(data=final, safe=False)
+    else:
+        return HttpResponse('Unauthorized', status=401)
+
+
+
+@csrf_exempt
+def post_record_file(request,organization_pk, app_pk, list_pk, record_pk):
+    record_file = RecordFile(file=request.FILES['file'],record_id=record_pk,created_user = request.user)
+    record_file.save()
+    record_File = RecordFile.objects.get(pk=record_file.pk)
+    final = {}
+    final['file_name'] = record_file.filename()
+    final['file_url'] = record_File.url()
+    final['delete_url'] = record_File.delete_url()
+    final =json.dumps(final)
+    return JsonResponse(data=final, safe=False)
+
+
+@csrf_exempt
+def post_record_media(request,organization_pk, app_pk, list_pk, record_pk):
+    record_file = RecordMedia(file=request.FILES['file'],record_id=record_pk,created_user = request.user)
+    record_file.save()
+    record_File = RecordMedia.objects.get(pk=record_file.pk)
+    final = {}
+    final['file_name'] = record_file.filename()
+    final['file_url'] = record_File.url()
+    final['delete_url'] = record_File.delete_url()
+    final =json.dumps(final)
+    return JsonResponse(data=final, safe=False)
+
+
+
+@csrf_exempt
+def delete_record_media(request,organization_pk, app_pk, list_pk, record_pk,record_media_pk):
+    record_File = RecordMedia.objects.get(pk=record_media_pk)
+    record_File.delete()
+    final = {}
+    final['deleted'] = "deleted"
+    final =json.dumps(final)
+    return redirect(reverse('record',kwargs={
+        'organization_pk':record_File.record.list.app.organization.pk,
+        'list_pk':record_File.record.list.pk,
+        'app_pk':record_File.record.list.app.pk,
+        'record_pk':record_File.record.pk,
+    }))
+
+
+
+@csrf_exempt
+def delete_record_file(request,organization_pk, app_pk, list_pk, record_pk,record_file_pk):
+    record_File = RecordFile.objects.get(pk=record_file_pk)
+    record_File.delete()
+    final = {}
+    final['deleted'] = "deleted"
+    final =json.dumps(final)
+    return redirect(reverse('record',kwargs={
+        'organization_pk':record_File.record.list.app.organization.pk,
+        'list_pk':record_File.record.list.pk,
+        'app_pk':record_File.record.list.app.pk,
+        'record_pk':record_File.record.pk,
+    }))
+
+
+@csrf_exempt
+def delete_record_comment(request,record_comment_pk,organization_pk, app_pk, list_pk, record_pk):
+    record_Comment = RecordComment.objects.get(pk=record_comment_pk)
+    record_Comment.delete()
+    final = {}
+    final['deleted'] = "deleted"
+    final =json.dumps(final)
+    return redirect(reverse('record',kwargs={
+        'organization_pk':record_Comment.record.list.app.organization.pk,
+        'list_pk':record_Comment.record.list.pk,
+        'app_pk':record_Comment.record.list.app.pk,
+        'record_pk':record_Comment.record.pk,
+    }))
+
+@csrf_exempt
+def edit_record_comment(request,organization_pk, app_pk, list_pk, record_pk,record_comment_pk):
+    if request.method == "POST":
+        comment = RecordComment.objects.get(pk=record_comment_pk)
+        if request.user == comment.created_user:
+            comment.content = request.POST['content']
+            comment.save()
+        else:
+            HttpResponse('Unauthorized', status=401)
+        return JsonResponse({
+            "comment_edited":"true"
+        })
+    else:
+        return HttpResponse('method not allowed')
+
+
+# @csrf_exempt
+# def edit_file(request,file_id,new_name):
+#     file = RecordFile.objects.get(pk=file_id)
+#     filename = file.filename
+#     filename = filename.split('.')[0]
+    

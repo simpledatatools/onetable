@@ -1,3 +1,76 @@
+<div class="row mb-5">
+  <div class="col-xl-12">
+    <!-- Account details card-->
+    <div class="card card-header-actions">
+      <div class="card-header bg-white">
+        <div id="record-title-{{record.id}}">{{ record.primary_field.value }}</div>
+        <div class="dropdown no-caret">
+          <button class="btn btn-transparent-dark btn-icon dropdown-toggle" id="dropdownMenuButton" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-bars"></i></button>
+          <div class="dropdown-menu dropdown-menu-right animated--fade-in-up" aria-labelledby="dropdownMenuButton">
+            <a class="dropdown-item" href="{% url 'edit_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}">
+              <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="list"></i></div>
+              Edit Record
+            </a>
+            <button data-toggle="modal" data-target="#archive_record_detail_{{record.id}}" class="dropdown-item" href="{% url 'archive_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}">
+              <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="list"></i></div>
+              Archive Record
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal fade" id="archive_record_detail_{{record.id}}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalCenterTitle">Are you sure that you want to Archive {{record.list}}?</h5>
+              <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-footer"><span class="btn btn-primary archive-record" data-record-detail-id="{{record.pk}}" type="button" data-dismiss="modal" href="{% url 'archive_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}" data-content-id="{{file.id}}">Archive</span><span class="btn btn-light" type="button" data-dismiss="modal">No</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        {% if record.record_fields %}
+        {% for field in record.record_fields %}
+        {% if field.list_field.primary is False %}
+        {% if field.list_field.field_type == "choose-from-list" %}
+        <p><b>{{ field.list_field.field_label }}:</b>
+          {% if field.selected_record.status == 'active' %}
+          <a href="{% url 'record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=field.selected_record.pk %}">
+          <span class="badge badge-primary p-2">{{ field.selected_record.primary_field.value }}
+          </span>
+          </a>
+          {% endif %}
+        </p>
+        {% elif field.list_field.field_type == "url" %}
+        <p><b>{{ field.list_field.field_label }}:</b> <a href="{{ field.value }}" target="_blank">{{ field.value }}</a></p>
+        {% else %}
+        <p><b>{{ field.list_field.field_label }}:</b> {{ field.value }}</p>
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
 <div id="records-list">
   {% include "home/records-list.html" %}
 </div>
+<script>
+function ArchiveRecord(){
+        $('.archive-record').on('click',function(ev){
+           ev.preventDefault();
+           var archive_url = $(this).attr('href');
+           var record_id=$(this).attr('data-record-detail-id');
+           $.get(archive_url,function(data){
+                 console.log(data);
+                 var record = $('#record-title-'+record_id);
+                 record.append('<span class="text-muted"> (Archived) </span>')
+              });
+               }
+           );
+         }
+        ArchiveRecord();
+
+</script>
