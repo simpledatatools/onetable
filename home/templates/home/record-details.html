@@ -153,16 +153,21 @@
 <div class="p-5 container">
   <h5>Comments</h5>
   <hr/>
+   
   <form id="post_record_comment"  method="POST" action="{% url 'post_record_comments' organization.pk app.pk list.pk record.pk %}">
     {% csrf_token %}
-    <input id="content" class="form-control bg-light mb-3" name="content" type="text" placeholder="Enter a comment here"/>
+    <textarea id="content" class="form-control bg-light mb-3" name="content" type="text" placeholder="Enter a comment here" ></textarea><br/>
     <div class="text-right"><input class="btn btn-primary" id="post_record_button" type="submit"/></div>
   </form>
   <div class="d-block" id="record_comments">
     {% for comment in comments %}
     <div class='card m-3' id="comment-{{comment.pk}}" class="card text-center m-3">
       <div class="card-body">
-        <p class="card-text text-left content">{{comment.content}}</p>
+        <p class="card-text text-left content">
+        {% autoescape off %}
+        {{comment.content}}
+        {% endautoescape %}
+        </p>
       </div>
       <div class="card-footer bg-white"><button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-comment-{{comment.pk}}">Remove</button><a data-comment-id="{{comment.pk}}" href="{{comment.edit_url}}"  class="btn btn-link float-right edit-comment" >Edit</a></div>
     </div>
@@ -173,7 +178,7 @@
             <h5 class="modal-title" id="exampleModalCenterTitle">Are you sure that you want to remove the comment?</h5>
             <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
           </div>
-          <div class="modal-body">{{comment.content}}</div>
+          <div class="modal-body"> {% autoescape off %}{{comment.content}}{% endautoescape %}</div>
           <div class="modal-footer"><span class="btn btn-danger remove-record-comment" type="button" data-dismiss="modal" href="{{comment.delete_url}}" data-content-id="{{comment.id}}">Confirm</span><span class="btn btn-light" type="button" data-dismiss="modal">No</span></div>
         </div>
       </div>
@@ -182,6 +187,7 @@
   </div>
 </div>
 <script>
+
 var record_files = $('#fileslist');
 var record_media = $('#medialist');
 function EditFile() {
@@ -339,7 +345,7 @@ $(function() {
 
 
 $(document).ready(function() {
-
+    
     $(function() {
         var frm = $('#post_record_comment');
         frm.value = '';
@@ -470,6 +476,22 @@ $(document).ready(function() {
     RemoveContent('.remove-record-media', 'media');
     RemoveContent('.remove-record-comment', 'comment');
 
+
+  
+    
+if(window.tinymce){
+    $(window.tinymce.editors).each(function(idx, p) {
+    window.tinymce.remove(idx);
+    });
+  }
+
+  tinyMCE.init({
+        selector: "#post_record_comment #content",
+    });
+  
+
+
 });
 
+   
 </script>
