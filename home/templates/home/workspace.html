@@ -59,13 +59,17 @@ class="bg-white"
 <!-- Include JS here that needs template tags -->
 {% block extrajs %}
 <script>
-
   function getPage(url) {
+    searchValue = $('input[name=search]').val();
+    if (typeof searchValue === 'undefined' || searchValue === ''){
+      searchValue = ''
+    }
     $.ajax({
         type: "GET",
         url: url,
         data: {
-            'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+            'csrfmiddlewaretoken': window.CSRF_TOKEN, // from index.html
+            'search_value': searchValue,
         },
         success: function(data) {
             // append html to the posts div
@@ -75,11 +79,8 @@ class="bg-white"
             // shit happens friends!
         }
     }).always(()=> {
-
       window.history.pushState({}, '', url);
-
     });
   }
-
 </script>
 {% endblock %}

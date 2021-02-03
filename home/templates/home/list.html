@@ -11,6 +11,17 @@
                 <div class="page-header-subtitle"><a href="{% url 'add_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk %}">Add new record</a></div>
               </div>
           </div>
+          <div class="card mt-3">
+            <div class="card-body">
+              <div class="sbp-preview-content">
+                  <input type="hidden">
+                    <div class="form-group mb-0 d-flex">
+                      <input type="text" class="form-control search-field-record mr-3" name="search" placeholder="Search Record" aria-label="Search Record" aria-describedby="search_button">
+                      <button class="btn btn-primary" type="button" id="search_button" onclick="getPage('{% url 'list' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk %}');">Search</button>
+                    </div>
+              </div>
+            </div>
+          </div>
       </div>
   </div>
 </header>

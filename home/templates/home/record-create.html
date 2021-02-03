@@ -22,7 +22,7 @@
       <div class="sbp-preview-content">
         <form id="record-form">{% csrf_token %}
             {% for field in fields %}
-              {% if field.field_type == 'text' or field.field_type == 'url' %}
+              {% if field.field_type == 'text' %}
                 <div class="form-group">
                   <label for="field_{{ field.field_id }}">{{ field.field_label }}{% if field.required %}*{% endif %}</label>
                   <input class="form-control form-control-solid record-field" id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" type="text" placeholder="Input response here" {% if field.value %}value='{{ field.value }}'{% endif %} {% if field.required %}required{% endif %}>
@@ -41,11 +41,32 @@
               <div class="form-group">
                 <label for="field_{{ field.field_id }}">{{ field.field_label }}{% if field.required %}*{% endif %}</label>
                 <select class="form-control form-control-solid record-field" id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" {% if field.required %}required{% endif %}>
+                  {% if field.value %}
                   {% for id, data in field.select_record %}
+                  {% if field.value == data %}
                   <option value="{{id}}" data-value="{{data}}">{{data}}</option>
+                  {% endif %}
+                  {% endfor %}
+                  {% else %}
+                  <option value="">------</option>
+                  {% endif %}
+                  {% for id, data in field.select_record %}
+                  {% if field.value != data %}
+                  <option value="{{id}}" data-value="{{data}}">{{data}}</option>
+                  {% endif %}
                   {% endfor %}
                 </select>
               </div>
+              {% elif field.field_type == 'date' %}
+              <div class="form-group">
+                <label for="field_{{ field.field_id }}">{{ field.field_label }}{% if field.required %}*{% endif %}</label>
+                <input class="form-control form-control-solid record-field" id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" type="date" {% if field.value %}value='{{ field.value }}'{% endif %} {% if field.required %}required{% endif %}>
+              </div>
+              {% elif field.field_type == 'url' %}
+                <div class="form-group">
+                  <label for="field_{{ field.field_id }}">{{ field.field_label }}{% if field.required %}*{% endif %}</label>
+                  <input class="form-control form-control-solid record-field" id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" type="url" onblur="return validateUrl(this);" placeholder="Input response here" {% if field.value %}value='{{ field.value }}'{% endif %} {% if field.required %}required{% endif %}>
+                </div>
               {% endif %}
             {% endfor %}
         </form>
@@ -61,6 +82,17 @@
   $('.record-field').on('focusin', function(){
     $(this).removeClass('border-danger');
   });
+
+  // return true or false.
+  function validateUrl(urlValue)
+  {
+    var url_value = urlValue.value;
+    var urlregex = new RegExp(
+            "^(http:\/\/www.|https:\/\/www.|ftp:\/\/www.|www.){1}([0-9A-Za-z]+\.)");
+    if (urlregex.test(url_value) === false){
+      urlValue.value = "";  
+    }
+  };
 
   function saveRecord() {
     // Get the values from the form
@@ -87,7 +119,13 @@
       field['fieldValue'] = val;
       field['fieldType'] = field_type;
       if (field_type === "choose-from-list"){
-        field['selectListValue'] = $(this).find(':selected').data('value');
+        var listValue = $(this).find(':selected').data('value');
+        if (typeof listValue === "undefined"){
+          field['selectListValue'] = false;
+        }
+        else{
+          field['selectListValue'] = listValue;
+        }
       }
       field_values.push(field);
     });
@@ -100,7 +138,6 @@
     if (record) {
       data.record_id = record;
     }
-
     if (submit === required){
       $.ajax({
         type: "POST",

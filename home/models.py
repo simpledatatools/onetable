@@ -195,6 +195,7 @@ class ListField(models.Model):
         ('number', 'Number'),
         ('url', 'Url'),
         ('choose-from-list', 'Choose from List'),
+        ('date', 'Date')
         #('choose-multiple-from-list', 'Choose multiple from List'),
     )
 
@@ -296,6 +297,7 @@ class RecordField(models.Model):
     def __str__(self):
         return str(self.id)
 
+
 class RecordRelation(models.Model):
     parent_record = models.ForeignKey('Record', on_delete=models.SET_NULL, null=True, related_name='parent_record')
     child_record = models.ForeignKey('Record', on_delete=models.SET_NULL, null=True, related_name='child_record')
@@ -333,6 +335,7 @@ class RecordRelation(models.Model):
     def __str__(self):
         return str(self.id)
 
+
 class Task(models.Model):
     task = HTMLField()
     record = models.ForeignKey('Record', on_delete=models.SET_NULL, null=True)
@@ -344,6 +347,7 @@ class Task(models.Model):
         ('active', 'Active'),
         ('archived', 'Archived'),
         ('deleted', 'Deleted'),
+        ('completed', 'Completed'),
     )
 
     status = models.CharField(
@@ -354,7 +358,8 @@ class Task(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return self.task
+
 
 class Note(models.Model):
     note = HTMLField()
@@ -377,4 +382,4 @@ class Note(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return self.note

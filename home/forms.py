@@ -50,7 +50,8 @@ ListFieldFormset = modelformset_factory(
     widgets = {
         'field_label': forms.TextInput(attrs={
             'class': 'form-control form-control-solid py-1',
-            'placeholder': 'Enter a label for this field'
+            'placeholder': 'Enter a label for this field',
+            'required': '',
             }
         ),
         'field_type': forms.Select(attrs={
@@ -80,8 +81,9 @@ class TaskForm(forms.ModelForm): #(Workspaces)
         fields = ('task',)
 
         widgets = {
-            'task': forms.TextInput(attrs={'class':'form-control form-control-solid'})
+            'task': forms.Textarea(attrs={'class':'form-control form-control-solid', 'placeholder': 'Enter a task description', 'rows': 3})
         }
+
 
 class NoteForm(forms.ModelForm): #(Workspaces)
 
