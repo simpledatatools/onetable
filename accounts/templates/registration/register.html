@@ -25,10 +25,9 @@
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-xl-5 col-lg-6 col-md-8 col-sm-11">
-          <!-- Social login form-->
           <div class="card my-5">
               <div class="card-body p-5 text-center">
-                  <div class="h3 font-weight-light mb-3">Sign up</div>
+                  <div class="h3 font-weight-light mb-3">Sign up for an account</div>
               </div>
               <hr class="my-0" />
               <div class="card-body p-5">
@@ -37,22 +36,42 @@
                     <form method="post" action="{% url 'register' %}">
                       {% csrf_token %}
                       {{ form.as_p }}
-                      <button class="btn btn-primary">Create Account</button>
+                      <button class="btn btn-primary btn-block">Sign Up</button>
                     </form>
                   </div>
-                  {% if form.errors %}
-                    <p>There was an error - please try again.</p>
-                  {% endif %}
               </div>
               <hr class="my-0" />
               <div class="card-body px-5 py-4">
+                  <div class="small text-center">
+                      By singing up, you agree to our
+                      <a href="javascript:void(0);">terms of service</a>
+                  </div>
                   <div class="small text-center">
                       Already have an account?
                       <a href="{% url 'login' %}">Click here to log in!</a>
                   </div>
               </div>
+              <hr class="bottom-line">
           </div>
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+  /* js code for add the eye icon in the password field */
+  $(document).ready(function(){
+    $('input[type=password]').parent('p').addClass('password-div');
+    $('.password-div').append('<button class="eye-btn" type="button"><i class="fas fa-eye password-visible password-toggle"></i><i class="fas fa-eye-slash password-hide password-toggle"></i></button>');
+  });
+
+  /* js code for hide/show password */
+  $(document).on('click', '.password-toggle', function(e){
+    const input_id = $(this).parent('button').siblings('input').attr('id');
+    const password = document.querySelector('#'+input_id);
+    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+    password.setAttribute('type', type);
+  });
+</script>
 {% endblock %}
