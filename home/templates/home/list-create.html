@@ -139,6 +139,7 @@
       
 
       newForm = fieldForm[0].cloneNode(true);
+      $(newForm [value='name']).val('');
       var new_input= '<input type="hidden" name="form-'+formNum+'-id" value="'+formNum +1+'" id="id_form-'+formNum+'-id"/>';
       
       new_input= new DOMParser().parseFromString(new_input, "text/xml");
@@ -149,6 +150,7 @@
       console.log(new_input)
       container.insertBefore(new_input, addButton);
       container.insertBefore(newForm, addButton);
+      $('#id_form-'+formNum+'-field_label').val('');
       totalForms.setAttribute('value', `${formNum+1}`);
       // add the required attribute in an extra list field form, to handle the validation, when user click on the update button
       $("input[name=form-"+String(formNum)+"-field_label]").attr('required', true);

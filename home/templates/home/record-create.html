@@ -134,9 +134,18 @@
       'field_values': JSON.stringify(field_values),
       'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
     };
+    function randomstr(length) {
+   var result           = '';
+   var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+   var charactersLength = characters.length;
+   for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   }
+   return result;
+}
     const record = "{{ record | safe }}";
     if (record) {
-      data.record_id = record;
+      data.record_id = record ;
     }
     if (submit === required){
       $.ajax({

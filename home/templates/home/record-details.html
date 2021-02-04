@@ -153,24 +153,33 @@
 <div class="p-5 container">
   <h5>Comments</h5>
   <hr/>
-   
+   <div class="card p-3">
   <form id="post_record_comment"  method="POST" action="{% url 'post_record_comments' organization.pk app.pk list.pk record.pk %}">
     {% csrf_token %}
+
     <textarea id="content" class="form-control bg-light mb-3" name="content" type="text" placeholder="Enter a comment here" ></textarea><br/>
     <div class="text-right"><input class="btn btn-primary" id="post_record_button" type="submit"/></div>
   </form>
+  </div>
   <div class="d-block" id="record_comments">
     {% for comment in comments %}
+    <form data-comment-id="{{comment.pk}}" class="edit_comment_form" action="{% url 'edit_record_comment' organization.pk app.pk list.pk record.pk comment.pk %}" method="POST">
+    {% csrf_token %}
     <div class='card m-3' id="comment-{{comment.pk}}" class="card text-center m-3">
       <div class="card-body">
-        <p class="card-text text-left content">
-        {% autoescape off %}
+       {% autoescape off %}
+        <div class="card-text text-left content">
+       
         {{comment.content}}
+        
+        </div>
         {% endautoescape %}
-        </p>
       </div>
-      <div class="card-footer bg-white"><button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-comment-{{comment.pk}}">Remove</button><a data-comment-id="{{comment.pk}}" href="{{comment.edit_url}}"  class="btn btn-link float-right edit-comment" >Edit</a></div>
+      <div class="card-footer bg-white"><button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-comment-{{comment.pk}}">Remove</button>
+    <span id="edit-save-{{comment.pk}}"><a data-comment-id="{{comment.pk}}" href="{{comment.edit_url}}"  class="btn btn-link float-right edit-comment" >Edit</a></span>
+      </div>
     </div>
+    </form>
     <div class="modal fade" id="remove-comment-{{comment.pk}}" tabindex="-1" role="dialog" aria-labelledby="Remove-comment" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -414,6 +423,7 @@ $(document).ready(function() {
 
     function EditPost() {
         var edit_mode = false;
+        frm=$('.edit_comment_form');
         var current_edit = null;
         $('.edit-comment').on('click', function(ev) {
                 ev.preventDefault();
@@ -423,10 +433,18 @@ $(document).ready(function() {
                 var content_message = content.text()
                 if (edit_mode == false) {
                     if (current_edit == null) {
-                        $(this).html('Save');
+                        $('#edit-save-'+comment_id).html('<input type="submit" data-comment-id="'+comment_id+'" class="btn btn-link float-right edit-comment" value="Save">');
                         content.html('<textarea id="comment-content-' + comment_id + '" class="bg-light text-dark form-control w-100">' + content_message + '</textarea>');
                         edit_mode = true;
                         current_edit = $(this).attr('data-comment-id');
+                        if(window.tinymce){
+    $(window.tinymce.editors).each(function(idx, p) {
+    window.tinymce.remove(idx);
+    });
+  }
+                        tinyMCE.init({
+                           selector: "textarea",
+                          });
                     }
                 } else {
                     this_comment = $(this).attr('data-comment-id');
@@ -434,11 +452,11 @@ $(document).ready(function() {
                     console.log(current_edit);
                     if (this_comment == current_edit) {
                         edit_url = $(this).attr('href');
-                        var new_comment = $('#comment-content-' + comment_id).val();
-                        
+                        var new_comment = $('[data-id=comment-content-'+comment_id+']').html();
+                        console.log(new_comment);
                         edit_mode = false;
                         current_edit = null;
-                        $(this).html('Edit');
+                        
                         $.post(edit_url, {
                             "content": new_comment
                         }, function(data) {
@@ -448,6 +466,33 @@ $(document).ready(function() {
                 }
 
             }
+
+        );
+
+
+        $('.edit_comment_form').on('submit', function(ev) {
+                ev.preventDefault();
+                var comment_id = $(this).attr('data-comment-id');
+
+
+                 $.ajax({
+
+                type: frm.attr('method'),
+                url: frm.attr('action'),
+                data: frm.serialize(),
+                headers: {
+                    'X-CSRFToken': csrftoken
+                },
+                success: function(data) {
+                   content.html(data.content);
+                }
+            });
+
+          
+                    
+                }
+
+            
 
         );
     }

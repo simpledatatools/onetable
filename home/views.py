@@ -16,6 +16,11 @@ from .forms import OrganizationForm, AppForm, ListForm, ListFieldFormset, NoteFo
 from django.views.decorators.csrf import csrf_exempt
 import subprocess
 
+N = 10
+
+def randomstr():
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k = N)) 
+
 # TODO
 # On all views, @login_required prevents users not logged in, but need method and
 # approach for making sure users are viewing / editing / creating / etc. only in
@@ -85,6 +90,7 @@ def add_organization(request):
             organization = form.save(commit=False)
             organization.created_user = request.user
             organization.created_at = timezone.now()
+            organization.id = randomstr()
             organization.save()
 
             # Save the new user <> project relation
@@ -188,6 +194,7 @@ def add_app(request, organization_pk):
             app.organization = organization
             app.created_user = request.user
             app.created_at = timezone.now()
+            app.id = randomstr()
             app.save()
 
             # Save the new user <> project relation
@@ -458,6 +465,7 @@ def create_list(request, organization_pk, app_pk):
             list.app = app
             list.created_user = request.user
             list.created_at = timezone.now()
+            list.id =randomstr()
             list.save() # Save here then update primary field once field is saved
             # Loop through the list field forms submitted
             list_field_order = 0
@@ -715,7 +723,8 @@ def save_record(request, organization_pk, app_pk, list_pk):
             list=list,
             status='active',
             created_at=timezone.now(),
-            created_user=request.user)
+            created_user=request.user,
+            id=randomstr())
         record.save()
 
     for field in fields:
@@ -731,8 +740,10 @@ def save_record(request, organization_pk, app_pk, list_pk):
                         if field['fieldType'] == "choose-from-list":
                            record_field.selected_record_id = field['fieldValue']
                            record_field.value = field['selectListValue']
+                           record_field.id = randomstr()
                         else:
                             record_field.value = field['fieldValue']
+                            record_field.id = randomstr()
                         record_field.save()
 
                         # Update existing relationship
@@ -805,7 +816,8 @@ def save_record(request, organization_pk, app_pk, list_pk):
                             list_field=list_field,
                             status='active',
                             created_at=timezone.now(),
-                            created_user=request.user)
+                            created_user=request.user,
+                            id=randomstr())
                         record_field.save()
 
                         if field['fieldType'] == "choose-from-list":
@@ -1137,6 +1149,7 @@ def post_record_comment(request,organization_pk, app_pk, list_pk, record_pk):
     if request.method == "POST":
         if request.POST['content'] != '':
             record_comment = RecordComment(created_user=request.user,content = request.POST['content'],record_id=record_pk)
+            record_comment.id = randomstr()
             record_comment.save()
             comment_json = {}
             comment_json['delete_url'] = record_comment.delete_url()
@@ -1153,6 +1166,7 @@ def post_record_comment(request,organization_pk, app_pk, list_pk, record_pk):
 @csrf_exempt
 def post_record_file(request,organization_pk, app_pk, list_pk, record_pk):      
     record_file = RecordFile(file=request.FILES['file'],record_id=record_pk,created_user = request.user)
+    record_file.id =randomstr()
     record_file.save()
     record_File = RecordFile.objects.get(pk=record_file.pk)
     final = {}
@@ -1173,6 +1187,7 @@ def post_record_file(request,organization_pk, app_pk, list_pk, record_pk):
 @csrf_exempt
 def post_record_media(request,organization_pk, app_pk, list_pk, record_pk):      
     record_file = RecordMedia(file=request.FILES['file'],record_id=record_pk,created_user = request.user)
+    record_file.id = randomstr()
     record_file.save()
     record_File = RecordMedia.objects.get(pk=record_file.pk)
     final = {}
@@ -1238,6 +1253,7 @@ def edit_record_comment(request,organization_pk, app_pk, list_pk, record_pk,reco
     if request.method == "POST":
         comment = RecordComment.objects.get(pk=record_comment_pk)
         if request.user == comment.created_user:
+            print(request.POST['content'])
             comment.content = request.POST['content']
             comment.save()
         else:
