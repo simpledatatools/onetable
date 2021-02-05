@@ -52,6 +52,8 @@ class RecordMediaAdmin(admin.ModelAdmin):
     def Record(self, obj):
         return obj.record.list.name
 
+admin.site.register(Organization)
+admin.site.register(OrganizationUser)
 admin.site.register(List, ListAdmin)
 admin.site.register(ListField, ListFieldAdmin)
 admin.site.register(Record, RecordAdmin)

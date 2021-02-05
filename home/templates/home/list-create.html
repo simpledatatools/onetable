@@ -34,7 +34,13 @@
     <hr>
     {{ formset.management_form }}
     {% for form in formset %}
-    {{ form.id }}
+
+    {% if type != "edit-list" %}
+
+      <input type="hidden" name="form-0-id" value="1" id="id_form-0-id"></input>
+
+    {% endif %}
+    
     <div class="card card-header-actions field-form mb-3">
       <div class="container">
         <div class="d-flex justify-content-between align-items-center">
@@ -127,7 +133,7 @@
     const container = document.querySelector("#form-container");
     const addButton = document.querySelector("#add-form");
     const totalForms = document.querySelector("#id_form-TOTAL_FORMS");
-    const hiddeninputs = document.querySelectorAll("[name='form-0-id']");
+
     addButton.addEventListener('click', (e) => {
       const fieldForm = document.querySelectorAll(".field-form");
       e.preventDefault();
@@ -136,35 +142,23 @@
       let newForm = fieldForm[0].cloneNode(true);
 
       const type = "{{ type | safe }}";
-      
+     
 
-      newForm = fieldForm[0].cloneNode(true);
-      $(newForm [value='name']).val('');
-      var new_input= '<input type="hidden" name="form-'+formNum+'-id" value="'+formNum +1+'" id="id_form-'+formNum+'-id"/>';
+        newForm = fieldForm[0].cloneNode(true);
       
-      new_input= new DOMParser().parseFromString(new_input, "text/xml");
-      new_input =(new_input.getElementsByTagName('input')[0]);
+     
+
       formNum++;
       const formRegex = RegExp(`form-(\\d){1}-`,'g');
       newForm.innerHTML = newForm.innerHTML.replace(formRegex, `form-${formNum}-`);
-      console.log(new_input)
-      container.insertBefore(new_input, addButton);
       container.insertBefore(newForm, addButton);
-      $('#id_form-'+formNum+'-field_label').val('');
       totalForms.setAttribute('value', `${formNum+1}`);
       // add the required attribute in an extra list field form, to handle the validation, when user click on the update button
       $("input[name=form-"+String(formNum)+"-field_label]").attr('required', true);
     });
 
     const type = '{{ type | safe }}'
-    if (type === 'edit-list'){
-      
-      var initial_form = $('#id_form-INITIAL_FORMS').val();
-      // remove the required attribute in an extra list field form, to handle the validation, when user click on the update button
-      $("input[name=form-"+String(initial_form)+"-field_label]").removeAttr('required');
-      $('#id_form-'+initial_form+'-id').next('div').hide();
-      $('#id_form-'+initial_form+'-id').hide();
-    }
+   
   });
 
   /* this code is execute when user choose the field type */
@@ -220,7 +214,7 @@
     }
     const totalForms = $("#id_form-TOTAL_FORMS").val();
     $("#id_form-TOTAL_FORMS").val(Number(totalForms)-1);
-    $(this).parent('div').parent('div').parent('div').parent('div');
+    $(this).parent('div').parent('div').parent('div').parent('div').hide();
     // remove the required attribute in an extra list field form, to handle the validation, when user click on the update button
     $("input[name=form-"+String(totalForms-1)+"-field_label]").removeAttr('required');
   });
@@ -238,17 +232,9 @@
     // get all select tags of current HTML Content
     var allSelectsCurrent = current[0].querySelectorAll('select');
 
-    {% if type == "edit-list" %}
-      // get hidden input field (in this hidden field the database value is save)
-      var previous_input = current.prev('input');
-      // get upper HTML Content object
-      var previous = current.prev('input').prev('.field-form');
-      // get hidden input field (in this hidden field the database value is save)
-      var next_input = previous.prev('input');
-    {% else %}
       // get upper HTML Content object
       var previous = current.prev('.field-form');
-    {% endif %}
+    
 
     if (previous.length !== 0){
       // extract the numeric value of django id, name attribute ordering value
@@ -285,21 +271,9 @@
       // move the HTML Content
       current.insertBefore(previous);
 
-      {% if type == "edit-list" %}
-      // this code is implement for change the input tag id and name attribute value of the database id
-      var t1 = previous_input.attr('name');
-      var t2 = next_input.attr('name');
-      var t3 = previous_input.attr('id');
-      var t4 = next_input.attr('id');
-
-      next_input.attr("name", t1);
-      next_input.attr("id", t3);
-      previous_input.attr("name", t2);
-      previous_input.attr("id", t4);
-      previous_input.insertBefore(previous);
-      {% endif %}
+     
     }
-
+    return false;
   });
 
   /* code for Down Arrow Functionality */
@@ -315,17 +289,10 @@
     // get all select tags of current HTML Content
     var allSelectsCurrent = current[0].querySelectorAll('select');
 
-    {% if type == "edit-list" %}
-    // get hidden input field (in this hidden field the database value is save)
-      var next_input = current.next('input');
-      // get lower HTML Content object
-      var next = current.next('input').next('.field-form');
-      // get hidden input field (in this hidden field the database value is save)
-      var previous_input = current.prev('input');
-    {% else %}
+    
       // get lower HTML Content object
       var next = current.next('.field-form');
-    {% endif %}
+    
 
     if (next.length !== 0){
       // extract the numeric value of django id, name attribute ordering value
@@ -362,22 +329,7 @@
       // move the HTML Content
       current.insertAfter(next);
 
-      {% if type == "edit-list" %}
-      // this code is implement for change the input tag id and name attribute value of the database id
-      var t1 = next_input.attr('name');
-      var t2 = previous_input.attr('name');
-      var t3 = next_input.attr('id');
-      var t4 = previous_input.attr('id');
-
-      next_input.attr("name", t1);
-      next_input.attr("id", t3);
-      previous_input.attr("name", t2);
-      previous_input.attr("id", t4);
-
-      next_input.insertAfter(next);
-      {% endif %}
     }
     return false;
   });
-
 </script>

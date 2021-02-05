@@ -77,6 +77,7 @@ def organizations(request):
 
     return render(request, 'home/organizations.html', context=context)
 
+
 @login_required
 def add_organization(request):
 
@@ -88,7 +89,10 @@ def add_organization(request):
 
             # Save the new project
             organization = form.save(commit=False)
-            organization.created_user = request.user
+            user = User.objects.get(username = request.user.username)
+            organization.users.add(user)
+            thr_obj = organization.users.through
+           
             organization.created_at = timezone.now()
             organization.id = randomstr()
             organization.save()
@@ -917,7 +921,7 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
     record = get_object_or_404(Record, pk=record_pk)
-    comments = RecordComment.objects.filter(record_id=record_pk).order_by('-pk')
+    comments = RecordComment.objects.filter(record_id=record_pk).order_by('-created_at')
     media = RecordMedia.objects.filter(record_id=record_pk).order_by('-pk')
     files = RecordFile.objects.filter(record_id=record_pk).order_by('-pk')
     note_form = NoteForm()
@@ -1253,8 +1257,8 @@ def edit_record_comment(request,organization_pk, app_pk, list_pk, record_pk,reco
     if request.method == "POST":
         comment = RecordComment.objects.get(pk=record_comment_pk)
         if request.user == comment.created_user:
-            print(request.POST['content'])
-            comment.content = request.POST['content']
+            #print(request.POST['content'])
+            comment.content = request.POST['mce_2']
             comment.save()
         else:
             HttpResponse('Unauthorized', status=401)

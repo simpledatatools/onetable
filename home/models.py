@@ -18,12 +18,13 @@ from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 
 
+
 class Organization(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
     name = models.CharField(max_length=200)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True, null=False)
-    created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    users = models.ManyToManyField(User,through="OrganizationUser")
     last_updated = models.DateTimeField(auto_now_add=True)
 
     ORGANIZATION_STATUS = (
@@ -44,14 +45,16 @@ class Organization(models.Model):
     def __str__(self):
         return self.name
 
+    def get_users(self):
+        return "\n".join([p.products for p in self.product.all()])
     
 
 
 class OrganizationUser(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     organization = models.ForeignKey('Organization', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
-
+    created = models.BooleanField(default=False)
     ORGANIZATION_USER_STATUS = (
         ('active', 'Active'),
         ('deleted', 'Deleted'),
@@ -75,6 +78,36 @@ class OrganizationUser(models.Model):
         blank=False,
         default='active',
     )
+
+
+class App(models.Model):
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+
+    name = models.CharField(max_length=200)
+    description = models.TextField()
+    organization = models.ForeignKey('Organization', on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=False)
+    created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    last_updated = models.DateTimeField(auto_now_add=True)
+
+    APP_STATUS = (
+        ('active', 'Active'),
+        ('archived', 'Archived'),
+        ('deleted', 'Deleted'),
+    )
+
+    status = models.CharField(
+        max_length=25,
+        choices=APP_STATUS,
+        blank=False,
+        default='active',
+    )
+
+    # TODO add @property for app users
+
+    def __str__(self):
+        return self.name
+
 
 
 class App(models.Model):
@@ -489,6 +522,7 @@ class RecordComment(models.Model):
     record = models.ForeignKey(Record,on_delete=models.CASCADE,null=True,blank=True)
     content = models.TextField(default='')
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         content = (self.content[:10] + '..') if len(self.content) > 10 else self.content
