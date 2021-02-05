@@ -20539,3 +20539,8 @@ hr.bottom-line
 {
   display: none;
 }
+
+.sign-up-header{
+  font-size: 36px;
+  margin-bottom: 15px;
+}

@@ -1,11 +1,12 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, UserChangeForm, AuthenticationForm, UsernameField, PasswordResetForm
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, UserChangeForm, AuthenticationForm, UsernameField, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext, gettext_lazy as _
 import string
 import random
 from django.shortcuts import get_object_or_404
+from django.contrib.auth import password_validation
 
 
 def create_username(name):
@@ -24,7 +25,7 @@ class SignUpForm(UserCreationForm):
     email = forms.EmailField(
         widget=forms.EmailInput(
             attrs={
-                'class':'form-control form-control-solid', 
+                'class':'form-control form-control-solid py-4', 
                 'placeholder': 'Email'
                 }
             ),
@@ -34,7 +35,7 @@ class SignUpForm(UserCreationForm):
         max_length=200, 
         widget=forms.TextInput(
             attrs={
-                'class':'form-control form-control-solid', 
+                'class':'form-control form-control-solid py-4', 
                 'placeholder': 'Name'
                 }
             ),
@@ -45,7 +46,7 @@ class SignUpForm(UserCreationForm):
             attrs={
                 'autocomplete': 'new-password',
                  'placeholder': 'Password',
-                 'class': 'form-control form-control-solid signup-pswrd',
+                 'class': 'form-control form-control-solid signup-pswrd py-4',
                  },
             ),
         label="",
@@ -55,7 +56,7 @@ class SignUpForm(UserCreationForm):
             attrs={
                 'autocomplete': 'new-password', 
                 'placeholder': 'Password Confirm',
-                'class': 'form-control form-control-solid signup-pswrd',
+                'class': 'form-control form-control-solid signup-pswrd py-4',
                 }
             ),
         label="",
@@ -133,13 +134,38 @@ class UserLoginForm(forms.Form):
         label="",
         required=True,
         widget=forms.EmailInput(
-            attrs={'class': 'form-control form-control-solid', 'placeholder': 'Email'}
+            attrs={'class': 'form-control form-control-solid py-4', 'placeholder': 'Email'}
         ) 
         )
     password = forms.CharField(
         label="",
         required=True,
         widget=forms.PasswordInput(
-            attrs={'class': 'form-control form-control-solid', 'placeholder': 'Password'}
+            attrs={'class': 'form-control form-control-solid py-4', 'placeholder': 'Password'}
         )
+    )
+
+
+class UserSetPasswordForm(SetPasswordForm):
+    new_password1 = forms.CharField(
+        label="",
+        required=True,
+        widget=forms.PasswordInput(attrs={
+            'autocomplete': 'new-password',
+            'placeholder': 'Password',
+            'class': 'form-control form-control-solid signup-pswrd py-4',
+            }),
+        strip=False,
+        help_text=password_validation.password_validators_help_text_html(),
+    )
+
+    new_password2 = forms.CharField(
+        label="",
+        required=True,
+        strip=False,
+        widget=forms.PasswordInput(attrs={
+            'autocomplete': 'new-password',
+            'placeholder': 'Password',
+            'class': 'form-control form-control-solid signup-pswrd py-4',
+            }),
     )

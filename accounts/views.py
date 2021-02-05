@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic, View
 from django.urls import reverse_lazy
-from .forms import SignUpForm, UpdateProfileForm, UpdatePasswordForm, UserLoginForm, UserPasswordResetForm
+from .forms import SignUpForm, UpdateProfileForm, UpdatePasswordForm, UserLoginForm, UserPasswordResetForm, UserSetPasswordForm
 from django.contrib.auth.models import User
 from .user_mailing import create_link, SendUserMail
 from .models import MailLinkModel
@@ -53,7 +53,6 @@ class UserRegistrationView(View):
             obj.save()
             mail = SendUserMail(recipient_name=user_name, link=link, recipient_list=user_email, subject="Email Confirmation Link", mail_for="sign-up")
             status = mail.send()
-            print(status)
             context = {'email': user_email, 'render_kind': 'signup'}
             return render(request, 'signup_thankyou_page.html', context)
         else:
@@ -100,12 +99,17 @@ class VerifyUserLinkView(View):
         link_obj = get_object_or_404(MailLinkModel, key=get_key)
         if link_obj:
             if link_obj.is_delete is False:
-                user = User.objects.get(pk=link_obj.user_id)
-                user.is_active = True
-                user.save()
-                link_obj.is_delete = True
-                link_obj.save()
-                return render(request, 'signup_thankyou_page.html', {'render_kind': 'signup_confirmed'})
+                user = get_object_or_404(User, pk=link_obj.user_id)
+                if link_obj.link_type == 'sign_up':
+                    user.is_active = True
+                    user.save()
+                    link_obj.is_delete = True
+                    link_obj.save()
+                    return render(request, 'signup_thankyou_page.html', {'render_kind': 'signup_confirmed'})
+                elif link_obj.link_type == 'reset_password':
+                    request.session['forgot_password_user_pk'] = user.pk
+                    request.session['forgot_password_link_pk'] = link_obj.pk
+                    return redirect('create_new_password')
         return render(request, 'signup_thankyou_page.html', {'render_kind': 'invalid_key'})
 
 
@@ -130,7 +134,32 @@ class ResetPasswordView(View):
                 obj.save()
                 mail = SendUserMail(recipient_name=user_name, link=link, recipient_list=user_email, subject="Forgot Password Link", mail_for="reset-password")
                 status = mail.send()
-                print(status)
                 context = {'email': user_email, 'render_kind': 'reset_password'}
                 return render(request, 'signup_thankyou_page.html', context)
         return self.get(request)
+
+
+class CreateNewPasswordView(View):
+    template_name = 'password_reset_confirm.html'
+
+    def get(self, request):
+        user_pk = request.session.get('forgot_password_user_pk')
+        user = get_object_or_404(User, pk=user_pk)
+        form = UserSetPasswordForm(user=user)
+        return render(request, self.template_name, locals())
+
+    def post(self, request):
+        user_pk = request.POST.get('user_id')
+        user = get_object_or_404(User, pk=user_pk)
+        form = UserSetPasswordForm(data=request.POST, user=user)
+        if form.is_valid():
+            form.save()
+            request.session.pop('forgot_password_user_pk')
+            link_obj_pk = request.session.get('forgot_password_link_pk')
+            link_obj = get_object_or_404(MailLinkModel, pk=link_obj_pk)
+            link_obj.is_delete = True
+            link_obj.save()
+            request.session.pop('forgot_password_link_pk')
+        else:
+            return render(request, self.template_name, locals())
+        return render(request, 'signup_thankyou_page.html', {'render_kind': 'password_updated'})

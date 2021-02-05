@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-    OneTable - Sign up
+    OneTable - Thank You
 {% endblock %}
 
 {% block headername %}
@@ -39,6 +39,11 @@
                     {% if render_kind == 'signup_confirmed' %}
                     <p>
                       Your account has been confirmed! This page will be redirect in 3 seconds, or click return to login to get started.
+                    </p>
+                    {% endif %}
+                    {% if render_kind == 'password_updated' %}
+                    <p>
+                      Your password was successfully updated. Return to login and login with your new password.
                     </p>
                     {% endif %}
                     {% if render_kind == 'invalid_key' %}
