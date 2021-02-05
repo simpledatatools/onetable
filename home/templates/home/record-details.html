@@ -192,7 +192,7 @@
             <div class="card m-3" id="comment-{{comment.pk}}" class="card text-center m-3">
                 <div class="card-body">
                     <div class="main-change">
-                        <div class="card-text text-left content">
+                        <div id="comment-content-{{comment.pk}}"class="card-text text-left content">
                             {% autoescape off %} {{comment.content}} {% endautoescape %}
                         </div>
                     </div>
@@ -489,17 +489,19 @@ $(document).ready(function() {
 
 
     function EditPost() {
-        var edit_mode = false;
-        frm = $('.edit_comment_form');
+        
         var current_edit = null;
         $('.edit-comment').on('click', function(ev) {
                 ev.preventDefault();
-                var comment_id = $(this).attr('data-comment-id');
+                
+                if (current_edit == null) {
+                    var comment_id = $(this).attr('data-comment-id');
 
                 var content = $('#comment-' + comment_id + ' .content');
                 var content_message = content.text()
-                if (edit_mode == false) {
-                    if (current_edit == null) {
+                    var edit_mode = false;
+                    frm = $('.edit_comment_form');
+                    if (edit_mode == false) {
                         
                         edit_mode = true;
                         
@@ -528,9 +530,9 @@ $(document).ready(function() {
 
                 $.ajax({
 
-                    type: frm.attr('method'),
-                    url: frm.attr('action'),
-                    data: frm.serialize(),
+                    type: $(this).attr('method'),
+                    url: $(this).attr('action'),
+                    data: $(this).serialize(),
                     headers: {
                         'X-CSRFToken': csrftoken
                     },

@@ -1258,7 +1258,7 @@ def edit_record_comment(request,organization_pk, app_pk, list_pk, record_pk,reco
         comment = RecordComment.objects.get(pk=record_comment_pk)
         if request.user == comment.created_user:
             #print(request.POST['content'])
-            comment.content = request.POST['mce_2']
+            comment.content = request.POST['comment-content-%s' % record_comment_pk]
             comment.save()
         else:
             HttpResponse('Unauthorized', status=401)
