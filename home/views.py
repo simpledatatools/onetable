@@ -90,9 +90,7 @@ def add_organization(request):
             # Save the new project
             organization = form.save(commit=False)
             user = User.objects.get(username = request.user.username)
-            organization.users.add(user)
-            thr_obj = organization.users.through
-           
+            
             organization.created_at = timezone.now()
             organization.id = randomstr()
             organization.save()
