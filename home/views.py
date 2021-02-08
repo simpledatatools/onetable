@@ -15,6 +15,7 @@ from .models import *
 from .forms import OrganizationForm, AppForm, ListForm, ListFieldFormset, NoteForm
 from django.views.decorators.csrf import csrf_exempt
 import subprocess
+from itertools import chain
 
 N = 10
 
@@ -68,14 +69,18 @@ def organizations(request):
 
     userOrganizations = OrganizationUser.objects.filter(user=request.user, status__exact='active', organization__status__exact="active").order_by('organization__name',)
     organizations = []
+
     for userOrganization in userOrganizations:
         organizations.append(userOrganization.organization)
 
+    
+        
     context = {
         'organizations': organizations
     }
 
     return render(request, 'home/organizations.html', context=context)
+
 
 
 @login_required
@@ -86,23 +91,16 @@ def add_organization(request):
     if request.method == "POST":
         form = OrganizationForm(request.POST)
         if form.is_valid():
-
-            # Save the new project
             organization = form.save(commit=False)
-            user = User.objects.get(username = request.user.username)
-            
             organization.created_at = timezone.now()
             organization.id = randomstr()
             organization.save()
-
-            # Save the new user <> project relation
-            organizationUser = OrganizationUser()
-            organizationUser.user = request.user
-            organizationUser.organization = organization
-            organizationUser.status = "active"
-            organizationUser.role = "admin"
-            organizationUser.save()
-
+            u = User.objects.get(username = request.user.username)
+            organization.active_users.add(u)
+            org_user = OrganizationUser.objects.get(organization=organization,user = request.user)
+            org_user.role = "admin"
+            org_user.save()
+            organization.save()
             return redirect('apps', organization_pk=organization.pk)
 
     else:
@@ -110,6 +108,7 @@ def add_organization(request):
         form = OrganizationForm()
 
         return render(request, 'home/organization-form.html', {'form': form})
+
 
 @login_required
 def edit_organization(request, organization_pk):
@@ -144,6 +143,7 @@ def archive_organization(request, organization_pk):
 
     return redirect('organizations')
 
+@csrf_exempt
 @login_required
 def organization_settings(request, organization_pk):
 
@@ -151,14 +151,55 @@ def organization_settings(request, organization_pk):
 
     organization = get_object_or_404(Organization, pk=organization_pk)
 
-    form = OrganizationForm(instance=organization)
+    if request.method == "POST":
+    #    print(request.POST)
+        if request.POST['type'] == "add_user":
+            try:
+                u = User.objects.get(email=request.POST['email'])
+                organization.active_users.add(u)
+                org_user = OrganizationUser.objects.get(user=u,organization=organization)
+                org_user.status='active'
+                org_user.save()
+                organization.save()
+            except:
+                u = InactiveUsers.objects.get_or_create(user_email=request.POST['email'])
+                u[0].save()
+                organization.inactive_users.add(u[0])
+                organization.save()
+                
+            return JsonResponse({
+                "added" : "true"
+            })
 
-    context = {
-        'organization': organization,
-        'form': form
-    }
+        elif request.POST['type'] == "remove_user":
+            if request.POST['user_type'] == "active":
+                org_user = OrganizationUser.objects.get(user__email=request.POST['email'],organization=organization.pk)
+                org_user.status = "deleted"
+                org_user.save()
+            else:
+                u = InactiveUsers.objects.get(user_email=request.POST['email'])
+                organization.inactive_users.remove(u)
+                organization.save()
 
-    return render(request, 'home/organization-settings.html', context=context)
+            return JsonResponse({
+                "removed" : "true"
+            })
+
+    else:
+        form = OrganizationForm(instance=organization)
+        active_users = organization.organizationuser_set.all().order_by('-created_at')
+        inactive_users = organization.inactive_users.all().order_by('-created_at')
+        connection = chain(active_users,inactive_users)
+        print(connection)
+        context = {
+            'organization': organization,
+            'form': form,
+            "connection":connection
+     }
+
+        return render(request, 'home/organization-settings.html', context=context)
+
+    
 
 #===============================================================================
 # Apps (Workspaces)
@@ -168,10 +209,21 @@ def organization_settings(request, organization_pk):
 def apps(request, organization_pk):
 
     organization = get_object_or_404(Organization, pk=organization_pk)
-    userApps = AppUser.objects.filter(user=request.user, status__exact='active', app__status__exact="active", app__organization=organization).order_by('app__name',)
+
+    if request.user not in organization.active_users.all():     
+        return HttpResponse('Unauthorized', status=401)
+
+    user_obj = OrganizationUser.objects.get(user=request.user, status__exact='active', organization = organization)
+
+    if not user_obj.role == "admin":
+        userApps = user_obj.permitted_apps.all()
+    else:
+        userApps =App.objects.filter(organization=organization)
+    
     apps = []
+
     for userApp in userApps:
-        apps.append(userApp.app)
+        apps.append(userApp)
 
     context = {
         'organization': organization,
@@ -179,6 +231,9 @@ def apps(request, organization_pk):
     }
 
     return render(request, 'home/apps.html', context=context)
+
+
+
 
 @login_required
 def add_app(request, organization_pk):
@@ -256,20 +311,65 @@ def archive_app(request, organization_pk, app_pk):
     return redirect('apps', organization_pk=organization_pk)
 
 @login_required
+@csrf_exempt
 def app_settings(request, organization_pk, app_pk):
-
-    # Uses standard django forms
-
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
+    # Uses standard django forms
+    if request.method == "POST":
+        print(request.POST)
+        #print(request.POST)
+        if request.POST['type'] == "add_user":
+            print('if')
+            try:
+                u = User.objects.get(email=request.POST['email'])
+                print(u)
+                organization.active_users.add(u)
+                organization.save()
+                org_user = OrganizationUser.objects.get(organization=organization,user=u)
+                org_user.permitted_apps.add(app)
+                org_user.save()
+                #print(org_user.permitted_apps.objects.all())
+                app.save()
+            except:
+                
+                u = InactiveUsers.objects.get_or_create(user_email=request.POST['email'])
+                u[0].attached_workspaces.add(app)
+                organization.inactive_users.add(u[0])
+                
+                u[0].save()
+            return JsonResponse({
+                "added" : "true"
+            })
 
-    form = AppForm(instance=app)
+        elif request.POST['type'] == "remove_user":
+            print('elif')
+            if request.POST['user_type'] == "active":
+                org_user = OrganizationUser.objects.get(user__email=request.POST['email'],organization_id=organization.pk)
+                print(org_user)
+                org_user.permitted_apps.remove(app)
+                org_user.save()
+            else:
+                u = InactiveUsers.objects.get(user_email=request.POST['email'])
+                u.attached_workspaces.remove(app)
+                u.save()
 
-    context = {
+            return JsonResponse({
+                "removed" : "true"
+            })        
+    
+    else:
+        form = AppForm(instance=app)
+        active_users = OrganizationUser.objects.filter(organization_id=organization,permitted_apps=app)
+        inactive_users = InactiveUsers.objects.filter(attached_workspaces=app)
+        connection = chain(active_users,inactive_users)
+        #print(connection)
+        context = {
         'organization': organization,
         'app': app,
-        'form': form
-    }
+        'form': form,
+        "connection":connection 
+        }
 
     return render(request, 'home/app-settings.html', context=context)
 
@@ -337,6 +437,13 @@ def dashboard(request, organization_pk, app_pk):
 def lists(request, organization_pk, app_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
+
+    if request.user not in organization.active_users.all():
+        if request.user not in app.app_level_users.all():     
+            return HttpResponse('Unauthorized', status=401)
+    
+    
+
     # lists = List.objects.all().filter(status='active', app=app)
     lists = List.objects.filter(status='active', app=app).order_by('name',)
 

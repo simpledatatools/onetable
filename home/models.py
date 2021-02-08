@@ -19,12 +19,14 @@ from django.dispatch import receiver
 
 
 
+
 class Organization(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
     name = models.CharField(max_length=200)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True, null=False)
-    users = models.ManyToManyField(User,through="OrganizationUser")
+    active_users = models.ManyToManyField(User,through="OrganizationUser",through_fields=( 'organization','user'))
+    inactive_users = models.ManyToManyField('InactiveUsers')
     last_updated = models.DateTimeField(auto_now_add=True)
 
     ORGANIZATION_STATUS = (
@@ -52,9 +54,12 @@ class Organization(models.Model):
 
 class OrganizationUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    organization = models.ForeignKey('Organization', on_delete=models.SET_NULL, null=True)
+    organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     created = models.BooleanField(default=False)
+    permitted_apps = models.ManyToManyField('App')
+    can_access_all_apps = models.BooleanField(default=False)
+
     ORGANIZATION_USER_STATUS = (
         ('active', 'Active'),
         ('deleted', 'Deleted'),
@@ -80,15 +85,45 @@ class OrganizationUser(models.Model):
     )
 
 
+# class App(models.Model):
+#     id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+
+#     name = models.CharField(max_length=200)
+#     description = models.TextField()
+#     organization = models.ForeignKey('Organization', on_delete=models.SET_NULL, null=True)
+#     created_at = models.DateTimeField(auto_now_add=True, null=False)
+#     created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+#     last_updated = models.DateTimeField(auto_now_add=True)
+
+#     APP_STATUS = (
+#         ('active', 'Active'),
+#         ('archived', 'Archived'),
+#         ('deleted', 'Deleted'),
+#     )
+
+#     status = models.CharField(
+#         max_length=25,
+#         choices=APP_STATUS,
+#         blank=False,
+#         default='active',
+#     )
+
+#     # TODO add @property for app users
+
+#     def __str__(self):
+#         return self.name
+
+
+
 class App(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
-
     name = models.CharField(max_length=200)
     description = models.TextField()
     organization = models.ForeignKey('Organization', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
-    created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     last_updated = models.DateTimeField(auto_now_add=True)
+    app_level_users = models.ManyToManyField(User,through="AppUser",through_fields=( 'app','user'))
+    inactive_users = models.ManyToManyField('InactiveUsers')
 
     APP_STATUS = (
         ('active', 'Active'),
@@ -102,48 +137,16 @@ class App(models.Model):
         blank=False,
         default='active',
     )
-
-    # TODO add @property for app users
-
-    def __str__(self):
-        return self.name
-
-
-
-class App(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
-
-    name = models.CharField(max_length=200)
-    description = models.TextField()
-    organization = models.ForeignKey('Organization', on_delete=models.SET_NULL, null=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
-    created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-    last_updated = models.DateTimeField(auto_now_add=True)
-
-    APP_STATUS = (
-        ('active', 'Active'),
-        ('archived', 'Archived'),
-        ('deleted', 'Deleted'),
-    )
-
-    status = models.CharField(
-        max_length=25,
-        choices=APP_STATUS,
-        blank=False,
-        default='active',
-    )
-
-    # TODO add @property for app users
-
+    
     def __str__(self):
         return self.name
 
 
 class AppUser(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     app = models.ForeignKey('App', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
-
+    created = models.BooleanField(default=False)
     PROJECT_USER_STATUS = (
         ('active', 'Active'),
         ('deleted', 'Deleted'),
@@ -573,4 +576,28 @@ class Note(models.Model):
 
 
 
+class InactiveUsers(models.Model):
+    user_email = models.EmailField(null=True)
+    attached_organizations = models.ManyToManyField(Organization)
+    created_at = models.DateTimeField(auto_now_add=True)
+    attached_workspaces= models.ManyToManyField(App,related_name='apps')
+    #attached_workspaces = models.ManyToManyField(App)
 
+
+
+@receiver(post_save, sender=User)
+def update_stock(sender, instance, **kwargs):
+    inactive_user = InactiveUsers.objects.filter(user_email=instance.email).exists()
+    if inactive_user==True:
+        inactive_user= InactiveUsers.objects.get(user_email=instance.email)
+        att_orgs = inactive_user.attached_organizations.all()
+        for org in att_orgs:
+            org.active_users.add(instance)
+            org.save()
+        #instance.active_users.add(att_orgs)
+        att_workspaces = inactive_user.attached_workspaces.all()
+        for wrksps in att_workspaces:
+            org_user = OrganizationUser.objects.create_or_get(user=instance,organization_id = wrksps.organization.pk)
+            org_user[0].permitted_apps.add(wrksps)
+            org_user[0].save()
+        inactive_user.delete()
