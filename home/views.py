@@ -62,7 +62,9 @@ def about(request):
 
 #===============================================================================
 # Organizations
+
 #===============================================================================
+
 
 @login_required
 def organizations(request):
@@ -73,8 +75,6 @@ def organizations(request):
     for userOrganization in userOrganizations:
         organizations.append(userOrganization.organization)
 
-    
-        
     context = {
         'organizations': organizations
     }
@@ -108,6 +108,8 @@ def add_organization(request):
         form = OrganizationForm()
 
         return render(request, 'home/organization-form.html', {'form': form})
+        
+
 
 
 @login_required
@@ -133,6 +135,8 @@ def edit_organization(request, organization_pk):
 
         return render(request, 'home/organization-form.html', {'form': form})
 
+
+
 @login_required
 def archive_organization(request, organization_pk):
 
@@ -142,6 +146,8 @@ def archive_organization(request, organization_pk):
     organization.save()
 
     return redirect('organizations')
+
+
 
 @csrf_exempt
 @login_required
@@ -173,7 +179,7 @@ def organization_settings(request, organization_pk):
 
         elif request.POST['type'] == "remove_user":
             if request.POST['user_type'] == "active":
-                org_user = OrganizationUser.objects.get(user__email=request.POST['email'],organization=organization.pk)
+                org_user = OrganizationUser.objects.get(user__email=request.POST['email'],organization_id=organization.pk)
                 org_user.status = "deleted"
                 org_user.save()
             else:
@@ -187,7 +193,7 @@ def organization_settings(request, organization_pk):
 
     else:
         form = OrganizationForm(instance=organization)
-        active_users = organization.organizationuser_set.all().order_by('-created_at')
+        active_users = organization.organizationuser_set.filter(status="active").order_by('-created_at')
         inactive_users = organization.inactive_users.all().order_by('-created_at')
         connection = chain(active_users,inactive_users)
         print(connection)
@@ -209,12 +215,11 @@ def organization_settings(request, organization_pk):
 def apps(request, organization_pk):
 
     organization = get_object_or_404(Organization, pk=organization_pk)
-
-    if request.user not in organization.active_users.all():     
-        return HttpResponse('Unauthorized', status=401)
-
+    user_obj = OrganizationUser.objects.filter(user=request.user, status__exact='active', organization = organization).exists()
+    if not user_obj:
+         return HttpResponse('You are not allowed here!', status=401)
+    
     user_obj = OrganizationUser.objects.get(user=request.user, status__exact='active', organization = organization)
-
     if not user_obj.role == "admin":
         userApps = user_obj.permitted_apps.all()
     else:
@@ -281,7 +286,12 @@ def edit_app(request, organization_pk, app_pk):
 
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
-
+    org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user)
+    if not org_obj.exists():
+        return HttpResponse('Unauthorized', status=401)
+    elif app not in org_obj[0].permitted_apps.all():
+        if org_obj[0].role != 'admin':
+            return HttpResponse('Unorized', status=401)
     if request.method == "POST":
         form = AppForm(request.POST, instance=app)
         if form.is_valid():
@@ -304,7 +314,12 @@ def archive_app(request, organization_pk, app_pk):
 
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
-
+    org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user)
+    if not org_obj.exists():
+        return HttpResponse('Unauthorized', status=401)
+    elif app not in org_obj[0].permitted_apps.all():
+        if org_obj[0].role != 'admin':
+            return HttpResponse('Unorized', status=401)
     app.status = "archived"
     app.save()
 
@@ -315,6 +330,12 @@ def archive_app(request, organization_pk, app_pk):
 def app_settings(request, organization_pk, app_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
+    org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user)
+    if not org_obj.exists():
+        return HttpResponse('Unauthorized', status=401)
+    elif app not in org_obj[0].permitted_apps.all():
+        if org_obj[0].role != 'admin':
+            return HttpResponse('Unorized', status=401)    
     # Uses standard django forms
     if request.method == "POST":
         print(request.POST)
@@ -328,6 +349,7 @@ def app_settings(request, organization_pk, app_pk):
                 organization.save()
                 org_user = OrganizationUser.objects.get(organization=organization,user=u)
                 org_user.permitted_apps.add(app)
+                org_user.status='active'
                 org_user.save()
                 #print(org_user.permitted_apps.objects.all())
                 app.save()
@@ -338,6 +360,7 @@ def app_settings(request, organization_pk, app_pk):
                 organization.inactive_users.add(u[0])
                 
                 u[0].save()
+                organization.save()
             return JsonResponse({
                 "added" : "true"
             })
@@ -378,7 +401,12 @@ def app_details(request, organization_pk, app_pk):
 
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
-
+    org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user)
+    if not org_obj.exists():
+        return HttpResponse('Unauthorized', status=401)
+    elif app not in org_obj[0].permitted_apps.all():
+        if org_obj[0].role != 'admin':
+            return HttpResponse('Unorized', status=401)
     context = {
         'organization': organization,
         'app': app,
@@ -399,7 +427,12 @@ def dashboard(request, organization_pk, app_pk):
 
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
-
+    org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user)
+    if not org_obj.exists():
+        return HttpResponse('Unauthorized', status=401)
+    elif app not in org_obj[0].permitted_apps.all():
+        if org_obj[0].role != 'admin':
+            return HttpResponse('Unorized', status=401)
     if request.is_ajax() and request.method == "GET":
 
         # Call is ajax, just load main content needed here
@@ -437,13 +470,14 @@ def dashboard(request, organization_pk, app_pk):
 def lists(request, organization_pk, app_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
-
-    if request.user not in organization.active_users.all():
-        if request.user not in app.app_level_users.all():     
-            return HttpResponse('Unauthorized', status=401)
+    org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user)
+    if not org_obj.exists():
+        return HttpResponse('Unauthorized', status=401)
+    elif app not in org_obj[0].permitted_apps.all():
+        if org_obj[0].role != 'admin':
+            return HttpResponse('Unorized', status=401)
+ 
     
-    
-
     # lists = List.objects.all().filter(status='active', app=app)
     lists = List.objects.filter(status='active', app=app).order_by('name',)
 
@@ -567,7 +601,7 @@ def create_list(request, organization_pk, app_pk):
     elif request.method == 'POST':
         listform = ListForm(request.POST)
         formset = ListFieldFormset(request.POST)
-
+        print(request.POST)
         # Verify the form submitted is valid
         if listform.is_valid() and formset.is_valid():
             list = listform.save(commit=False)
@@ -651,14 +685,16 @@ def edit_list(request, organization_pk, app_pk, list_pk):
         # Reduce the queryset for select_list field to just active lists in current app
         for form in formset:
             form.fields['select_list'].queryset = List.objects.filter(app=app, status='active')
+            print(form)
 
     elif request.method == 'POST':
         listform = ListForm(request.POST, instance=list)
         formset = ListFieldFormset(data=request.POST)
-
+        print(request.POST)
         # Verify the form submitted is valid
+        print('invalid')
         if listform.is_valid() and formset.is_valid():
-
+            print('valid')
             list = listform.save(commit=False)
             list.updated_at = timezone.now()
             list.save() # Save here then update primary field once field is saved
@@ -807,6 +843,7 @@ def add_record(request, organization_pk, app_pk, list_pk):
 
 
 @login_required
+@csrf_exempt
 def save_record(request, organization_pk, app_pk, list_pk):
 
     # This handles both saving and updating a record
@@ -817,7 +854,7 @@ def save_record(request, organization_pk, app_pk, list_pk):
 
     record_id = request.POST.get('record_id', None)
     fields = json.loads(request.POST['field_values'])
-
+    print(request.POST)
     # TODO
     # Needs error handling here verify if the form is valid (i.e. all required fields, acceptable data types, etc)
 

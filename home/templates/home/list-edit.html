@@ -1,0 +1,386 @@
+{% load static %}
+<header class="page-header page-header-light page-header-light border-bottom bg-white mb-4">
+  <div class="container">
+      <div class="page-header-content pt-4">
+          <div class="row align-items-center justify-content-between">
+              <div class="col-auto mt-4">
+                <h1 class="page-header-title">
+                  {% if type == "list-create" %}
+                  Create a list
+                  {% elif type == "edit-list" %}
+                  Modify a list
+                  {% endif %}
+                </h1>
+              </div>
+          </div>
+      </div>
+  </div>
+</header>
+<!-- Main page content-->
+<div class="container">
+  <form class="form-horizontal" id="form-container" method="POST" action="">
+    {% csrf_token %}
+    <div class="card card-header-actions form-row mb-3">
+      <div class="card-body">
+        <div class="row mb-3 mt-3">
+          <div class="col-12">
+              <div class="input-group">
+                  {{listform.name}}
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr>
+    {{ formset.management_form }}
+    {% for form in formset %}
+    {{ form.id }}
+    <div class="card card-header-actions field-form mb-3">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="pt-3 pr-3">
+            <span class="btn btn-info move-up-btn p-2 arrow-up">
+              <i class="fas fa-arrow-up"></i>
+            </span>
+            <span class="btn btn-info move-down-btn mx-2 p-2 arrow-down">
+              <i class="fas fa-arrow-down"></i>
+            </span>
+          </div>
+          <div class="pt-3 pr-3">
+            <a class="text-danger remove-list-field" href="javascript:void(0);" style="text-decoration: none;" {% if type == "edit-list" %}data-attr="{{form.id.value}}"{% endif %}>X</a>
+          </div>
+        </div>
+      </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-6">
+                <div class="input-group">
+                    {{ form.field_label }}
+                    {{ form.field_label.errors }}
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="input-group">
+                    {{ form.field_type }}
+                    {{ form.field_type.errors }}
+                </div>
+            </div>
+
+            <div class="col-6 mt-3">
+              <div class="input-group">
+                {{ form.select_list }}
+                {{ form.select_list.errors }}
+              </div>
+            </div>
+
+            <div class="row mt-3">
+              <div class="col-6">
+                  <div class="form-group form-check ml-3">
+                      <div class="row">
+                        <div class="col-12">
+                          {{ form.required.errors }}
+                          {{ form.required }}
+                          <label class="form-check-label" for="id_form-{{ forloop.counter0 }}-required">Required</label>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-12">
+                          {{ form.visible.errors }}
+                          {{ form.visible }}
+                          <label class="form-check-label" for="id_form-{{ forloop.counter0 }}-required">Visible</label>
+                        </div>
+                      </div>
+                  </div>
+              </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-check">
+                </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    {% endfor %}
+    <button class="btn btn-success" id="add-form">Add Another Field</button>
+    <div class="row mt-3">
+      <div class="col-12">
+      </div>
+    </div>
+    <div class="col-4 mt-3">
+        <button type="submit" class="btn btn-block btn-primary">
+          {% if type == "list-create" %}
+            Create
+          {% elif type == "edit-list" %}
+            Update
+          {% endif %}
+        </button>
+    </div>
+    </form>
+</div>
+<!-- Include JS here that does not need template tags -->
+
+<!-- Include JS here that needs template tags -->
+<script>
+  $(document).ready(() => {
+
+    const fieldForm = document.querySelectorAll(".field-form");
+    const container = document.querySelector("#form-container");
+    const addButton = document.querySelector("#add-form");
+    const totalForms = document.querySelector("#id_form-TOTAL_FORMS");
+    const hiddeninputs = document.querySelectorAll("[name='form-0-id']");
+    addButton.addEventListener('click', (e) => {
+      const fieldForm = document.querySelectorAll(".field-form");
+      e.preventDefault();
+
+      let formNum = fieldForm.length-1;
+      let newForm = fieldForm[0].cloneNode(true);
+
+      const type = "{{ type | safe }}";
+      
+
+      newForm = fieldForm[0].cloneNode(true);
+      $(newForm [value='name']).val('');
+      var s= '<input type="hidden" name="form-'+formNum+'-id" value="'+(parseInt(formNum) +1)+'" id="id_form-'+formNum+'-id"/>';
+      //var s = '<div id="myDiv"></div>';
+      var temp = document.createElement('div');
+      temp.innerHTML = s;
+      var new_input = temp.firstChild;
+     // new_input= new DOMParser().parseFromString(new_input, "text/xml");
+      //new_input =(new_input.getElementsByTagName('input')[0]);
+      formNum++;
+      const formRegex = RegExp(`form-(\\d){1}-`,'g');
+      newForm.innerHTML = newForm.innerHTML.replace(formRegex, `form-${formNum}-`);
+      console.log(new_input)
+      container.insertBefore(new_input, addButton);
+      container.insertBefore(newForm, addButton);
+      $('#id_form-'+formNum+'-field_label').val('');
+      totalForms.setAttribute('value', `${formNum+1}`);
+      // add the required attribute in an extra list field form, to handle the validation, when user click on the update button
+      $("input[name=form-"+String(formNum)+"-field_label]").attr('required', true);
+    });
+
+    const type = '{{ type | safe }}'
+    if (type === 'edit-list'){
+      
+      var initial_form = $('#id_form-INITIAL_FORMS').val();
+      // remove the required attribute in an extra list field form, to handle the validation, when user click on the update button
+      $("input[name=form-"+String(initial_form)+"-field_label]").removeAttr('required');
+      $('#id_form-'+initial_form+'-id').next('div').hide();
+      $('#id_form-'+initial_form+'-id').hide();
+    }
+  });
+
+  /* this code is execute when user choose the field type */
+  $(document).on('change', '.field-type-custom', function() {
+    const field_type = $(this).val();
+    if (field_type == "choose-from-list") {
+
+      $(this).parent('div').parent('div').next('div').children('div').children('.select-type-custom').show().removeAttr('multiple', false);
+    
+    } else if (field_type == "choose-multiple-from-list") {
+
+      $(this).parent('div').parent('div').next('div').children('div').children('.select-type-custom').show().attr('multiple', true);
+    
+    } else {
+
+      $(this).parent('div').parent('div').next('div').children('div').children('.select-type-custom').hide();
+    }
+  });
+
+  /* not used this code (update this code on top) */
+  // $(document).ready(() => {
+    // const field_type_object = $('.field-type-custom');
+    // field_type_object.each(function(index, data){
+    //   if ($(this).val() == "choose-from-list") {
+    //     $(this).parent('div').parent('div').next('div').children('div').children('.select-type-custom').show().removeAttr('multiple', false);
+    //   } else if ($(this).val() == "choose-multiple-from-list") {
+    //     $(this).parent('div').parent('div').next('div').children('div').children('.select-type-custom').show().attr('multiple', true);
+    //   }
+    // });
+
+    // const type = "{{ type | safe }}";
+
+    // if (type == "edit-list") {
+    //   var initial_form = $('#id_form-INITIAL_FORMS').val();
+    //   $('#id_form-'+initial_form+'-id').next('div').hide();
+      // $('#id_form-'+initial_form+'-id').remove('div');
+    // } else {
+      // Do nothing for now
+    // }
+  // });
+
+  /* code for remove the list field */
+  $(document).on('click', '.remove-list-field', function(){
+    const type = "{{ type | safe }}";
+    if (type == "edit-list") {
+      var initial_form_id = $(this).attr('data-attr');
+      if (initial_form_id !== "None") {
+        var list_field_id = $(this).parent('div').parent('div').parent('div').parent('div').prev('input').val();
+        $('#form-container').append(
+          '<input type="hidden" name="delete_list_field_ids" value='+list_field_id+'>'
+        );
+      };
+    }
+    const totalForms = $("#id_form-TOTAL_FORMS").val();
+    $("#id_form-TOTAL_FORMS").val(Number(totalForms)-1);
+    $(this).parent('div').parent('div').parent('div').parent('div');
+    // remove the required attribute in an extra list field form, to handle the validation, when user click on the update button
+    $("input[name=form-"+String(totalForms-1)+"-field_label]").removeAttr('required');
+  });
+
+  /* code for Up Arrow Functionality with changing the id, name attribute value */
+  $(document).on('click', '.arrow-up', function(){
+    // regular expression for change the id, name attribute value
+    const formRegex = RegExp(`form-(\\d){1}-`,'g');
+    // get current HTML Content object
+    var current = $(this).closest('.field-form');
+    // extract the numeric value of django id, name attribute ordering value
+    var currentFormCounter = current[0].getElementsByTagName('input')[0].getAttribute('name')[5];
+    // get all input tags of current HTML Content
+    var allInputsCurrent = current[0].querySelectorAll('input');
+    // get all select tags of current HTML Content
+    var allSelectsCurrent = current[0].querySelectorAll('select');
+
+    {% if type == "edit-list" %}
+      // get hidden input field (in this hidden field the database value is save)
+      var previous_input = current.prev('input');
+      // get upper HTML Content object
+      var previous = current.prev('input').prev('.field-form');
+      // get hidden input field (in this hidden field the database value is save)
+      var next_input = previous.prev('input');
+    {% else %}
+      // get upper HTML Content object
+      var previous = current.prev('.field-form');
+    {% endif %}
+
+    if (previous.length !== 0){
+      // extract the numeric value of django id, name attribute ordering value
+      var previousFormCounter = previous[0].getElementsByTagName('input')[0].getAttribute('name')[5];
+      // get all input tags of upper HTML Content
+      var allInputsPrevious = previous[0].querySelectorAll('input');
+      // get all select tags of upper HTML Content
+      var allSelectsPrevious = previous[0].querySelectorAll('select');
+
+      // loop for change the order of all the name and id attributes value of current HTML Content of input tags
+      allInputsCurrent.forEach(function(element){
+        element.setAttribute("name", element.getAttribute('name').replace(formRegex, `form-${previousFormCounter}-`));
+        element.setAttribute("id", element.getAttribute('id').replace(formRegex, `form-${previousFormCounter}-`));
+      });
+
+      // loop for change the order of all the name and id attributes value of current HTML Content of select tags
+      allSelectsCurrent.forEach(function(element){
+        element.setAttribute("name", element.getAttribute('name').replace(formRegex, `form-${previousFormCounter}-`));
+        element.setAttribute("id", element.getAttribute('id').replace(formRegex, `form-${previousFormCounter}-`));
+      });
+
+      // loop for change the order of all the name and id attributes value of upper HTML Content input tags
+      allInputsPrevious.forEach(function(element){
+        element.setAttribute("name", element.getAttribute('name').replace(formRegex, `form-${currentFormCounter}-`));
+        element.setAttribute("id", element.getAttribute('id').replace(formRegex, `form-${currentFormCounter}-`));
+      });
+
+      // loop for change the order of all the name and id attributes value of upper HTML Content select tags
+      allSelectsPrevious.forEach(function(element){
+        element.setAttribute("name", element.getAttribute('name').replace(formRegex, `form-${currentFormCounter}-`));
+        element.setAttribute("id", element.getAttribute('id').replace(formRegex, `form-${currentFormCounter}-`));
+      });
+
+      // move the HTML Content
+      current.insertBefore(previous);
+
+      {% if type == "edit-list" %}
+      // this code is implement for change the input tag id and name attribute value of the database id
+      var t1 = previous_input.attr('name');
+      var t2 = next_input.attr('name');
+      var t3 = previous_input.attr('id');
+      var t4 = next_input.attr('id');
+
+      next_input.attr("name", t1);
+      next_input.attr("id", t3);
+      previous_input.attr("name", t2);
+      previous_input.attr("id", t4);
+      previous_input.insertBefore(previous);
+      {% endif %}
+    }
+
+  });
+
+  /* code for Down Arrow Functionality */
+  $(document).on('click', '.arrow-down', function(){
+    // regular expression for change the id, name attribute value
+    const formRegex = RegExp(`form-(\\d){1}-`,'g');
+    // get current HTML Content object
+    var current = $(this).closest('.field-form');
+    // extract the numeric value of django id, name attribute ordering value
+    var currentFormCounter = current[0].getElementsByTagName('input')[0].getAttribute('name')[5];
+    // get all input tags of current HTML Content
+    var allInputsCurrent = current[0].querySelectorAll('input');
+    // get all select tags of current HTML Content
+    var allSelectsCurrent = current[0].querySelectorAll('select');
+
+    {% if type == "edit-list" %}
+    // get hidden input field (in this hidden field the database value is save)
+      var next_input = current.next('input');
+      // get lower HTML Content object
+      var next = current.next('input').next('.field-form');
+      // get hidden input field (in this hidden field the database value is save)
+      var previous_input = current.prev('input');
+    {% else %}
+      // get lower HTML Content object
+      var next = current.next('.field-form');
+    {% endif %}
+
+    if (next.length !== 0){
+      // extract the numeric value of django id, name attribute ordering value
+      var nextFormCounter = next[0].getElementsByTagName('input')[0].getAttribute('name')[5];
+      // get all input tags of lower HTML Content
+      var allInputsNext = next[0].querySelectorAll('input');
+      // get all select tags of lower HTML Content
+      var allSelectsNext = next[0].querySelectorAll('select');
+
+      // loop for change the order of all the name and id attributes value of current HTML Content of input tags
+      allInputsCurrent.forEach(function(element){
+        element.setAttribute("name", element.getAttribute('name').replace(formRegex, `form-${nextFormCounter}-`));
+        element.setAttribute("id", element.getAttribute('id').replace(formRegex, `form-${nextFormCounter}-`));
+      });
+
+      // loop for change the order of all the name and id attributes value of current HTML Content of select tags
+      allSelectsCurrent.forEach(function(element){
+        element.setAttribute("name", element.getAttribute('name').replace(formRegex, `form-${nextFormCounter}-`));
+        element.setAttribute("id", element.getAttribute('id').replace(formRegex, `form-${nextFormCounter}-`));
+      });
+
+      // loop for change the order of all the name and id attributes value of lower HTML Content input tags
+      allInputsNext.forEach(function(element){
+        element.setAttribute("name", element.getAttribute('name').replace(formRegex, `form-${currentFormCounter}-`));
+        element.setAttribute("id", element.getAttribute('id').replace(formRegex, `form-${currentFormCounter}-`));
+      });
+
+      // loop for change the order of all the name and id attributes value of lower HTML Content select tags
+      allSelectsNext.forEach(function(element){
+        element.setAttribute("name", element.getAttribute('name').replace(formRegex, `form-${currentFormCounter}-`));
+        element.setAttribute("id", element.getAttribute('id').replace(formRegex, `form-${currentFormCounter}-`));
+      });
+
+      // move the HTML Content
+      current.insertAfter(next);
+
+      {% if type == "edit-list" %}
+      // this code is implement for change the input tag id and name attribute value of the database id
+      var t1 = next_input.attr('name');
+      var t2 = previous_input.attr('name');
+      var t3 = next_input.attr('id');
+      var t4 = previous_input.attr('id');
+
+      next_input.attr("name", t1);
+      next_input.attr("id", t3);
+      previous_input.attr("name", t2);
+      previous_input.attr("id", t4);
+
+      next_input.insertAfter(next);
+      {% endif %}
+    }
+    return false;
+  });
+
+</script>

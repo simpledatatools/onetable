@@ -19,7 +19,6 @@ from django.dispatch import receiver
 
 
 
-
 class Organization(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
     name = models.CharField(max_length=200)
@@ -43,15 +42,19 @@ class Organization(models.Model):
     )
 
     # TODO add @property for organization users
+    
+    def membersCount(self):
+        active_users = OrganizationUser.objects.filter(organization=self,status="active").count()
+        inactive_users = self.inactive_users.all().count()
+        return active_users + inactive_users
+
+    #memberscount = property(MembersCount)
 
     def __str__(self):
         return self.name
-
-    def get_users(self):
-        return "\n".join([p.products for p in self.product.all()])
+        
     
-
-
+    
 class OrganizationUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True)
@@ -84,6 +87,8 @@ class OrganizationUser(models.Model):
         default='active',
     )
 
+    def __str__(self):
+        return self.organization.name + ' - ' + self.user.username
 
 # class App(models.Model):
 #     id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
@@ -141,6 +146,10 @@ class App(models.Model):
     def __str__(self):
         return self.name
 
+    def membersCount(self):
+        active_users = OrganizationUser.objects.filter(organization = self.organization,status='active',permitted_apps = self).count()
+        inactive_users = InactiveUsers.objects.filter(attached_workspaces = self).count()
+        return active_users + inactive_users
 
 class AppUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -432,9 +441,11 @@ class RecordFile(models.Model):
             'record_file_pk':self.pk
             })
 
+
 def record_media_path(self, filename):
     new_path = "record" + "/media/" + str(self.record.pk) + '/'
     return os.path.join(new_path, filename)
+
 
 class RecordMedia(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
@@ -520,6 +531,7 @@ class RecordMedia(models.Model):
 
         super().save(*args, **kwargs)
 
+
 class RecordComment(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
     record = models.ForeignKey(Record,on_delete=models.CASCADE,null=True,blank=True)
@@ -550,6 +562,7 @@ class RecordComment(models.Model):
             })
 
 
+
 class Note(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
     note = models.TextField()
@@ -578,11 +591,13 @@ class Note(models.Model):
 
 class InactiveUsers(models.Model):
     user_email = models.EmailField(null=True)
-    attached_organizations = models.ManyToManyField(Organization)
+    #attached_organizations = models.ManyToManyField(Organization)
     created_at = models.DateTimeField(auto_now_add=True)
     attached_workspaces= models.ManyToManyField(App,related_name='apps')
     #attached_workspaces = models.ManyToManyField(App)
 
+    def __str__(self):
+        return self.user_email
 
 
 @receiver(post_save, sender=User)
@@ -590,14 +605,16 @@ def update_stock(sender, instance, **kwargs):
     inactive_user = InactiveUsers.objects.filter(user_email=instance.email).exists()
     if inactive_user==True:
         inactive_user= InactiveUsers.objects.get(user_email=instance.email)
-        att_orgs = inactive_user.attached_organizations.all()
+        att_orgs = inactive_user.organization_set.all()
         for org in att_orgs:
             org.active_users.add(instance)
-            org.save()
         #instance.active_users.add(att_orgs)
         att_workspaces = inactive_user.attached_workspaces.all()
         for wrksps in att_workspaces:
-            org_user = OrganizationUser.objects.create_or_get(user=instance,organization_id = wrksps.organization.pk)
+            org = Organization.objects.get(id = wrksps.organization.pk)
+            org.active_users.add(instance)
+            org.save()
+            org_user = OrganizationUser.objects.get_or_create(user=instance,organization_id = wrksps.organization.pk)
             org_user[0].permitted_apps.add(wrksps)
             org_user[0].save()
         inactive_user.delete()

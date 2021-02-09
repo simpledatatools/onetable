@@ -164,7 +164,7 @@
      
       {% csrf_token %}
       <input name="type" value="add_user" type="hidden"/>
-      <input type="text" name="email" placeholder="Enter user's E-mail" class="form-control" />
+      <input type="email" name="email" placeholder="Enter user's E-mail" class="form-control" />
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -178,6 +178,24 @@
 <script>
 $(document).ready(function() {
 
+function removeUser(){
+      $(document).ready(function() {
+$('.remove-user').click(function(ev){
+  ev.preventDefault();
+  var url = $('#add_user').attr('action');
+  var email_main = $(this).attr('data-user-email');
+  $.post(url,{
+    "type" : "remove_user",
+    "user_type" : $(this).attr('data-user-type'),
+    "email": $(this).attr('data-user-email')
+    },function(data, status){
+      console.log('[email-main='+$(this).attr('data-user-email')+']');
+      $('[email-main="'+email_main+'"]').hide();
+    
+  });
+});
+});
+}
 $('#add_user').submit(function(ev){
 
    ev.preventDefault();
@@ -192,33 +210,21 @@ $('#add_user').submit(function(ev){
                     data: $(this).serialize(),
                     
                     success: function(data) {
-                        $('#nav-users').load(window.location.href + ' #nav-users');
+                        $('#nav-users').load(window.location.href + ' #nav-users',function(){
+                          removeUser();
+                        });
                         $('#addUser').modal('hide');
+                        
                     }
                 });
 
 });
 
 
+removeUser();
 });
-</script>
- <script>
-      $(document).ready(function() {
-$('.remove-user').click(function(ev){
-  ev.preventDefault();
-  var url = $('#add_user').attr('action');
-  var email_main = $(this).attr('data-user-email');
-  $.post(url,{
-    "type" : "remove_user",
-    "user_type" : $(this).attr('data-user-type'),
-    "email": $(this).attr('data-user-email')
-    },function(data, status){
-      console.log('[email-main='+$(this).attr('data-user-email')+']');
-    $('[email-main="'+email_main+'"]').hide();
+
     
-  });
-});
-      });
 </script>
 
 
