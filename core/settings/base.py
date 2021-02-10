@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'home',
     'imagekit'
 
-    
+
 
 ]
 
@@ -101,9 +101,9 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'onetablefine',
+        'NAME': 'one-table-local',
         'USER': 'postgres',
-        'PASSWORD': '1234',
+        'PASSWORD': 'postgres',
         'HOST': 'localhost',
         'PORT': '',
     }
