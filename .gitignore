@@ -12,6 +12,9 @@
 /media/
 .env
 
+# local DB credentials
+/core/settings/config.py
+
 # migration file and pycache files
 **/migrations/*
 __pycache__/
