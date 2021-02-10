@@ -18,10 +18,11 @@ from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 
 
+
 class Organization(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
     name = models.CharField(max_length=200)
-    description = models.TextField()
+    description = models.TextField(default='')
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     active_users = models.ManyToManyField(User,through="OrganizationUser",through_fields=( 'organization','user'))
     inactive_users = models.ManyToManyField('InactiveUsers')
@@ -50,7 +51,8 @@ class Organization(models.Model):
     #memberscount = property(MembersCount)
 
     def __str__(self):
-        return self.name        
+        return self.name
+        
     
     
 class OrganizationUser(models.Model):
@@ -121,7 +123,7 @@ class OrganizationUser(models.Model):
 class App(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
     name = models.CharField(max_length=200)
-    description = models.TextField()
+    description = models.TextField(default='')
     organization = models.ForeignKey('Organization', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     last_updated = models.DateTimeField(auto_now_add=True)
@@ -148,7 +150,6 @@ class App(models.Model):
         active_users = OrganizationUser.objects.filter(organization = self.organization,status='active',permitted_apps = self).count()
         inactive_users = InactiveUsers.objects.filter(attached_workspaces = self).count()
         return active_users + inactive_users
-
 
 class AppUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -255,9 +256,7 @@ class ListField(models.Model):
         ('number', 'Number'),
         ('url', 'Url'),
         ('choose-from-list', 'Choose from List'),
-        ('date', 'Date'),
-        ('rating', 'Rating'),
-        ('instructions', 'Instructions')
+        ('date', 'Date')
         #('choose-multiple-from-list', 'Choose multiple from List'),
     )
 
@@ -563,6 +562,15 @@ class RecordComment(models.Model):
             })
 
 
+class InactiveUsers(models.Model):
+    user_email = models.EmailField(null=True)
+    #attached_organizations = models.ManyToManyField(Organization)
+    created_at = models.DateTimeField(auto_now_add=True)
+    attached_workspaces= models.ManyToManyField(App,related_name='apps')
+    #attached_workspaces = models.ManyToManyField(App)
+
+    def __str__(self):
+        return self.user_email
 
 class Note(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
@@ -590,15 +598,7 @@ class Note(models.Model):
 
 
 
-class InactiveUsers(models.Model):
-    user_email = models.EmailField(null=True)
-    #attached_organizations = models.ManyToManyField(Organization)
-    created_at = models.DateTimeField(auto_now_add=True)
-    attached_workspaces= models.ManyToManyField(App,related_name='apps')
-    #attached_workspaces = models.ManyToManyField(App)
 
-    def __str__(self):
-        return self.user_email
 
 
 @receiver(post_save, sender=User)

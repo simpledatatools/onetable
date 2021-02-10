@@ -169,7 +169,7 @@
      
       {% csrf_token %}
       <input name="type" value="add_user" type="hidden"/>
-      <input type="email" name="email" placeholder="Enter user's E-mail" class="form-control" />
+      <input type="email" id="add-user-email" name="email" placeholder="Enter user's E-mail" class="form-control" />
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -217,22 +217,10 @@ $('#add_user').submit(function(ev){
                     
                     success: function(data) {
                         $('#nav-users').load(window.location.href + ' #nav-users'),function(responseTxt, statusTxt, xhr){
-                         $('.remove-user').click(function(ev){
-  ev.preventDefault();
-  var url = $('#add_user').attr('action');
-  var email_main = $(this).attr('data-user-email');
-  $.post(url,{
-    "type" : "remove_user",
-    "user_type" : $(this).attr('data-user-type'),
-    "email": $(this).attr('data-user-email')
-    },function(data, status){
-      console.log('[email-main='+$(this).attr('data-user-email')+']');
-    $('[email-main="'+email_main+'"]').hide();
-    
-  });
-});     
+                          removeUser();
                                              };
                         $('#addUser').modal('hide');
+                        $('#add-user-email').val('');
                         //setTimeout(removeUser(),3000);
                     }
                 });

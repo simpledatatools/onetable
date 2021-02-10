@@ -6,7 +6,7 @@
       <div class="card card-header-actions lift lift-sm h-100">
           <div class="card-header bg-white">
               <a href="javascript:void(0);" onclick="getPage('{% url 'record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}');">
-                {{ record.primary_field.value }}
+                {{ record.primary_field.value|safe }}
               </a>
               <div class="dropdown no-caret">
                   <button class="btn btn-transparent-dark btn-icon dropdown-toggle" id="dropdownMenuButton" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-bars"></i></button>
@@ -25,19 +25,24 @@
           
           {% if record.record_fields|length > 1 %}
           <div class="card-body">
+          
             {% for field in record.record_fields %}
+            
               {% if field.list_field.visible and field.list_field.primary is False %}
+              
                 {% if field.list_field.field_type == "choose-from-list" %}
+                
                 <p><b>{{ field.list_field.field_label }}:</b>
                   {% if field.selected_record.status == 'active' %}
                   <a href="{% url 'record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=field.selected_record.pk %}">
-                    <span class="badge badge-primary p-2">{{ field.selected_record.primary_field.value }}
+                    <span class="badge badge-primary p-2">{{ field.selected_record.primary_field.value|safe }}
                     </span>
                   </a>
                   {% endif %}
                 </p>
+                
                 {% elif field.list_field.field_type == "url" %}
-                  <p><b>{{ field.list_field.field_label }}:</b> <a href="{{ field.value }}" target="_blank">{{ field.value }}</a></p>
+                  <p><b>{{ field.list_field.field_label }}:</b> <a href="{{ field.value }}" target="_blank">{{ field.value |safe}}</a></p>
                 {% else %}
                   <p><b>{{ field.list_field.field_label }}:</b> {{ field.value|safe }}</p>
                 {% endif %}

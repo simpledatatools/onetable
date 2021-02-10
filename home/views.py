@@ -221,9 +221,9 @@ def apps(request, organization_pk):
     
     user_obj = OrganizationUser.objects.get(user=request.user, status__exact='active', organization = organization)
     if not user_obj.role == "admin":
-        userApps = user_obj.permitted_apps.all()
+        userApps = user_obj.permitted_apps.filter(status='active')
     else:
-        userApps =App.objects.filter(organization=organization)
+        userApps =App.objects.filter(organization=organization,status='active')
     
     apps = []
 
@@ -291,7 +291,7 @@ def edit_app(request, organization_pk, app_pk):
         return HttpResponse('Unauthorized', status=401)
     elif app not in org_obj[0].permitted_apps.all():
         if org_obj[0].role != 'admin':
-            return HttpResponse('Unorized', status=401)
+            return HttpResponse('Unauthorized', status=401)
     if request.method == "POST":
         form = AppForm(request.POST, instance=app)
         if form.is_valid():
@@ -319,7 +319,7 @@ def archive_app(request, organization_pk, app_pk):
         return HttpResponse('Unauthorized', status=401)
     elif app not in org_obj[0].permitted_apps.all():
         if org_obj[0].role != 'admin':
-            return HttpResponse('Unorized', status=401)
+            return HttpResponse('Unauthorized', status=401)
     app.status = "archived"
     app.save()
 
@@ -335,7 +335,7 @@ def app_settings(request, organization_pk, app_pk):
         return HttpResponse('Unauthorized', status=401)
     elif app not in org_obj[0].permitted_apps.all():
         if org_obj[0].role != 'admin':
-            return HttpResponse('Unorized', status=401)    
+            return HttpResponse('Unauthorized', status=401)    
     # Uses standard django forms
     if request.method == "POST":
         print(request.POST)
@@ -406,7 +406,7 @@ def app_details(request, organization_pk, app_pk):
         return HttpResponse('Unauthorized', status=401)
     elif app not in org_obj[0].permitted_apps.all():
         if org_obj[0].role != 'admin':
-            return HttpResponse('Unorized', status=401)
+            return HttpResponse('Unauthorized', status=401)
     context = {
         'organization': organization,
         'app': app,
@@ -432,7 +432,7 @@ def dashboard(request, organization_pk, app_pk):
         return HttpResponse('Unauthorized', status=401)
     elif app not in org_obj[0].permitted_apps.all():
         if org_obj[0].role != 'admin':
-            return HttpResponse('Unorized', status=401)
+            return HttpResponse('Unauthorized', status=401)
     if request.is_ajax() and request.method == "GET":
 
         # Call is ajax, just load main content needed here
@@ -515,7 +515,7 @@ def lists(request, organization_pk, app_pk):
         return HttpResponse('Unauthorized', status=401)
     elif app not in org_obj[0].permitted_apps.all():
         if org_obj[0].role != 'admin':
-            return HttpResponse('Unorized', status=401)
+            return HttpResponse('Unauthorized', status=401)
  
     
     # lists = List.objects.all().filter(status='active', app=app)
@@ -675,7 +675,7 @@ def create_list(request, organization_pk, app_pk):
 
                 for select_list_id in request.POST.getlist(f'form-{index}-select_list'):
                     if form.cleaned_data.get('select_list') is not None:
-                        if select_list_id != form.cleaned_data.get('select_list').id:
+                        if int(select_list_id) != int(form.cleaned_data.get('select_list').id):
                             ListField.objects.create(
                                 created_at=timezone.now(),
                                 created_user=request.user,
