@@ -12,5 +12,6 @@
 /media/
 .env
 
+# migration file and pycache files
 **/migrations/*
 __pycache__/
