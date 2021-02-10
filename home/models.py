@@ -18,7 +18,6 @@ from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 
 
-
 class Organization(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
     name = models.CharField(max_length=200)
@@ -51,8 +50,7 @@ class Organization(models.Model):
     #memberscount = property(MembersCount)
 
     def __str__(self):
-        return self.name
-        
+        return self.name        
     
     
 class OrganizationUser(models.Model):
@@ -150,6 +148,7 @@ class App(models.Model):
         active_users = OrganizationUser.objects.filter(organization = self.organization,status='active',permitted_apps = self).count()
         inactive_users = InactiveUsers.objects.filter(attached_workspaces = self).count()
         return active_users + inactive_users
+
 
 class AppUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -256,7 +255,9 @@ class ListField(models.Model):
         ('number', 'Number'),
         ('url', 'Url'),
         ('choose-from-list', 'Choose from List'),
-        ('date', 'Date')
+        ('date', 'Date'),
+        ('rating', 'Rating'),
+        ('instructions', 'Instructions')
         #('choose-multiple-from-list', 'Choose multiple from List'),
     )
 

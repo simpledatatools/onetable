@@ -675,7 +675,7 @@ def create_list(request, organization_pk, app_pk):
 
                 for select_list_id in request.POST.getlist(f'form-{index}-select_list'):
                     if form.cleaned_data.get('select_list') is not None:
-                        if int(select_list_id) != int(form.cleaned_data.get('select_list').id):
+                        if select_list_id != form.cleaned_data.get('select_list').id:
                             ListField.objects.create(
                                 created_at=timezone.now(),
                                 created_user=request.user,

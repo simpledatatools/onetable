@@ -73,7 +73,7 @@
               </div>
             </div>
 
-            <div class="row mt-3">
+            <div class="row mt-3 checkboxes">
               <div class="col-6">
                   <div class="form-group form-check ml-3">
                       <div class="row">
@@ -122,6 +122,15 @@
 <!-- Include JS here that needs template tags -->
 <script>
   $(document).ready(() => {
+    const field_types = $('.field-type-custom');
+    field_types.each(function(index, element){
+      if (element.value === 'choose-from-list'){
+        $(this).parent('div').parent('div').siblings('div').children('div').children('.select-type-custom').removeAttr('style');
+      }
+      else if (element.value === 'instructions'){
+        $(this).parent('div').parent('div').siblings('.checkboxes').addClass('d-none');
+      }
+    });
 
     const fieldForm = document.querySelectorAll(".field-form");
     const container = document.querySelector("#form-container");
@@ -184,6 +193,17 @@
     } else {
 
       $(this).parent('div').parent('div').next('div').children('div').children('.select-type-custom').hide();
+    }
+  });
+
+  /* this code is execute for hide the required or visible checkbox */
+  $(document).on('change', '.field-type-custom', function() {
+    const field_type = $(this).val();
+    if (field_type === 'instructions'){
+      $(this).parent('div').parent('div').siblings('.checkboxes').addClass('d-none');
+    }
+    else{
+      $(this).parent('div').parent('div').siblings('.checkboxes').removeClass('d-none');
     }
   });
 
