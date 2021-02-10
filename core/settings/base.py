@@ -81,45 +81,15 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'onetablefinal',
-        'USER': 'postgres',
-        'PASSWORD': '1234',
-        'HOST': 'localhost',
-        'PORT': 5432
-    }
+     'default': {
+         'ENGINE': 'django.db.backends.postgresql',
+         'NAME': 'one-table-local',
+         'USER': 'postgres',
+         'PASSWORD': 'postgres',
+         'HOST': 'localhost',
+         'PORT': '',
+     }
 }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': 'db.sqlite3',
-#     }
-# }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'one-table-local',
-#         'USER': 'postgres',
-#         'PASSWORD': 'postgres',
-#         'HOST': 'localhost',
-#         'PORT': '',
-#     }
-# }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'one-table-local',
-#         'USER': 'postgres',
-#         'PASSWORD': 'postgres',
-#         'HOST': 'localhost',
-#         'PORT': '',
-#     }
-# }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -187,4 +157,4 @@ EMAIL_HOST_USER = 'postmaster@mg.onetableapp.com'
 EMAIL_HOST_PASSWORD = 'fa9db85acfbb7a83b0ee91f175a025c8-77751bfc-3f59a1ac'
 EMAIL_USE_TLS = True
 
-BASE_URL = 'http://192.168.0.190:8000/'
+BASE_URL = 'http://127.0.0.1:8000/'
