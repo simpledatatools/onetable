@@ -83,10 +83,10 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'one_table',
+        'NAME': 'onetablefinal',
         'USER': 'postgres',
-        'PASSWORD': 'aviox@123',
-        'HOST': '167.71.228.244',
+        'PASSWORD': '1234',
+        'HOST': 'localhost',
         'PORT': 5432
     }
 }
