@@ -221,9 +221,9 @@ def apps(request, organization_pk):
     
     user_obj = OrganizationUser.objects.get(user=request.user, status__exact='active', organization = organization)
     if not user_obj.role == "admin":
-        userApps = user_obj.permitted_apps.all()
+        userApps = user_obj.permitted_apps.filter(status='active')
     else:
-        userApps =App.objects.filter(organization=organization)
+        userApps =App.objects.filter(organization=organization,status='active')
     
     apps = []
 
