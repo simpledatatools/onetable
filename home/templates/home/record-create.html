@@ -76,6 +76,19 @@
                   <label for="field_{{ field.field_id }}">{{ field.field_label }}{% if field.required %}*{% endif %}</label>
                   <input class="form-control form-control-solid record-field" id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" type="url" onblur="return validateUrl(this);" placeholder="Input response here" {% if field.value %}value='{{ field.value }}'{% endif %} {% if field.required %}required{% endif %}>
                 </div>
+                {% elif field.field_type == 'instructions' %}
+                <div class="form-group">
+                  <label for="field_{{ field.field_id }}">{{ field.field_label }}{% if field.required %}*{% endif %}</label>
+                </div>
+                {% elif field.field_type == 'rating' %}
+                <div class="form-group">
+                  <label for="field_{{ field.field_id }}">{{ field.field_label }}{% if field.required %}*{% endif %}</label>
+                  <input class="record-field ratings chk1" data-rating=1 id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" type="checkbox" {% if field.value %}value='{{ field.value }}'{% endif %} {% if field.required %}required{% endif %}>
+                  <input class="record-field ratings chk2" data-rating=2 id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" type="checkbox" {% if field.value %}value='{{ field.value }}'{% endif %} {% if field.required %}required{% endif %}>
+                  <input class="record-field ratings chk3" data-rating=3 id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" type="checkbox" {% if field.value %}value='{{ field.value }}'{% endif %} {% if field.required %}required{% endif %}>
+                  <input class="record-field ratings chk4" data-rating=4 id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" type="checkbox" {% if field.value %}value='{{ field.value }}'{% endif %} {% if field.required %}required{% endif %}>
+                  <input class="record-field ratings chk5" data-rating=5 id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" type="checkbox" {% if field.value %}value='{{ field.value }}'{% endif %} {% if field.required %}required{% endif %}>
+                </div>
               {% endif %}
             {% endfor %}
         </form>
@@ -88,6 +101,29 @@
 
 <!-- Include JS here that needs template tags -->
 <script>
+  var total_rating = 0;
+  var rating_type = "";
+  var rating_id = "";
+  
+  // this js code is used for increase/decrease rating value
+  $(document).on('click', '.ratings', function(){
+    total_rating = 0;
+    rating_type = $(this).attr('data-attr');
+    rating_id = $(this).attr('id').replace("field_","");
+
+    $('.ratings').each(function(index, element){
+      var data_attr_value = element.getAttribute('data-rating');
+      $('.chk'+String(data_attr_value)).prop('checked', false);
+    });
+    
+    const rating_value = $(this).attr('data-rating');
+    for (j=1; j<=rating_value; j++)
+    {
+      $('.chk'+String(j)).prop('checked', true);
+      total_rating++;
+    }
+  });
+
   $('.record-field').on('focusin', function(){
     $(this).removeClass('border-danger');
   });
@@ -109,36 +145,63 @@ function saveRecord() {
     var field_values = [];
     var submit = 0;
     var required = 0;
-
+    field = {};
     $(".record-field").each(function(){
+      var get_field_type = $(this).attr('data-attr');
+      
+      
       if ($(this).is(':required')){
-        required += 1;
-        if ($(this).val().length !== 0){
-          submit += 1;
-        }
-        else{
-          $(this).addClass('border-danger');
-        }
+          required += 1;
+          if (get_field_type !== 'rating'){
+            if ($(this).val().length !== 0){
+              submit += 1;
+            }
+            else{
+              $(this).addClass('border-danger');
+            }
+          }
+          else if (get_field_type === 'rating'){
+            if (total_rating > 0){
+              submit += 1;
+            }
+          }
       };
+      if (get_field_type !== 'rating'){
+        var id = $(this).attr('id').replace("field_","");
+        var val = $(this).val();
 
-      var id = $(this).attr('id').replace("field_","");
-      var val = $(this).val();
-      var field_type = $(this).attr('data-attr');
-      field = {};
-      field['fieldId'] = id;
-      field['fieldValue'] = val;
-      field['fieldType'] = field_type;
-      if (field_type === "choose-from-list"){
-        var listValue = $(this).find(':selected').data('value');
-        if (typeof listValue === "undefined"){
-          field['selectListValue'] = false;
+        field['fieldId'] = id;
+        field['fieldValue'] = val;
+        field['fieldType'] = get_field_type;
+        
+        if (get_field_type === "choose-from-list"){
+          var listValue = $(this).find(':selected').data('value');
+          if (typeof listValue === "undefined"){
+            field['selectListValue'] = false;
+          }
+          else{
+            field['selectListValue'] = listValue;
+          }
         }
-        else{
-          field['selectListValue'] = listValue;
-        }
+        field_values.push(field);
       }
-      field_values.push(field);
+      // else if (get_field_type === 'rating'){
+      //   console.log('*******************rating');
+      //   var id = $(this).attr('id').replace("field_","");
+      //   field['fieldId'] = id;
+      //   field['fieldValue'] = total_rating;
+      //   field['fieldType'] = get_field_type;
+      //   field_values.push(field);
+      // }
     });
+
+    if (total_rating > 0){
+      test = {}
+      test['fieldId'] = rating_id;
+      test['fieldValue'] = total_rating;
+      test['fieldType'] = rating_type;
+      field_values.push(test);
+    }
 
     const data = {
       'field_values': JSON.stringify(field_values),
@@ -160,7 +223,7 @@ function saveRecord() {
       data.record_id = record ;
     }
     var record_form = $('#record_form');
-    
+
     if (submit === required){
       $.ajax({
         type: "POST",
