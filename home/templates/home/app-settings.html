@@ -108,11 +108,11 @@
       <div id="list_of_users">
       {% for connect in connection %}
         {% if connect.user.email %}
-          <div email-main="{{connect.user.email}}" class="mb-3 card w-100">  
+          <div email-main="{{connect.user.email}}" class="mb-3 card w-100">
           {% else %}
-          <div email-main="{{connect.user_email}}" class="mb-3 card w-100">  
-          
-          {% endif %}    
+          <div email-main="{{connect.user_email}}" class="mb-3 card w-100">
+
+          {% endif %}
           <div class="card-body">
            <div class="float-right dropdown">
    <button class="btn btn-white dropdown-toggle p-1" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -128,7 +128,7 @@
    </div>
           <h5 class="card-title">
           {% if connect.user %}
-          {{connect.user.first_name}} {{connect.user.last_name}} 
+          {{connect.user.first_name}} {{connect.user.last_name}}
           {% else %}
             <i class="text-muted"> {Pending user Sign Up} </i>
           {% endif %}
@@ -142,8 +142,8 @@
           {% else %}
           {{connect.user_email}}
           {% endif %}
-          
-          </p>  
+
+          </p>
         </div>
         </div>
       {% endfor %}
@@ -153,7 +153,7 @@
      
       </div>
   </div>
-  
+
   </div>
 </div>
   <div class="modal fade" id="addUser" tabindex="-1" role="dialog" aria-labelledby="addUSER" aria-hidden="true">
@@ -167,10 +167,10 @@
         </button>
       </div>
       <div class="modal-body">
-     
+
       {% csrf_token %}
       <input name="type" value="add_user" type="hidden"/>
-      <input type="email" name="email" placeholder="Enter user's E-mail" class="form-control" />
+      <input type="email" id="add-user-email" name="email" placeholder="Enter user's E-mail" class="form-control" />
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -187,60 +187,60 @@
 $(document).ready(function() {
 
 function removeUser(){
-$('.remove-user').click(function(ev){
-  ev.preventDefault();
-  var url = $('#add_user').attr('action');
-  var email_main = $(this).attr('data-user-email');
-  $.post(url,{
-    "type" : "remove_user",
-    "user_type" : $(this).attr('data-user-type'),
-    "email": $(this).attr('data-user-email')
-    },function(data, status){
-      console.log('[email-main='+$(this).attr('data-user-email')+']');
-    $('[email-main="'+email_main+'"]').hide();
-    
+  $('.remove-user').click(function(ev){
+    ev.preventDefault();
+    var url = $('#add_user').attr('action');
+    var email_main = $(this).attr('data-user-email');
+    $.post(url,{
+      "type" : "remove_user",
+      "user_type" : $(this).attr('data-user-type'),
+      "email": $(this).attr('data-user-email')
+      },function(data, status){
+        console.log('[email-main='+$(this).attr('data-user-email')+']');
+      $('[email-main="'+email_main+'"]').hide();
+
+    });
   });
-});
 }
 removeUser();
 $('#add_user').submit(function(ev){
 
    ev.preventDefault();
-               
-               var frm = $(this);
-               console.log(frm.serialize());
 
-                $.ajax({
+   var frm = $(this);
+   console.log(frm.serialize());
 
-                    type: $(this).attr('method'),
-                    url: window.location.href,
-                    data: $(this).serialize(),
-                    
-                    success: function(data) {
-                        $('#nav-users').load(window.location.href + ' #nav-users'),function(responseTxt, statusTxt, xhr){
-                         $('.remove-user').click(function(ev){
-  ev.preventDefault();
-  var url = $('#add_user').attr('action');
-  var email_main = $(this).attr('data-user-email');
-  $.post(url,{
-    "type" : "remove_user",
-    "user_type" : $(this).attr('data-user-type'),
-    "email": $(this).attr('data-user-email')
-    },function(data, status){
-      console.log('[email-main='+$(this).attr('data-user-email')+']');
-    $('[email-main="'+email_main+'"]').hide();
-    
+    $.ajax({
+
+        type: $(this).attr('method'),
+        url: window.location.href,
+        data: $(this).serialize(),
+
+        success: function(data) {
+            $('#nav-users').load(window.location.href + ' #nav-users'),function(responseTxt, statusTxt, xhr){
+             $('.remove-user').click(function(ev){
+              ev.preventDefault();
+              var url = $('#add_user').attr('action');
+              var email_main = $(this).attr('data-user-email');
+              $.post(url,{
+                "type" : "remove_user",
+                "user_type" : $(this).attr('data-user-type'),
+                "email": $(this).attr('data-user-email')
+                },function(data, status){
+                  console.log('[email-main='+$(this).attr('data-user-email')+']');
+                $('[email-main="'+email_main+'"]').hide();
+
+              });
+            });
+                                 };
+            $('#addUser').modal('hide');
+            $('#add-user-email').val('');
+        }
+    });
+
   });
-});     
-                                             };
-                        $('#addUser').modal('hide');
-                        //setTimeout(removeUser(),3000);
-                    }
-                });
 
 });
-
-      });
 </script>
 
 {% endblock %}
