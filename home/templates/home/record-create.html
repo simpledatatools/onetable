@@ -20,7 +20,8 @@
   <div class="card mb-4">
     <div class="card-body">
       <div class="sbp-preview-content">
-        <form id="record-form">{% csrf_token %}
+        <form id="record-form">
+        {% csrf_token %}
             {% for field in fields %}
               {% if field.field_type == 'text' %}
                 <div class="form-group">
@@ -30,7 +31,15 @@
               {% elif field.field_type == 'long-text' %}
                 <div class="form-group">
                   <label for="field_{{ field.field_id }}">{{ field.field_label }}{% if field.required %}*{% endif %}</label>
-                  <textarea data-attr="{{field.field_type}}" class="form-control form-control-solid record-field" id="field_{{ field.field_id }}" rows="3" placeholder="Input response here" {% if field.required %}required{% endif %}>{% if field.value %}{{ field.value }}{% endif %}</textarea>
+                  <textarea data-type="textarea" data-attr="{{field.field_type}}" class="form-control form-control-solid record-field" id="field_{{ field.field_id }}" rows="3" placeholder="Input response here" {% if field.required %}required{% endif %}>{% if field.value %}{{ field.value }}{% endif %}</textarea>
+                
+                <script>
+                tinyMCE.init({
+    selector : "#field_{{ field.field_id }}"
+});
+
+
+</script>
                 </div>
               {% elif field.field_type == 'number' %}
                 <div class="form-group">
@@ -94,7 +103,8 @@
     }
   };
 
-  function saveRecord() {
+function saveRecord() {
+  tinyMCE.triggerSave();
     // Get the values from the form
     var field_values = [];
     var submit = 0;
@@ -134,10 +144,23 @@
       'field_values': JSON.stringify(field_values),
       'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
     };
+    function randomstr(length) {
+   var result           = '';
+   var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+   var charactersLength = characters.length;
+
+   for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   }
+
+   return result;
+}
     const record = "{{ record | safe }}";
     if (record) {
-      data.record_id = record;
+      data.record_id = record ;
     }
+    var record_form = $('#record_form');
+    
     if (submit === required){
       $.ajax({
         type: "POST",
@@ -159,4 +182,5 @@
       });
     }
   };
+  
 </script>

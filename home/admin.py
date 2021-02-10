@@ -52,6 +52,8 @@ class RecordMediaAdmin(admin.ModelAdmin):
     def Record(self, obj):
         return obj.record.list.name
 
+admin.site.register(Organization)
+admin.site.register(OrganizationUser)
 admin.site.register(List, ListAdmin)
 admin.site.register(ListField, ListFieldAdmin)
 admin.site.register(Record, RecordAdmin)
@@ -60,3 +62,6 @@ admin.site.register(RecordRelation, RecordRelationAdmin)
 admin.site.register(RecordComment,RecordCommentAdmin)
 admin.site.register(RecordFile,RecordFileAdmin)
 admin.site.register(RecordMedia,RecordMediaAdmin)
+# admin.site.register(InactiveUsers)
+admin.site.register(App)
+admin.site.register(AppUser)

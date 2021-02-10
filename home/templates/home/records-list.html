@@ -1,5 +1,6 @@
 {% if records %}
 <div class="row">
+
   {% for record in records %}
     <div id="record-{{record.pk}}" class="col-lg-12 mb-4">
       <div class="card card-header-actions lift lift-sm h-100">
@@ -38,7 +39,7 @@
                 {% elif field.list_field.field_type == "url" %}
                   <p><b>{{ field.list_field.field_label }}:</b> <a href="{{ field.value }}" target="_blank">{{ field.value }}</a></p>
                 {% else %}
-                  <p><b>{{ field.list_field.field_label }}:</b> {{ field.value }}</p>
+                  <p><b>{{ field.list_field.field_label }}:</b> {{ field.value|safe }}</p>
                 {% endif %}
               {% endif %}
             {% endfor %}
@@ -63,6 +64,7 @@
 
 </div>
 
+<br/>
 <div class="float-left">Display 
 <a class="btn-link p-3" style="border-radius:5px" id="perpage-10" class="per_page">10</a>
 <a  class="btn-link p-3" style="border-radius:5px" id="perpage-25" class="per_page">25</a>
@@ -70,26 +72,26 @@
 <a  class="btn-link p-3" style="border-radius:5px" id="perpage-100" class="per_page">100</a>
 <br/><br/>
 </div>
-  {% if records.has_other_pages %}
+{% if records.has_other_pages %}
   <ul class="float-right pagination">
     {% if records.has_previous %}
-      <li><a href="?page={{ records.previous_page_number }}">&laquo; </a></li>
+      <li style="border-radius:5px;"  class="btn-link p-3"><a class="pagi"  data-number="{{ records.previous_page_number }}" >&laquo; </a></li>
     {% else %}
-      <li class="disabled"><span>&laquo;</span></li>
+      <li style="border-radius:5px;"  class="btn-link p-3 disabled"><span>&laquo;</span></li>
     {% endif %}
     {% for i in records.paginator.page_range %}
     {% if records.number|add:"1" < i < records.number|add:"2"   %}
       {% if records.number == i %}
         <li style="border-radius:5px;" class="active btn-primary text-white p-3"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
       {% else %}
-        <li><a style="border-radius:5px;"  class="btn-link p-3" href="?page={{ i }}">{{ i }}</a></li>
+        <li style="border-radius:5px;"  class="btn-link p-3"><a  class="pagi" data-number="{{ i }}" >{{ i }}</a></li>
       {% endif %}
       {% endif %}
     {% endfor %}
     {% if records.has_next %}
-      <li><a href="?page={{ records.next_page_number }}">&raquo;</a></li>
+      <li style="border-radius:5px;"  class="btn-link p-3"><a  class="pagi" data-number="{{ records.next_page_number }}">&raquo;</a></li>
     {% else %}
-      <li class="disabled"><span>&raquo;</span></li>
+      <li style="border-radius:5px;"  class="btn-link p-3 disabled"><span>&raquo;</span></li>
     {% endif %}
   </ul>
 {% endif %}
@@ -100,7 +102,6 @@
   <div>
 </div>
 {% endif %}
-
 <script>
 $(document).ready(function() {
   function ArchiveRecord(){
@@ -171,8 +172,50 @@ $(document).ready(function() {
           console.log(href);
           item.attr('href',href);
         }
+        item.on('click',function(ev){
+           ev.preventDefault();
+           var url = item.attr('href');
+           getPage(url); 
+               });
       };
       perpage(10); perpage(25);
-       perpage(50); perpage(100);
+      perpage(50); perpage(100);
+
+      
+        var item = $('.pagi');
+        var  url = window.location.href ;
+        var url_string = new URL(url);
+        var pagination = url_string.searchParams.get("page");
+       item.on('ready', function(ev) {
+       if (url.includes("?")){
+        if(url.includes("page")){
+          var href = window.location.href ;
+          href=updateURLParameter(url, "page", item.attr('data-number'));
+          console.log(href);
+          item.attr('href',href);
+        }else{
+        var  href = url + '&page='+ item.attr('data-number');
+        console.log(href);
+        item.attr('href',href);
+        }
+      }else{
+        
+          var href = url + '?page='+ item.attr('data-number');
+          console.log(href);
+          item.attr('href',href);
+        }
+       });
+        item.on('click',function(ev){
+           ev.preventDefault();
+           var url = item.attr('href');
+           getPage(url); 
+               });
+    
+      
+
+
 });
+
+
+
 </script>

@@ -11,3 +11,6 @@
 /static/
 /media/
 .env
+
+**/migrations/*
+__pycache__/

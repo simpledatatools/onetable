@@ -132,8 +132,10 @@
       e.preventDefault();
 
       let formNum = fieldForm.length-1;
+      
       let newForm = fieldForm[0].cloneNode(true);
-
+      console.log(newForm);
+    
       const type = "{{ type | safe }}";
       if (type == "edit-list") {
 

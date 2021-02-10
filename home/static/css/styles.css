@@ -6279,7 +6279,7 @@ input[type=button].btn-block {
 .nav-tabs .nav-link.active,
 .nav-tabs .nav-item.show .nav-link {
   color: #4a515b;
-  background-color: #f2f6fc;
+  background-color: #fff;
   border-color: #d4dae3 #d4dae3 #f2f6fc;
 }
 .nav-tabs .dropdown-menu {
@@ -20487,60 +20487,7 @@ pre[class*=language-] {
 }
 
 
-.password-div
-{
-  position: relative;
-}
-.signup-pswrd
-{
-  padding-right: 50px;
-}
-.password-div .eye-btn
-{
-  position: absolute;
-  top: 50%;
-  right: 0;
-  padding: 12px 20px;
-  width: 50px;
-  height: 100%;
-  border: none;
-  outline: none !important;
-  transform: translateY(-50%);
-  background-color: #eef2f8;
-  border-top-right-radius: 0.35rem;
-  border-bottom-right-radius: 0.35rem;
-}
-.password-div .eye-btn path
-{
-  fill: #aaa !important;
-}
-hr.bottom-line
-{
-  margin: 0;
-  height: 7px;
-  border: none;
-  background: #0984e3;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-}
-.password-hide
-{
-  display: none;
-}
-.password-hide.active
-{
-  display: initial;
-}
-.password-visible
-{
-  display: initial;
-}
-.password-visible.active
-{
-  display: none;
+[role="tab"]{
+  background: #eee;
 }
 
-.sign-up-header{
-  font-size: 36px;
-  margin-bottom: 15px;
-}

@@ -35,6 +35,10 @@ INSTALLED_APPS = [
 
     'accounts',
     'home',
+    'imagekit'
+
+    
+
 ]
 
 MIDDLEWARE = [
@@ -108,9 +112,9 @@ DATABASES = {
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'one-table-local-2',
+#         'NAME': 'onetablefine',
 #         'USER': 'postgres',
-#         'PASSWORD': 'postgres',
+#         'PASSWORD': '1234',
 #         'HOST': 'localhost',
 #         'PORT': '',
 #     }
