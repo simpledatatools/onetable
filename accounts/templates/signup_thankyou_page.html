@@ -1,0 +1,84 @@
+{% extends "home/layouts/layout-no-side-nav.html" %}
+{% load static %}
+
+{% block title %}
+    OneTable - Thank You
+{% endblock %}
+
+{% block headername %}
+  OneTable
+{% endblock %}
+
+{% block headerlink %}
+  {% url 'home' %}
+{% endblock %}
+
+{% block header %}
+  {% include 'home/layouts/component-header-home.html' %}
+{% endblock %}
+
+{% block bodyclass %}
+  class="bg-grey"
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-xl-5 col-lg-6 col-md-8 col-sm-11">
+          <div class="card my-5">
+              <div class="card-body p-5">
+                  <div class="form-group">
+                    {% if render_kind == 'signup' %}
+                    <p>
+                      Thanks so much for signing up! An email with an account confirmation link has been sent to <b>{{email}}.</b>
+                    </p>
+                    <p> 
+                      Please confirm your account before logging in to get started.
+                    </p>
+                    {% endif %}
+                    {% if render_kind == 'signup_confirmed' %}
+                    <p>
+                      Your account has been confirmed! This page will be redirect in 3 seconds, or click return to login to get started.
+                    </p>
+                    {% endif %}
+                    {% if render_kind == 'password_updated' %}
+                    <p>
+                      Your password was successfully updated. Return to login and login with your new password.
+                    </p>
+                    {% endif %}
+                    {% if render_kind == 'invalid_key' %}
+                    <p>
+                      The link is expired or invalid. Please contact to site admin.
+                    </p>
+                    {% endif %}
+                    {% if render_kind == 'reset_password' %}
+                    <p>
+                      An email with instructions to reset your password has been sent to <b>{{email}}</b>.
+                    </p>
+                    <p> 
+                      Please contact support if the email does not arrive within 5 minutes.
+                    </p>
+                    {% endif %}
+                    <a href="{% url 'login' %}">Return to Login</a>
+                  </div>
+              </div>
+              <hr class="bottom-line">
+          </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+  $(document).ready(function(){
+    var renderKind = '{{ render_kind | safe }}';
+
+    if (renderKind === 'signup_confirmed' || renderKind === 'invalid_key'){
+      setTimeout(function () {
+        window.location.href = "{% url 'login' %}";
+      }, 3000);
+    }
+  });
+</script>
+{% endblock %}

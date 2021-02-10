@@ -415,14 +415,14 @@ class RecordFile(models.Model):
 
     def __str__(self):
         return (str(self.record.list.name) + ' ' + str(self.created_user) )
-        
+
     def filename(self):
         return os.path.basename(self.file.name)
 
     def url(self):
         if self.file and hasattr(self.file, 'url'):
             return self.file.url
-    
+
     def delete_url(self):
         return reverse('delete_record_file', kwargs={
             'organization_pk':self.record.list.app.organization.pk,
@@ -477,7 +477,7 @@ class RecordMedia(models.Model):
 
     def __str__(self):
         return (str(self.record.list.name) + ' ' + str(self.created_user) )
-        
+
     def filename(self):
         return os.path.basename(self.file.name)
 
@@ -542,7 +542,7 @@ class RecordComment(models.Model):
     def __str__(self):
         content = (self.content[:10] + '..') if len(self.content) > 10 else self.content
         return (content + ' by ' + self.created_user.username +' of #'+ str(self.record.pk))
-    
+
     def edit_url(self):
         return reverse('edit_record_comment', kwargs={
             'organization_pk':self.record.list.app.organization.pk,

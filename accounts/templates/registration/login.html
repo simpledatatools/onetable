@@ -25,32 +25,29 @@
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-xl-5 col-lg-6 col-md-8 col-sm-11">
-          <!-- Social login form-->
-          <div class="card my-5">
-              <div class="card-body p-5 text-center">
-                  <div class="h3 font-weight-light mb-3">Log In</div>
-              </div>
-              <hr class="my-0" />
-              <div class="card-body p-5">
-                  <!-- Login form-->
+        <div class="h1 sign-up-header mt-5">Log In</div>
+          <div class="card">
+              <div class="card-body px-5">
                   <div class="form-group">
                     <form method="post" action="{% url 'login' %}">
                       {% csrf_token %}
                       {{ form.as_p }}
-                      <button class="btn btn-primary">Login</button>
+                      <button class="btn btn-primary btn-block">Login</button>
                     </form>
+                    <div class="small pt-3 text-center">
+                      New user?
+                      <a href="{% url 'register' %}">Create an account!</a>
+                    </div>
+                    <div class="small text-center">
+                      Forgot your password or account detail?
+                      <a href="{% url 'reset_password' %}">Reset your password</a>
+                    </div>
                   </div>
                   {% if form.errors %}
                     <p>Your username and password didn't match. Please try again.</p>
                   {% endif %}
               </div>
-              <hr class="my-0" />
-              <div class="card-body px-5 py-4">
-                  <div class="small text-center">
-                      New user?
-                      <a href="{% url 'register' %}">Create an account!</a>
-                  </div>
-              </div>
+              <hr class="bottom-line">
           </div>
       </div>
     </div>
