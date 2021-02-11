@@ -20491,3 +20491,45 @@ pre[class*=language-] {
   background: #eee;
 }
 
+.record-field.ratings
+{
+  display: none;
+}
+.star
+{
+  margin-right: 5px;
+  margin-bottom: 0px;
+}
+.star svg,
+.rating-show svg
+{
+  width:30px;
+}
+.star svg path
+{
+  stroke: #000;
+  stroke-width: 24px;
+  fill: #fff;
+  transition: .3s ease;
+}
+#star_one:checked ~ .one svg path,
+#star_two:checked ~ .two svg path,
+#star_three:checked ~ .three svg path,
+#star_four:checked ~ .four svg path,
+#star_five:checked ~ .five svg path
+{
+  fill: #ffc107;
+  stroke: #ffc107;
+}
+.rating-show svg path
+{
+  stroke: #000;
+  stroke-width: 24px;
+  fill: #fff;
+  transition: .3s ease;
+}
+.rating-show svg.active path
+{
+  fill: #ffc107;
+  stroke: #ffc107;
+}
