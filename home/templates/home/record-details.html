@@ -59,7 +59,7 @@
                 {% elif field.list_field.field_type == "url" %}
                 <p><b>{{ field.list_field.field_label }}:</b> <a href="{{ field.value }}" target="_blank">{{ field.value }}</a></p>
                 {% else %}
-                <p><b>{{ field.list_field.field_label }}:</b> {{ field.value }}</p>
+                <p><b>{{ field.list_field.field_label }}:</b> {{ field.value |safe}}</p>
                 {% endif %} {% endif %} {% endfor %} {% endif %}
             </div>
         </div>
