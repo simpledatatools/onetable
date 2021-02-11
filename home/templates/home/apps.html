@@ -33,9 +33,11 @@
                     <a href="{% url 'organizations' %}"><div class="page-header-subtitle"><i data-feather="arrow-left" class="page-header-subtitle"></i> Organizations</div></a>
                 </div>
                 <div class="col-12 col-xl-auto mb-3">
+                 {% if is_admin_of_parent_org %}
                   <a class="" href="{% url 'add_app' organization_pk=organization.pk %}">
                     <div class="page-header-subtitle">Add new workspace</div>
                   </a>
+                  {% endif %}
                 </div>
             </div>
         </div>
