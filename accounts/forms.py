@@ -76,6 +76,12 @@ class SignUpForm(UserCreationForm):
             )
         return password2
     
+    def clean(self):
+       email = self.cleaned_data.get('email')
+       if User.objects.filter(email=email).exists():
+            raise ValidationError("Email is already exists, please use unique email address")
+       return self.cleaned_data
+    
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data["password1"])
@@ -144,6 +150,20 @@ class UserLoginForm(forms.Form):
             attrs={'class': 'form-control form-control-solid py-4', 'placeholder': 'Password'}
         )
     )
+    
+    def clean(self):
+        email = self.cleaned_data.get('email')
+        password = self.cleaned_data.get('password')
+        if User.objects.filter(email=email).exists() is False:
+            raise ValidationError("Email is not exists, please create an account before login")
+        else:
+            user = User.objects.get(email=email)
+            if user.check_password(password) is False:
+                raise ValidationError("Invalid Password")
+            else:
+                if user.is_active is False:
+                    raise ValidationError("You are not an active user, please confirm your email first or contact to support")
+        return self.cleaned_data
 
 
 class UserSetPasswordForm(SetPasswordForm):

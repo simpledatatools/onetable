@@ -23,15 +23,12 @@ class LoginView(View):
         email = request.POST.get('email')
         password = request.POST.get('password')
 
-        user = get_object_or_404(User, email=email)
-        if user.is_active:
+        if form.is_valid():
+            user = get_object_or_404(User, email=email)
             auth_obj = authenticate(request=request, username=user.username, password=password)
             if auth_obj:
                 login(request, auth_obj)
                 return redirect('organizations')
-            else:
-                password_invalid = True
-                return render(request, self.template_name, locals())
         else:
             return render(request, self.template_name, locals())
 
