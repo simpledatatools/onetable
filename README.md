@@ -125,6 +125,9 @@ We also have opportunities for you to work on this project in a paid position (a
 If you are interested in contributing to the project more regularly through this way, by developing mockups or helping to develop the roadmap, please reach out as well and we will schedule a call to help you get involved. 
 
 
+--------------
+
+
 ### OneTable Key Contacts
 
 - **Matt Capelli**: Founder, mostly focused on the project roadmap and designs. Occationally tries to hack together python code. Username: _**mattcapelli**_
