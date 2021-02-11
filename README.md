@@ -50,10 +50,10 @@ Please note that the project does rely on some third party services, such as Mai
 
 The application relies on some key Models to help create lists and store records. In OneTable a `List` is a data structure for creating forms and form fields. The user defines these `List` objects to help them collect the data they need. Data is saved into the `List` structure through associated `Record` and `RecordField` objects. Additional detail is provided below: 
 
-`List`: parent object which manages the `ListField` objects that define the form fields
-`ListField`: objects for each form field, defining attributes such as field type and if the form field is required on the form
-`Record`: parent object which manages the `RecordField` objects that hold form data and is directly connected to a `List`
-`RecordField`: objects that store the data for each form field, and are directly connected to a `ListField`
+- `List`: parent object which manages the `ListField` objects that define the form fields
+- `ListField`: objects for each form field, defining attributes such as field type and if the form field is required on the form
+- `Record`: parent object which manages the `RecordField` objects that hold form data and is directly connected to a `List`
+- `RecordField`: objects that store the data for each form field, and are directly connected to a `ListField`
 
 
 Please also note: 
