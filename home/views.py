@@ -155,8 +155,9 @@ def organization_settings(request, organization_pk):
     # Uses standard django forms
 
     organization = get_object_or_404(Organization, pk=organization_pk)
-
     if request.method == "POST":
+        if not OrganizationUser.objects.filter(organization=organization, user=request.user,role='admin').exists():
+            return HttpResponse('Unauthorized', status=401)
     #    print(request.POST)
         if request.POST['type'] == "add_user":
             try:
@@ -185,9 +186,18 @@ def organization_settings(request, organization_pk):
                 u = InactiveUsers.objects.get(user_email=request.POST['email'])
                 organization.inactive_users.remove(u)
                 organization.save()
-
             return JsonResponse({
                 "removed" : "true"
+            })
+
+        elif request.POST['type'] == 'change_role':
+            org_user = OrganizationUser.objects.get(organization=organization,user__email=request.POST['email'])
+            print(org_user)
+            org_user.role = request.POST['to']
+            org_user.save()
+
+            return JsonResponse({
+                "changed_to" : org_user.role
             })
 
     else:
@@ -195,11 +205,13 @@ def organization_settings(request, organization_pk):
         active_users = organization.organizationuser_set.filter(status="active").order_by('-created_at')
         inactive_users = organization.inactive_users.all().order_by('-created_at')
         connection = chain(active_users,inactive_users)
+        is_admin = OrganizationUser.objects.filter(organization=organization,user=request.user,role='admin').exists
         print(connection)
         context = {
             'organization': organization,
             'form': form,
-            "connection":connection
+            "connection":connection,
+            "is_admin" : is_admin
      }
 
         return render(request, 'home/organization-settings.html', context=context)
@@ -384,18 +396,30 @@ def app_settings(request, organization_pk, app_pk):
                 "removed" : "true"
             })
 
+        elif request.POST['type'] == 'change_role':
+            org_user = OrganizationUser.objects.get(organization=organization,user__email=request.POST['email'])
+            print(org_user)
+            org_user.role = request.POST['to']
+            org_user.save()
+
+            return JsonResponse({
+                "changed_to" : org_user.role
+            })
+
     else:
         form = AppForm(instance=app)
         active_users = OrganizationUser.objects.filter(organization_id=organization,permitted_apps=app).exclude(role='admin')
         admin = OrganizationUser.objects.filter(organization_id=organization.pk,role='admin')
         inactive_users = InactiveUsers.objects.filter(attached_workspaces=app)
         connection = chain(admin,active_users,inactive_users)
+        is_admin = OrganizationUser.objects.filter(organization=organization,user=request.user,role='admin').exists
         #print(connection)
         context = {
         'organization': organization,
         'app': app,
         'form': form,
-        "connection":connection
+        "connection":connection,
+        "is_admin" : is_admin
         }
 
     return render(request, 'home/app-settings.html', context=context)
