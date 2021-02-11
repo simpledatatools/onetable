@@ -16,4 +16,4 @@ class MailLinkModel(models.Model):
     link_type = models.CharField(max_length=100, default="", choices=link_type_choice, null=True, blank=True)
 
     def __str__(self):
-        return self.user.email
+        return self.key

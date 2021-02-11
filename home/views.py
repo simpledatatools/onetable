@@ -557,13 +557,9 @@ def lists(request, organization_pk, app_pk):
 @login_required
 def list(request, organization_pk, app_pk, list_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
-    print('==========================', organization)
     app = get_object_or_404(App, pk=app_pk)
-    print('==========================', app)
     list = get_object_or_404(List, pk=list_pk)
-    print('==========================', list)
     search = request.GET.get('search', None)
-    print('==========================', search)
 
     if search != None:
         fields = RecordField.objects.filter(value__icontains=search)
@@ -571,10 +567,8 @@ def list(request, organization_pk, app_pk, list_pk):
         records=Record.objects.filter(pk__in=list_of_records)
     else:
         records = Record.objects.filter(status='active', list=list)
-    print('==========================', records)
 
     per_page = request.GET.get('per_page', None)
-    print(request.GET.get('per_page', None))
     search = request.GET.get('search', None)
 
     if per_page != None:
@@ -583,7 +577,6 @@ def list(request, organization_pk, app_pk, list_pk):
         paginator = Paginator(records, 10)
 
     page_number = request.GET.get('page', None)
-    print(type(request.GET.get('page', None)))
     records_page = paginator.get_page(1)
     if page_number != '':
         records_page = paginator.get_page(page_number)
@@ -596,7 +589,6 @@ def list(request, organization_pk, app_pk, list_pk):
             record_fields = RecordField.objects.filter(record__list=list, value__icontains=search_value)
             record_ids = [i['record_id'] for i in record_fields.values('record_id')]
             records = Record.objects.filter(id__in=record_ids, status='active', list=list)
-        print('==========================', records)
         # Call is ajax, just load main content needed here
         #paginator = Paginator(records, 10)
 
@@ -626,7 +618,6 @@ def list(request, organization_pk, app_pk, list_pk):
             'records': records_page,
             'type': 'list'
         }
-        print('----------------record page', records_page)
 
         return render(request, 'home/workspace.html', context=context)
 
@@ -934,7 +925,6 @@ def save_record(request, organization_pk, app_pk, list_pk):
                         # Update existing record field
                         # TODO only update if the value changed
                         record_field = RecordField.objects.get(status='active', list_field__field_id=field['fieldId'], record=record)
-                        
                         if field['fieldType'] == "choose-from-list":
                            record_field.selected_record_id = field['fieldValue']
                            record_field.value = field['selectListValue']

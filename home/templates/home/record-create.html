@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_tags %}
 <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
   <div class="container-fluid">
       <div class="page-header-content">
@@ -81,13 +82,30 @@
                   <label for="field_{{ field.field_id }}">{{ field.field_label }}{% if field.required %}*{% endif %}</label>
                 </div>
                 {% elif field.field_type == 'rating' %}
-                <div class="form-group">
-                  <label for="field_{{ field.field_id }}">{{ field.field_label }}{% if field.required %}*{% endif %}</label>
-                  <input class="record-field ratings chk1" data-rating=1 id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" type="checkbox" {% if field.value %}value='{{ field.value }}'{% endif %} {% if field.required %}required{% endif %}>
-                  <input class="record-field ratings chk2" data-rating=2 id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" type="checkbox" {% if field.value %}value='{{ field.value }}'{% endif %} {% if field.required %}required{% endif %}>
-                  <input class="record-field ratings chk3" data-rating=3 id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" type="checkbox" {% if field.value %}value='{{ field.value }}'{% endif %} {% if field.required %}required{% endif %}>
-                  <input class="record-field ratings chk4" data-rating=4 id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" type="checkbox" {% if field.value %}value='{{ field.value }}'{% endif %} {% if field.required %}required{% endif %}>
-                  <input class="record-field ratings chk5" data-rating=5 id="field_{{ field.field_id }}" data-attr="{{field.field_type}}" type="checkbox" {% if field.value %}value='{{ field.value }}'{% endif %} {% if field.required %}required{% endif %}>
+                <div class="form-group mb-0 d-flex justify-content-between align-items-center">
+                  <label class="mb-0" for="field_{{ field.field_id }}">{{ field.field_label }}{% if field.required %}*{% endif %}</label>
+                  <div class="rating-sec">
+                    <input class="record-field ratings chk1" data-rating=1 data-id="{{ field.field_id }}" id="star_one" data-attr="{{field.field_type}}" type="checkbox" {% if field.value %}{% if field.value|star_rating_value:'1' %}checked{% endif %}{% endif %} {% if field.required %}required{% endif %}>
+                    <label class="star one" for="star_one">
+                      <svg viewBox="0 -10 511.98685 511" xmlns="http://www.w3.org/2000/svg"><path d="m510.652344 185.902344c-3.351563-10.367188-12.546875-17.730469-23.425782-18.710938l-147.773437-13.417968-58.433594-136.769532c-4.308593-10.023437-14.121093-16.511718-25.023437-16.511718s-20.714844 6.488281-25.023438 16.535156l-58.433594 136.746094-147.796874 13.417968c-10.859376 1.003906-20.03125 8.34375-23.402344 18.710938-3.371094 10.367187-.257813 21.738281 7.957031 28.90625l111.699219 97.960937-32.9375 145.089844c-2.410156 10.667969 1.730468 21.695313 10.582031 28.09375 4.757813 3.4375 10.324219 5.1875 15.9375 5.1875 4.839844 0 9.640625-1.304687 13.949219-3.882813l127.46875-76.183593 127.421875 76.183593c9.324219 5.609376 21.078125 5.097657 29.910156-1.304687 8.855469-6.417969 12.992187-17.449219 10.582031-28.09375l-32.9375-145.089844 111.699219-97.941406c8.214844-7.1875 11.351563-18.539063 7.980469-28.925781zm0 0" /></svg>
+                    </label>
+                    <input class="record-field ratings chk2" data-rating=2 data-id="{{ field.field_id }}" id="star_two" data-attr="{{field.field_type}}" type="checkbox" {% if field.value %}{% if field.value|star_rating_value:'2' %}checked{% endif %}{% endif %} {% if field.required %}required{% endif %}>
+                    <label class="star two" for="star_two">
+                      <svg viewBox="0 -10 511.98685 511" xmlns="http://www.w3.org/2000/svg"><path d="m510.652344 185.902344c-3.351563-10.367188-12.546875-17.730469-23.425782-18.710938l-147.773437-13.417968-58.433594-136.769532c-4.308593-10.023437-14.121093-16.511718-25.023437-16.511718s-20.714844 6.488281-25.023438 16.535156l-58.433594 136.746094-147.796874 13.417968c-10.859376 1.003906-20.03125 8.34375-23.402344 18.710938-3.371094 10.367187-.257813 21.738281 7.957031 28.90625l111.699219 97.960937-32.9375 145.089844c-2.410156 10.667969 1.730468 21.695313 10.582031 28.09375 4.757813 3.4375 10.324219 5.1875 15.9375 5.1875 4.839844 0 9.640625-1.304687 13.949219-3.882813l127.46875-76.183593 127.421875 76.183593c9.324219 5.609376 21.078125 5.097657 29.910156-1.304687 8.855469-6.417969 12.992187-17.449219 10.582031-28.09375l-32.9375-145.089844 111.699219-97.941406c8.214844-7.1875 11.351563-18.539063 7.980469-28.925781zm0 0" /></svg>
+                    </label>
+                    <input class="record-field ratings chk3" data-rating=3 data-id="{{ field.field_id }}" id="star_three" data-attr="{{field.field_type}}" type="checkbox" {% if field.value %}{% if field.value|star_rating_value:'3' %}checked{% endif %}{% endif %} {% if field.required %}required{% endif %}>
+                    <label class="star three" for="star_three">
+                      <svg viewBox="0 -10 511.98685 511" xmlns="http://www.w3.org/2000/svg"><path d="m510.652344 185.902344c-3.351563-10.367188-12.546875-17.730469-23.425782-18.710938l-147.773437-13.417968-58.433594-136.769532c-4.308593-10.023437-14.121093-16.511718-25.023437-16.511718s-20.714844 6.488281-25.023438 16.535156l-58.433594 136.746094-147.796874 13.417968c-10.859376 1.003906-20.03125 8.34375-23.402344 18.710938-3.371094 10.367187-.257813 21.738281 7.957031 28.90625l111.699219 97.960937-32.9375 145.089844c-2.410156 10.667969 1.730468 21.695313 10.582031 28.09375 4.757813 3.4375 10.324219 5.1875 15.9375 5.1875 4.839844 0 9.640625-1.304687 13.949219-3.882813l127.46875-76.183593 127.421875 76.183593c9.324219 5.609376 21.078125 5.097657 29.910156-1.304687 8.855469-6.417969 12.992187-17.449219 10.582031-28.09375l-32.9375-145.089844 111.699219-97.941406c8.214844-7.1875 11.351563-18.539063 7.980469-28.925781zm0 0" /></svg>
+                    </label>
+                    <input class="record-field ratings chk4" data-rating=4 data-id="{{ field.field_id }}" id="star_four" data-attr="{{field.field_type}}" type="checkbox" {% if field.value %}{% if field.value|star_rating_value:'4' %}checked{% endif %}{% endif %} {% if field.required %}required{% endif %}>
+                    <label class="star four" for="star_four">
+                      <svg viewBox="0 -10 511.98685 511" xmlns="http://www.w3.org/2000/svg"><path d="m510.652344 185.902344c-3.351563-10.367188-12.546875-17.730469-23.425782-18.710938l-147.773437-13.417968-58.433594-136.769532c-4.308593-10.023437-14.121093-16.511718-25.023437-16.511718s-20.714844 6.488281-25.023438 16.535156l-58.433594 136.746094-147.796874 13.417968c-10.859376 1.003906-20.03125 8.34375-23.402344 18.710938-3.371094 10.367187-.257813 21.738281 7.957031 28.90625l111.699219 97.960937-32.9375 145.089844c-2.410156 10.667969 1.730468 21.695313 10.582031 28.09375 4.757813 3.4375 10.324219 5.1875 15.9375 5.1875 4.839844 0 9.640625-1.304687 13.949219-3.882813l127.46875-76.183593 127.421875 76.183593c9.324219 5.609376 21.078125 5.097657 29.910156-1.304687 8.855469-6.417969 12.992187-17.449219 10.582031-28.09375l-32.9375-145.089844 111.699219-97.941406c8.214844-7.1875 11.351563-18.539063 7.980469-28.925781zm0 0" /></svg>
+                    </label>
+                    <input class="record-field ratings chk5" data-id="{{ field.field_id }}" data-rating=5 id="star_five" data-attr="{{field.field_type}}" type="checkbox" {% if field.value %}{% if field.value|star_rating_value:'5' %}checked{% endif %}{% endif %} {% if field.required %}required{% endif %}>
+                    <label class="star five" for="star_five">
+                      <svg viewBox="0 -10 511.98685 511" xmlns="http://www.w3.org/2000/svg"><path d="m510.652344 185.902344c-3.351563-10.367188-12.546875-17.730469-23.425782-18.710938l-147.773437-13.417968-58.433594-136.769532c-4.308593-10.023437-14.121093-16.511718-25.023437-16.511718s-20.714844 6.488281-25.023438 16.535156l-58.433594 136.746094-147.796874 13.417968c-10.859376 1.003906-20.03125 8.34375-23.402344 18.710938-3.371094 10.367187-.257813 21.738281 7.957031 28.90625l111.699219 97.960937-32.9375 145.089844c-2.410156 10.667969 1.730468 21.695313 10.582031 28.09375 4.757813 3.4375 10.324219 5.1875 15.9375 5.1875 4.839844 0 9.640625-1.304687 13.949219-3.882813l127.46875-76.183593 127.421875 76.183593c9.324219 5.609376 21.078125 5.097657 29.910156-1.304687 8.855469-6.417969 12.992187-17.449219 10.582031-28.09375l-32.9375-145.089844 111.699219-97.941406c8.214844-7.1875 11.351563-18.539063 7.980469-28.925781zm0 0" /></svg>
+                    </label>
+                  </div>
                 </div>
               {% endif %}
             {% endfor %}
@@ -105,11 +123,21 @@
   var rating_type = "";
   var rating_id = "";
 
+  $(document).ready(function(){
+    $('.ratings').each(function(){
+      if ($(this).prop('checked')){
+        rating_type = $(this).attr('data-attr');
+        rating_id = $(this).attr('data-id');
+        total_rating++;
+      }
+    });
+  });
+  
   // this js code is used for increase/decrease rating value
   $(document).on('click', '.ratings', function(){
     total_rating = 0;
     rating_type = $(this).attr('data-attr');
-    rating_id = $(this).attr('id').replace("field_","");
+    rating_id = $(this).attr('data-id');
 
     $('.ratings').each(function(index, element){
       var data_attr_value = element.getAttribute('data-rating');
@@ -220,7 +248,6 @@ function saveRecord() {
    return result;
 }
     const record = "{{ record | safe }}";
-    console.log('****************************', record);
     if (record) {
       data.record_id = record ;
     }
