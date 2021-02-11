@@ -331,6 +331,7 @@ class Record(models.Model):
             .select_related('created_user') \
             .get(record=self)
 
+
     def __str__(self):
         return str(self.id)
 

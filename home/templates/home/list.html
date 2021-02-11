@@ -41,30 +41,26 @@
 </div>
 <script>
 
-$(document).ready(function(){
+  $(document).ready(function(){
 
-$('#search').submit(function(ev){
-  ev.preventDefault();
-  var next_url =  window.location.pathname + '?search='+$('#search_value').val();
-  getPage(next_url);
-  
-  
-  
-});
-var url_string = window.location.href;
-  var url = new URL(url_string);
-  var search_value = url.searchParams.get("search");
-  $('#search_value').val(search_value);
-if(search_value != null){
-  $('#search_value').focus();
-}
+    $('#search').submit(function(ev){
+      ev.preventDefault();
+      var next_url =  window.location.pathname + '?search='+$('#search_value').val();
+      getPage(next_url);
+    });
 
+    var url_string = window.location.href;
+    var url = new URL(url_string);
+    var search_value = url.searchParams.get("search");
+    $('#search_value').val(search_value);
+    if(search_value != null){
+      $('#search_value').focus();
+    }
 
-$('#erase_search_button').click(function(ev){
-  ev.preventDefault();
-  var next_url =  window.location.pathname ;
-  getPage(next_url);  
-});
-
-});
+    $('#erase_search_button').click(function(ev){
+      ev.preventDefault();
+      var next_url =  window.location.pathname ;
+      getPage(next_url);  
+    });
+  });
 </script>

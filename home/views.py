@@ -553,9 +553,13 @@ def lists(request, organization_pk, app_pk):
 @login_required
 def list(request, organization_pk, app_pk, list_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
+    print('==========================', organization)
     app = get_object_or_404(App, pk=app_pk)
+    print('==========================', app)
     list = get_object_or_404(List, pk=list_pk)
+    print('==========================', list)
     search = request.GET.get('search', None)
+    print('==========================', search)
 
     if search != None:
         fields = RecordField.objects.filter(value__icontains=search)
@@ -563,6 +567,7 @@ def list(request, organization_pk, app_pk, list_pk):
         records=Record.objects.filter(pk__in=list_of_records)
     else:
         records = Record.objects.filter(status='active', list=list)
+    print('==========================', records)
 
     per_page = request.GET.get('per_page', None)
     print(request.GET.get('per_page', None))
@@ -587,6 +592,7 @@ def list(request, organization_pk, app_pk, list_pk):
             record_fields = RecordField.objects.filter(record__list=list, value__icontains=search_value)
             record_ids = [i['record_id'] for i in record_fields.values('record_id')]
             records = Record.objects.filter(id__in=record_ids, status='active', list=list)
+        print('==========================', records)
         # Call is ajax, just load main content needed here
         #paginator = Paginator(records, 10)
         
@@ -616,6 +622,7 @@ def list(request, organization_pk, app_pk, list_pk):
             'records': records_page,
             'type': 'list'
         }
+        print('----------------record page', records_page)
 
         return render(request, 'home/workspace.html', context=context)
 
@@ -895,6 +902,7 @@ def save_record(request, organization_pk, app_pk, list_pk):
     record_id = request.POST.get('record_id', None)
     fields = json.loads(request.POST['field_values'])
     print(request.POST)
+
     # TODO
     # Needs error handling here verify if the form is valid (i.e. all required fields, acceptable data types, etc)
 
@@ -912,9 +920,8 @@ def save_record(request, organization_pk, app_pk, list_pk):
             created_user=request.user,
             id=randomstr())
         record.save()
-
     for field in fields:
-            if field['fieldValue']:
+            # if field['fieldValue']:
             # if field['fieldValue'] is not None:
                 # Only save a RecordField object if there is a value
 
@@ -923,13 +930,14 @@ def save_record(request, organization_pk, app_pk, list_pk):
                         # Update existing record field
                         # TODO only update if the value changed
                         record_field = RecordField.objects.get(status='active', list_field__field_id=field['fieldId'], record=record)
+                        
                         if field['fieldType'] == "choose-from-list":
                            record_field.selected_record_id = field['fieldValue']
                            record_field.value = field['selectListValue']
-                           record_field.id = randomstr()
+                        #    record_field.id = randomstr()
                         else:
                             record_field.value = field['fieldValue']
-                            record_field.id = randomstr()
+                            # record_field.id = randomstr()
                         record_field.save()
 
                         # Update existing relationship
@@ -990,7 +998,6 @@ def save_record(request, organization_pk, app_pk, list_pk):
                             pass
 
                 else:
-
                     try:
 
                         # Create new record field
