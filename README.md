@@ -1,7 +1,5 @@
 # OneTable
 
---------------
-
 ### About this project
 
 OneTable is a simple interface for helping users to quickly create relational database structures for storing data. It is designed to be used for small businesses, projects, or groups who want to store simple lists of data that they define themselves (and that may change over time). The interface is designed to help them create 'links' between lists of data (i.e. relations) similar to how relational databases work, but through an interface that all users would understand. 
