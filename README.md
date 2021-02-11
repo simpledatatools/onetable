@@ -58,7 +58,7 @@ The application relies on some key Models to help create lists and store records
 
 Please also note: 
 
-- Right now caching is not setup on the app - should probably implement redis at some point soon so we have that ready for other projects
+- Right now caching is not setup on the app - should probably implement redis at some point soon
 - Whitenoise is being used for serving static files, which seems like the recommendation
 - Static files used on the website (i.e. images on the homepage) are served from the same intance that hosts the app / as part of django, but S3 is used for user uploads when in production using the django-storages and boto3 libraries. In development, we don't use S3 -- just uploads to django project. I need to move the S3 credentials to environment variables in heroku so these are protected, once I create a new S3 bucket for this site. 
 
@@ -123,5 +123,11 @@ We also have opportunities for you to work on this project in a paid position (a
 **For people who are not developers**
 
 If you are interested in contributing to the project more regularly through this way, by developing mockups or helping to develop the roadmap, please reach out as well and we will schedule a call to help you get involved. 
+
+
+### OneTable Key Contacts
+
+Matt Capelli: Founder, mostly focused on the project roadmap and designs. Occationally tries to hack together python code. Username: mattcapelli
+Bui Tan Loc: Senior Developer / Achitect, leads project architecture and manages all PR's and issues. Username: locAtLaheriyam
 
 
