@@ -81,7 +81,7 @@ class OrganizationUser(models.Model):
         max_length=25,
         choices=ORGANIZATION_USER_ROLE,
         blank=False,
-        default='active',
+        default='User',
     )
 
     def __str__(self):
