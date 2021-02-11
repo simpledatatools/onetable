@@ -127,7 +127,7 @@ If you are interested in contributing to the project more regularly through this
 
 ### OneTable Key Contacts
 
-Matt Capelli: Founder, mostly focused on the project roadmap and designs. Occationally tries to hack together python code. Username: mattcapelli
-Bui Tan Loc: Senior Developer / Achitect, leads project architecture and manages all PR's and issues. Username: locAtLaheriyam
+**Matt Capelli**: Founder, mostly focused on the project roadmap and designs. Occationally tries to hack together python code. Username: _**mattcapelli**_
+**Bui Tan Loc**: Senior Developer / Achitect, leads project architecture and manages all PR's and issues. Username: _**locAtLaheriyam**_
 
 
