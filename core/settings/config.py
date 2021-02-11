@@ -1,9 +1,9 @@
 local_database = {
      'default': {
          'ENGINE': 'django.db.backends.postgresql',
-         'NAME': 'onetablefinal',
+         'NAME': 'one-table-local',
          'USER': 'postgres',
-         'PASSWORD': '1234',
+         'PASSWORD': 'postgres',
          'HOST': 'localhost',
          'PORT': '5432',
      }
