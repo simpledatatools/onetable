@@ -192,12 +192,7 @@
 <div class="p-5 container">
     <h5>Comments</h5>
     <hr />
-    <div class="card p-3">
-        <form id="post_record_comment" method="POST" action="{% url 'post_record_comments' organization.pk app.pk list.pk record.pk %}">
-            <textarea id="content" class="form-control bg-light mb-3" name="content" type="text" placeholder="Enter a comment here"></textarea><br />
-            <div class="text-right"><input class="btn btn-primary" id="post_record_button" type="submit" /></div>
-        </form>
-    </div>
+    
     <div class="d-block" id="record_comments">
         {% for comment in comments %}
         <form data-comment-id="{{comment.pk}}" class="edit_comment_form" action="{% url 'edit_record_comment' organization.pk app.pk list.pk record.pk comment.pk %}" method="POST">
@@ -235,6 +230,12 @@
             </div>
         </div>
         {% endfor %}
+    </div>
+    <div class="card p-3">
+        <form id="post_record_comment" method="POST" action="{% url 'post_record_comments' organization.pk app.pk list.pk record.pk %}">
+            <textarea id="content" class="form-control bg-light mb-3" name="content" type="text" placeholder="Enter a comment here"></textarea><br />
+            <div class="text-right"><input class="btn btn-primary" id="post_record_button" type="submit" /></div>
+        </form>
     </div>
 </div>
 
@@ -443,6 +444,8 @@ $(document).ready(function() {
 
 
             tinyMCE.triggerSave();
+            
+
             $.ajax({
 
                 type: frm.attr('method'),
@@ -489,9 +492,10 @@ $(document).ready(function() {
                 </div>
             </div>
         </div>`;
-                    record_comments.prepend(comment_div);
+                    record_comments.append(comment_div);
                     EditPost();
                     RemoveContent('.remove-record-comment', 'comment');
+                    tinyMCE.activeEditor.setContent('');
                 }
             });
             ev.preventDefault();
@@ -601,6 +605,10 @@ $(document).ready(function() {
 
     tinyMCE.init({
         selector: "#post_record_comment #content",
+        content_style: `body{font-size:12pt}`,
+        height:400,
+        plugins: 'lists',
+        toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | numlist bullist | outdent indent '
     });
 
 
