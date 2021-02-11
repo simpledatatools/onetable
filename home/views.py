@@ -229,9 +229,11 @@ def apps(request, organization_pk):
     for userApp in userApps:
         apps.append(userApp)
 
+    is_admin_of_parent_org = OrganizationUser.objects.filter(user=request.user,organization=organization,role='admin').exists()
     context = {
         'organization': organization,
-        'apps': apps
+        'apps': apps,
+        'is_admin_of_parent_org' : is_admin_of_parent_org
     }
 
     return render(request, 'home/apps.html', context=context)
@@ -245,8 +247,10 @@ def add_app(request, organization_pk):
     # Uses standard django forms
 
     organization = get_object_or_404(Organization, pk=organization_pk)
+    if not OrganizationUser.objects.filter(organization=organization,role='admin',user=request.user):
+        return HttpResponse('Unauthorized', status=401)
 
-    if request.method == "POST":
+    if request.method == "POST" and OrganizationUser.objects.filter(organization=organization,role='admin',user=request.user):
         form = AppForm(request.POST)
         if form.is_valid():
 
@@ -334,7 +338,7 @@ def app_settings(request, organization_pk, app_pk):
         return HttpResponse('Unauthorized', status=401)
     elif app not in org_obj[0].permitted_apps.all():
         if org_obj[0].role != 'admin':
-            return HttpResponse('Unorized', status=401)
+            return HttpResponse('Unauthorized', status=401)
     # Uses standard django forms
     if request.method == "POST":
         print(request.POST)
@@ -382,9 +386,10 @@ def app_settings(request, organization_pk, app_pk):
 
     else:
         form = AppForm(instance=app)
-        active_users = OrganizationUser.objects.filter(organization_id=organization,permitted_apps=app)
+        active_users = OrganizationUser.objects.filter(organization_id=organization,permitted_apps=app).exclude(role='admin')
+        admin = OrganizationUser.objects.filter(organization_id=organization.pk,role='admin')
         inactive_users = InactiveUsers.objects.filter(attached_workspaces=app)
-        connection = chain(active_users,inactive_users)
+        connection = chain(admin,active_users,inactive_users)
         #print(connection)
         context = {
         'organization': organization,
