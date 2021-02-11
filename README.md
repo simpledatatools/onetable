@@ -74,5 +74,46 @@ Please also note:
 - Use `dev` branch for development
 
 
+--------------
+
+
+### Contributing to this project
+
+*Casual Contributors*
+
+A list of current issues are always updated on this repository. You are welcome to help solve an issue that is not current assigned to another and is marked as 'Open'. If you are interested in solving an issue, please reach out and we will assign the issue to you so others know you are working on it.
+
+We follow a simple, but strict process for git branches and contributing:
+
+- Each github issue will be a small task (usually requiring 5 hours or much less), and will include a description with details. Mockups and videos will be provided in cases where the intended functionality cannot be described without a visual example.
+
+- You will only be assigned one issue at a time. You should complete the current issue that is assigned to you, then follow up for your next task.
+
+- You should always work on a git branch that is the same name / number as the issue using format `issue-[Issue Number]` (i.e. branch `issue-300` would be the branch for when you are working on issue-300).
+
+- If you have not completed the task, you can still push your code to the repository at the end of the day on the issue’s branch. Once you have completed your
+task, you should open up a Pull Request (PR) merging your issue branch into branch `dev` and assign Matt and Loc (usernames: mattcapelli and locAtLaheriyam) to the PR as a reviewer. We will merge the code once we have reviewed, or if there are changes needed, we will add feedback to the github issue for you to fix.
+
+
+*Full-time contributors*
+
+We also have opportunities for you to work on this project in a paid position (as a full / part time job) if you are able to lead large portions of the development and can work regular hours. If you are available to contribute to the project in this way, please reach out. The setup would work as:
+
+- We would like someone who works consistent hours each day. This helps us to more easily coordinate tasks, ensure upcoming tasks are prepared in advance, make sure code is reviewed in a timely manner, and to make sure we can track and monitor your progress.
+- People on our team are working between London (GMT+0) and Indochina Time (GMT+7), but this opportunity is open to any one in any timezone
+- We are looking for someone to work for 5 hours per day to start. This can increase if your work is good and you are producing code at the pace and quality to our standards.
+- You can choose the hours you prefer to work, but they should be the same hours each each day (i.e. always working 10am - 3pm IST each day Monday - Friday)
+- You must work through the platform Upwork, which we are setup for and allows us to transfer salaries easily to multiple countries
+- Each day the process would be the same, as noted below
+- At your start time, you would check in with Matt for a virtual daily standup meeting to discuss what you are working on, plans for the day and goals of what you plan to complete. During this time, please also ask any questions or clarifications you have.
+- While working throughout the day during your regular time block, you would be expected to focus only on the OneTable project, leaving other tasks for other hours of the day.
+- We are seeking someone to work consistent hours so that they can plan their day in advance; thereby ensuring they are only focused on OneTable during the hours in which they are scheduled for this project.
+- At the end of each day, you would provide an update with Matt, providing a summary of what you completed during the day as well as any questions or requests that came up while you were working. If you have questions about the project’s requirements, need mockups created, or have other clarifications, these should be provided at the end of each day so that we can get you answers before the next day begins.
+- You will be expected to push your code to our git repository at the end of every day using the git branch process we have described above.
+- The work must be completed by you, and cannot be sent to others or subcontracted to other developers. 
+
+*For people who are not developers:*
+
+If you are interested in contributing to the project more regularly through this way, by developing mockups or helping to develop the roadmap, please reach out as well and we will schedule a call to help you get involved. 
 
 
