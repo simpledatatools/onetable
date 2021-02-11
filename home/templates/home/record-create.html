@@ -145,8 +145,9 @@ function saveRecord() {
     var field_values = [];
     var submit = 0;
     var required = 0;
-    field = {};
+    
     $(".record-field").each(function(){
+      field = {};
       var get_field_type = $(this).attr('data-attr');
       
       if ($(this).is(':required')){
@@ -165,6 +166,7 @@ function saveRecord() {
             }
           }
       };
+
       if (get_field_type !== 'rating'){
         var id = $(this).attr('id').replace("field_","");
         var val = $(this).val();
@@ -218,10 +220,13 @@ function saveRecord() {
    return result;
 }
     const record = "{{ record | safe }}";
+    console.log('****************************', record);
     if (record) {
       data.record_id = record ;
     }
     var record_form = $('#record_form');
+
+    console.log(data);
 
     if (submit === required){
       $.ajax({
