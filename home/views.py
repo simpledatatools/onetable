@@ -18,9 +18,8 @@ import subprocess
 from itertools import chain
 
 N = 10
-
 def randomstr():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k = N)) 
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k = N))
 
 # TODO
 # On all views, @login_required prevents users not logged in, but need method and
@@ -108,7 +107,7 @@ def add_organization(request):
         form = OrganizationForm()
 
         return render(request, 'home/organization-form.html', {'form': form})
-        
+
 
 
 
@@ -172,7 +171,7 @@ def organization_settings(request, organization_pk):
                 u[0].save()
                 organization.inactive_users.add(u[0])
                 organization.save()
-                
+
             return JsonResponse({
                 "added" : "true"
             })
@@ -205,7 +204,7 @@ def organization_settings(request, organization_pk):
 
         return render(request, 'home/organization-settings.html', context=context)
 
-    
+
 
 #===============================================================================
 # Apps (Workspaces)
@@ -218,21 +217,23 @@ def apps(request, organization_pk):
     user_obj = OrganizationUser.objects.filter(user=request.user, status__exact='active', organization = organization).exists()
     if not user_obj:
          return HttpResponse('You are not allowed here!', status=401)
-    
+
     user_obj = OrganizationUser.objects.get(user=request.user, status__exact='active', organization = organization)
     if not user_obj.role == "admin":
-        userApps = user_obj.permitted_apps.all()
+        userApps = user_obj.permitted_apps.filter(status='active')
     else:
-        userApps =App.objects.filter(organization=organization)
-    
+        userApps =App.objects.filter(organization=organization,status='active')
+
     apps = []
 
     for userApp in userApps:
         apps.append(userApp)
 
+    is_admin_of_parent_org = OrganizationUser.objects.filter(user=request.user,organization=organization,role='admin').exists()
     context = {
         'organization': organization,
-        'apps': apps
+        'apps': apps,
+        'is_admin_of_parent_org' : is_admin_of_parent_org
     }
 
     return render(request, 'home/apps.html', context=context)
@@ -246,8 +247,10 @@ def add_app(request, organization_pk):
     # Uses standard django forms
 
     organization = get_object_or_404(Organization, pk=organization_pk)
+    if not OrganizationUser.objects.filter(organization=organization,role='admin',user=request.user):
+        return HttpResponse('Unauthorized', status=401)
 
-    if request.method == "POST":
+    if request.method == "POST" and OrganizationUser.objects.filter(organization=organization,role='admin',user=request.user):
         form = AppForm(request.POST)
         if form.is_valid():
 
@@ -335,7 +338,7 @@ def app_settings(request, organization_pk, app_pk):
         return HttpResponse('Unauthorized', status=401)
     elif app not in org_obj[0].permitted_apps.all():
         if org_obj[0].role != 'admin':
-            return HttpResponse('Unorized', status=401)    
+            return HttpResponse('Unauthorized', status=401)
     # Uses standard django forms
     if request.method == "POST":
         print(request.POST)
@@ -354,11 +357,11 @@ def app_settings(request, organization_pk, app_pk):
                 #print(org_user.permitted_apps.objects.all())
                 app.save()
             except:
-                
+
                 u = InactiveUsers.objects.get_or_create(user_email=request.POST['email'])
                 u[0].attached_workspaces.add(app)
                 organization.inactive_users.add(u[0])
-                
+
                 u[0].save()
                 organization.save()
             return JsonResponse({
@@ -379,19 +382,20 @@ def app_settings(request, organization_pk, app_pk):
 
             return JsonResponse({
                 "removed" : "true"
-            })        
-    
+            })
+
     else:
         form = AppForm(instance=app)
-        active_users = OrganizationUser.objects.filter(organization_id=organization,permitted_apps=app)
+        active_users = OrganizationUser.objects.filter(organization_id=organization,permitted_apps=app).exclude(role='admin')
+        admin = OrganizationUser.objects.filter(organization_id=organization.pk,role='admin')
         inactive_users = InactiveUsers.objects.filter(attached_workspaces=app)
-        connection = chain(active_users,inactive_users)
+        connection = chain(admin,active_users,inactive_users)
         #print(connection)
         context = {
         'organization': organization,
         'app': app,
         'form': form,
-        "connection":connection 
+        "connection":connection
         }
 
     return render(request, 'home/app-settings.html', context=context)
@@ -516,8 +520,8 @@ def lists(request, organization_pk, app_pk):
     elif app not in org_obj[0].permitted_apps.all():
         if org_obj[0].role != 'admin':
             return HttpResponse('Unorized', status=401)
- 
-    
+
+
     # lists = List.objects.all().filter(status='active', app=app)
     lists = List.objects.filter(status='active', app=app).order_by('name',)
 
@@ -578,7 +582,7 @@ def list(request, organization_pk, app_pk, list_pk):
         records_page = paginator.get_page(page_number)
     else:
         records_page = paginator.get_page(1)
-   
+
     if request.is_ajax() and request.method == "GET":
         search_value = request.GET.get('search_value')
         if search_value:
@@ -587,8 +591,8 @@ def list(request, organization_pk, app_pk, list_pk):
             records = Record.objects.filter(id__in=record_ids, status='active', list=list)
         # Call is ajax, just load main content needed here
         #paginator = Paginator(records, 10)
-        
-        
+
+
         html = render_to_string(
             template_name="home/list.html",
             context={
@@ -605,8 +609,8 @@ def list(request, organization_pk, app_pk, list_pk):
 
     else:
         # If accessing the url directly, load full page
-        
-            
+
+
         context = {
             'organization': organization,
             'app': app,
@@ -1197,10 +1201,10 @@ def record_tasks(request, organization_pk, app_pk, list_pk, record_pk):
         data_dict = {"html_from_view": html}
 
         return JsonResponse(data=data_dict, safe=False)
-    
+
     elif request.method == "POST":
         task_form = TaskForm(request.POST)
-        
+
         if task_form.is_valid():
             form = task_form.save(commit=False)
             form.task = request.POST.get('task')
@@ -1510,10 +1514,10 @@ def post_record_file(request,organization_pk, app_pk, list_pk, record_pk):
     final = {}
     splited_name = record_file.filename().split('.')
     record_file.name_of_file = splited_name[0]
-    record_file.file_extension ='.'+splited_name[-1] 
+    record_file.file_extension ='.'+splited_name[-1]
     record_file.save()
     final['file_name'] = splited_name[0]
-    final['file_extension'] = '.'+splited_name[-1] 
+    final['file_extension'] = '.'+splited_name[-1]
     final['file_url'] = record_File.url()
     final['delete_url'] = record_File.delete_url()
     final['edit_url']=record_File.edit_url()
@@ -1529,7 +1533,7 @@ def post_record_media(request,organization_pk, app_pk, list_pk, record_pk):
     record_file.save()
     record_File = RecordMedia.objects.get(pk=record_file.pk)
     final = {}
-    record_file.name_of_file = record_file.filename()   
+    record_file.name_of_file = record_file.filename()
     record_file.save()
     final['file_name'] = record_file.filename()
     if record_file.type == "V":
@@ -1609,10 +1613,10 @@ def edit_record_comment(request,organization_pk, app_pk, list_pk, record_pk,reco
 #     file = RecordFile.objects.get(pk=file_id)
 #     filename = file.filename
 #     filename = filename.split('.')[0]
-    
+
 
 @csrf_exempt
-def edit_record_file(request,organization_pk, app_pk, list_pk, record_pk,record_file_pk):      
+def edit_record_file(request,organization_pk, app_pk, list_pk, record_pk,record_file_pk):
     record_File = RecordFile.objects.get(pk=record_file_pk)
     new_name = request.POST['content']
     record_File.name_of_file = new_name

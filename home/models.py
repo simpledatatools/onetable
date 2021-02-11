@@ -12,8 +12,8 @@ from django.db import models
 from imagekit.processors import ResizeToFit
 from imagekit.models import ImageSpecField
 from .utils import save_frame_from_video
-import string 
-import random 
+import string
+import random
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 
@@ -21,7 +21,6 @@ from django.dispatch import receiver
 class Organization(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
     name = models.CharField(max_length=200)
-    description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     active_users = models.ManyToManyField(User,through="OrganizationUser",through_fields=( 'organization','user'))
     inactive_users = models.ManyToManyField('InactiveUsers')
@@ -41,7 +40,7 @@ class Organization(models.Model):
     )
 
     # TODO add @property for organization users
-    
+
     def membersCount(self):
         active_users = OrganizationUser.objects.filter(organization=self,status="active").count()
         inactive_users = self.inactive_users.all().count()
@@ -50,9 +49,9 @@ class Organization(models.Model):
     #memberscount = property(MembersCount)
 
     def __str__(self):
-        return self.name        
-    
-    
+        return self.name
+
+
 class OrganizationUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True)
@@ -88,40 +87,10 @@ class OrganizationUser(models.Model):
     def __str__(self):
         return self.organization.name + ' - ' + self.user.username
 
-# class App(models.Model):
-#     id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
-
-#     name = models.CharField(max_length=200)
-#     description = models.TextField()
-#     organization = models.ForeignKey('Organization', on_delete=models.SET_NULL, null=True)
-#     created_at = models.DateTimeField(auto_now_add=True, null=False)
-#     created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-#     last_updated = models.DateTimeField(auto_now_add=True)
-
-#     APP_STATUS = (
-#         ('active', 'Active'),
-#         ('archived', 'Archived'),
-#         ('deleted', 'Deleted'),
-#     )
-
-#     status = models.CharField(
-#         max_length=25,
-#         choices=APP_STATUS,
-#         blank=False,
-#         default='active',
-#     )
-
-#     # TODO add @property for app users
-
-#     def __str__(self):
-#         return self.name
-
-
 
 class App(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
     name = models.CharField(max_length=200)
-    description = models.TextField()
     organization = models.ForeignKey('Organization', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     last_updated = models.DateTimeField(auto_now_add=True)
@@ -140,7 +109,7 @@ class App(models.Model):
         blank=False,
         default='active',
     )
-    
+
     def __str__(self):
         return self.name
 
