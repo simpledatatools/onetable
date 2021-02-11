@@ -1522,6 +1522,9 @@ def post_record_comment(request,organization_pk, app_pk, list_pk, record_pk):
             record_comment.save()
             final = {}
             final['delete_url'] = record_comment.delete_url()
+            final['id'] = record_comment.pk
+            final['edit_url'] = record_comment.edit_url()
+            final['content'] =record_comment.content
             final =json.dumps(final)
             return JsonResponse(data=final, safe=False)
     else:
