@@ -2,7 +2,8 @@
 
 We are so glad you are reading this and you are interested in contributing to OneTable! We hope to build a community of great minds who can help us tackle new technology challenges each day. If you haven't already, please introduce yourself - we'd love to meet you and learn more about your background. We want you working on things you're excited about, and hope we can build opportunities for that through work with OneTable.
 
-Please also be sure to read our [Code of Conduct][conduct].
+Please also be sure to read our [Code of Conduct][conduct]
+
 [conduct]: https://github.com/simpledatatools/onetable/blob/master/CODE_OF_CONDUCT.md
 
 **Casual Contributors**
