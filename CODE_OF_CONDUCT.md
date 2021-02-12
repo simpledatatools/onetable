@@ -97,3 +97,10 @@ available at https://www.contributor-covenant.org/version/1/4/code-of-conduct.ht
 
 For answers to common questions about this code of conduct, see
 https://www.contributor-covenant.org/faq
+
+Please also see the [Django Code of Conduct][django_code]
+available at https://www.djangoproject.com/conduct/
+
+[django_code]: https://www.djangoproject.com/conduct/
+
+
