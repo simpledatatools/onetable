@@ -121,7 +121,10 @@ We also have opportunities for you to work on this project in a paid position (a
 
 - The work must be completed by you, and cannot be sent to others or subcontracted to other developers.
 
-Please see our contribution guidelines and community guidelines as well for more detail. 
+Please see our [Contributing Guidelines][contributing] and [Code of Conduct][conduct] for more information
+
+[contributing]: https://github.com/simpledatatools/onetable/blob/master/CONTRIBUTING.md
+[conduct]: https://github.com/simpledatatools/onetable/blob/master/CODE_OF_CONDUCT.md
 
 ## Not a developer but interested in getting involved?
 
