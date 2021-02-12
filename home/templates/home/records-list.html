@@ -1,9 +1,10 @@
+{% load custom_tags %}
 {% if records %}
 <div class="row">
 
   {% for record in records %}
     <div id="record-{{record.pk}}" class="col-lg-12 mb-4">
-      <div class="card card-header-actions lift lift-sm h-100">
+      <div class="card card-header-actions">
           <div class="card-header bg-white">
               <a href="javascript:void(0);" onclick="getPage('{% url 'record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}');">
                 {{ record.primary_field.value }}
@@ -22,7 +23,7 @@
                   </div>
               </div>
           </div>
-          
+
           {% if record.record_fields|length > 1 %}
           <div class="card-body">
             {% for field in record.record_fields %}
@@ -38,6 +39,17 @@
                 </p>
                 {% elif field.list_field.field_type == "url" %}
                   <p><b>{{ field.list_field.field_label }}:</b> <a href="{{ field.value }}" target="_blank">{{ field.value }}</a></p>
+                {% elif field.list_field.field_type == "rating" %}
+                <p><b>{{ field.list_field.field_label }}:</b>
+                  <div class="rating-show">
+                    {% for i in field.value|get_range %}
+                      <svg class="active" viewBox="0 -10 511.98685 511" xmlns="http://www.w3.org/2000/svg"><path d="m510.652344 185.902344c-3.351563-10.367188-12.546875-17.730469-23.425782-18.710938l-147.773437-13.417968-58.433594-136.769532c-4.308593-10.023437-14.121093-16.511718-25.023437-16.511718s-20.714844 6.488281-25.023438 16.535156l-58.433594 136.746094-147.796874 13.417968c-10.859376 1.003906-20.03125 8.34375-23.402344 18.710938-3.371094 10.367187-.257813 21.738281 7.957031 28.90625l111.699219 97.960937-32.9375 145.089844c-2.410156 10.667969 1.730468 21.695313 10.582031 28.09375 4.757813 3.4375 10.324219 5.1875 15.9375 5.1875 4.839844 0 9.640625-1.304687 13.949219-3.882813l127.46875-76.183593 127.421875 76.183593c9.324219 5.609376 21.078125 5.097657 29.910156-1.304687 8.855469-6.417969 12.992187-17.449219 10.582031-28.09375l-32.9375-145.089844 111.699219-97.941406c8.214844-7.1875 11.351563-18.539063 7.980469-28.925781zm0 0" /></svg>
+                    {% endfor %}
+                    {% for i in field.value|get_range_other %}
+                      <svg viewBox="0 -10 511.98685 511" xmlns="http://www.w3.org/2000/svg"><path d="m510.652344 185.902344c-3.351563-10.367188-12.546875-17.730469-23.425782-18.710938l-147.773437-13.417968-58.433594-136.769532c-4.308593-10.023437-14.121093-16.511718-25.023437-16.511718s-20.714844 6.488281-25.023438 16.535156l-58.433594 136.746094-147.796874 13.417968c-10.859376 1.003906-20.03125 8.34375-23.402344 18.710938-3.371094 10.367187-.257813 21.738281 7.957031 28.90625l111.699219 97.960937-32.9375 145.089844c-2.410156 10.667969 1.730468 21.695313 10.582031 28.09375 4.757813 3.4375 10.324219 5.1875 15.9375 5.1875 4.839844 0 9.640625-1.304687 13.949219-3.882813l127.46875-76.183593 127.421875 76.183593c9.324219 5.609376 21.078125 5.097657 29.910156-1.304687 8.855469-6.417969 12.992187-17.449219 10.582031-28.09375l-32.9375-145.089844 111.699219-97.941406c8.214844-7.1875 11.351563-18.539063 7.980469-28.925781zm0 0" /></svg>
+                    {% endfor %}
+                  </div>
+                </p>
                 {% else %}
                   <p><b>{{ field.list_field.field_label }}:</b> {{ field.value|safe }}</p>
                 {% endif %}
@@ -54,7 +66,7 @@
                 <h5 class="modal-title" id="exampleModalCenterTitle">Are you sure that you want to Archive {{record.list}}?</h5>
                 <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
             </div>
-            
+
             <div class="modal-footer"><span class="btn btn-primary archive-record" data-record-id="{{record.pk}}" type="button" data-dismiss="modal" href="{% url 'archive_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}" data-content-id="{{file.id}}">Archive</span><span class="btn btn-light" type="button" data-dismiss="modal">No</span></div>
          </div>
          </div>
@@ -65,7 +77,7 @@
 </div>
 
 <br/>
-<div class="float-left">Display 
+<div class="float-left">Display
 <a class="btn-link p-3" style="border-radius:5px" id="perpage-10" class="per_page">10</a>
 <a  class="btn-link p-3" style="border-radius:5px" id="perpage-25" class="per_page">25</a>
 <a  class="btn-link  p-3" style="border-radius:5px" id="perpage-50" class="per_page">50</a>
@@ -96,9 +108,9 @@
   </ul>
 {% endif %}
 {% else %}
-<div class="row">
+<div class="row mt-5">
   <div class="col-lg-12">
-    <p>No records to display</p>
+    <p class="text-center">No records to display! Try changing your search terms or if this is a new list, add your first record above. </p>
   <div>
 </div>
 {% endif %}
@@ -154,7 +166,7 @@ $(document).ready(function() {
         item.addClass('text-white');
       }
         }
-      
+
       if (url.includes("?")){
         if(url.includes("per_page")){
           var href = window.location.href ;
@@ -167,7 +179,7 @@ $(document).ready(function() {
         item.attr('href',href);
         }
       }else{
-        
+
           var href = url + '?per_page='+ item.html();
           console.log(href);
           item.attr('href',href);
@@ -175,13 +187,13 @@ $(document).ready(function() {
         item.on('click',function(ev){
            ev.preventDefault();
            var url = item.attr('href');
-           getPage(url); 
+           getPage(url);
                });
       };
       perpage(10); perpage(25);
       perpage(50); perpage(100);
 
-      
+
         var item = $('.pagi');
         var  url = window.location.href ;
         var url_string = new URL(url);
@@ -199,7 +211,7 @@ $(document).ready(function() {
         item.attr('href',href);
         }
       }else{
-        
+
           var href = url + '?page='+ item.attr('data-number');
           console.log(href);
           item.attr('href',href);
@@ -208,10 +220,10 @@ $(document).ready(function() {
         item.on('click',function(ev){
            ev.preventDefault();
            var url = item.attr('href');
-           getPage(url); 
+           getPage(url);
                });
-    
-      
+
+
 
 
 });

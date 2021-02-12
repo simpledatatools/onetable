@@ -8,6 +8,15 @@
 .DS_Store
 *.swp
 /venv/
+/env/
 /static/
 /media/
 .env
+.vscode
+
+# local DB credentials
+/core/settings/config.py
+
+# migration file and pycache files
+**/migrations/*
+__pycache__/

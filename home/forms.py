@@ -1,17 +1,16 @@
 from django import forms
 from django.forms import modelformset_factory
-from .models import Organization, App, List, ListField, Note
+from .models import Organization, App, List, ListField
 
 
 class OrganizationForm(forms.ModelForm):
 
     class Meta:
         model = Organization
-        fields = ('name','description',)
+        fields = ('name',)
 
         widgets = {
-            'name': forms.TextInput(attrs={'class':'form-control form-control-solid'}),
-            'description': forms.TextInput(attrs={'class':'form-control form-control-solid'})
+            'name': forms.TextInput(attrs={'class':'form-control form-control-solid'})
         }
 
 
@@ -19,11 +18,10 @@ class AppForm(forms.ModelForm): #(Workspaces)
 
     class Meta:
         model = App
-        fields = ('name','description',)
+        fields = ('name',)
 
         widgets = {
-            'name': forms.TextInput(attrs={'class':'form-control form-control-solid'}),
-            'description': forms.TextInput(attrs={'class':'form-control form-control-solid'})
+            'name': forms.TextInput(attrs={'class':'form-control form-control-solid'})
         }
 
 
@@ -73,14 +71,3 @@ ListFieldFormset = modelformset_factory(
         )
     }
 )
-
-
-class NoteForm(forms.ModelForm): #(Workspaces)
-
-    class Meta:
-        model = Note
-        fields = ('note',)
-
-        widgets = {
-            'note': forms.TextInput(attrs={'class':'form-control form-control-solid'})
-        }

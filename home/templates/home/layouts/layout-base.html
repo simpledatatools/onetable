@@ -41,7 +41,7 @@
           window.CSRF_TOKEN = "{{ csrf_token }}";
         </script>
 
-        <script src="https://cdn.tiny.cloud/1/2si791cp62vx5vp1b4gslvmmzhpf6tedhe3fsrymeqhfx7p1/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+        <script src="https://cdn.tiny.cloud/1/3p2u8b96ubsvikviyaulyu45qjnz81js09ruw9uk2a4jblpk/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
     </head>
 
     <body {% block bodyclass %}{% endblock %}>
@@ -51,9 +51,10 @@
 
         {# TODO only load these where needed #}
         <script src="{% static 'js/scripts.js' %}"></script>
+        <script src="{% static 'js/jquery.rateyo.min.js' %}"></script>
 
         {% block extrajs %}
-          
+
           {# Add extra JS files here for specific screens #}
         {% endblock %}
 

@@ -12,28 +12,14 @@ import random
 import string
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import *
-from .forms import OrganizationForm, AppForm, ListForm, ListFieldFormset, NoteForm
+from .forms import OrganizationForm, AppForm, ListForm, ListFieldFormset
 from django.views.decorators.csrf import csrf_exempt
 import subprocess
 from itertools import chain
 
-N = 10
-
+N = 16
 def randomstr():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k = N)) 
-
-# TODO
-# On all views, @login_required prevents users not logged in, but need method and
-# approach for making sure users are viewing / editing / creating / etc. only in
-# the apps and organizations they have been added to and (eventually) have the
-# correct permissions for.git
-
-
-# TODO
-# Urls for template / page rendering and ajax are mixed in together, messy and
-# hard to organize. Need to split somehow into ajax/ url or organize so it's clear
-# which url routes are used for ajax, and what is used for page template rendering
-
+    return ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k = N))
 
 
 #===============================================================================
@@ -62,7 +48,6 @@ def about(request):
 
 #===============================================================================
 # Organizations
-
 #===============================================================================
 
 
@@ -108,7 +93,7 @@ def add_organization(request):
         form = OrganizationForm()
 
         return render(request, 'home/organization-form.html', {'form': form})
-        
+
 
 
 
@@ -156,8 +141,9 @@ def organization_settings(request, organization_pk):
     # Uses standard django forms
 
     organization = get_object_or_404(Organization, pk=organization_pk)
-
     if request.method == "POST":
+        if not OrganizationUser.objects.filter(organization=organization, user=request.user,role='admin').exists():
+            return HttpResponse('Unauthorized', status=401)
     #    print(request.POST)
         if request.POST['type'] == "add_user":
             try:
@@ -172,7 +158,7 @@ def organization_settings(request, organization_pk):
                 u[0].save()
                 organization.inactive_users.add(u[0])
                 organization.save()
-                
+
             return JsonResponse({
                 "added" : "true"
             })
@@ -186,9 +172,18 @@ def organization_settings(request, organization_pk):
                 u = InactiveUsers.objects.get(user_email=request.POST['email'])
                 organization.inactive_users.remove(u)
                 organization.save()
-
             return JsonResponse({
                 "removed" : "true"
+            })
+
+        elif request.POST['type'] == 'change_role':
+            org_user = OrganizationUser.objects.get(organization=organization,user__email=request.POST['email'])
+            print(org_user)
+            org_user.role = request.POST['to']
+            org_user.save()
+
+            return JsonResponse({
+                "changed_to" : org_user.role
             })
 
     else:
@@ -196,16 +191,18 @@ def organization_settings(request, organization_pk):
         active_users = organization.organizationuser_set.filter(status="active").order_by('-created_at')
         inactive_users = organization.inactive_users.all().order_by('-created_at')
         connection = chain(active_users,inactive_users)
+        is_admin = OrganizationUser.objects.filter(organization=organization,user=request.user,role='admin').exists
         print(connection)
         context = {
             'organization': organization,
             'form': form,
-            "connection":connection
+            "connection":connection,
+            "is_admin" : is_admin
      }
 
         return render(request, 'home/organization-settings.html', context=context)
 
-    
+
 
 #===============================================================================
 # Apps (Workspaces)
@@ -218,21 +215,23 @@ def apps(request, organization_pk):
     user_obj = OrganizationUser.objects.filter(user=request.user, status__exact='active', organization = organization).exists()
     if not user_obj:
          return HttpResponse('You are not allowed here!', status=401)
-    
+
     user_obj = OrganizationUser.objects.get(user=request.user, status__exact='active', organization = organization)
     if not user_obj.role == "admin":
-        userApps = user_obj.permitted_apps.all()
+        userApps = user_obj.permitted_apps.filter(status='active')
     else:
-        userApps =App.objects.filter(organization=organization)
-    
+        userApps =App.objects.filter(organization=organization,status='active')
+
     apps = []
 
     for userApp in userApps:
         apps.append(userApp)
 
+    is_admin_of_parent_org = OrganizationUser.objects.filter(user=request.user,organization=organization,role='admin').exists()
     context = {
         'organization': organization,
-        'apps': apps
+        'apps': apps,
+        'is_admin_of_parent_org' : is_admin_of_parent_org
     }
 
     return render(request, 'home/apps.html', context=context)
@@ -246,8 +245,10 @@ def add_app(request, organization_pk):
     # Uses standard django forms
 
     organization = get_object_or_404(Organization, pk=organization_pk)
+    if not OrganizationUser.objects.filter(organization=organization,role='admin',user=request.user):
+        return HttpResponse('Unauthorized', status=401)
 
-    if request.method == "POST":
+    if request.method == "POST" and OrganizationUser.objects.filter(organization=organization,role='admin',user=request.user):
         form = AppForm(request.POST)
         if form.is_valid():
 
@@ -335,7 +336,7 @@ def app_settings(request, organization_pk, app_pk):
         return HttpResponse('Unauthorized', status=401)
     elif app not in org_obj[0].permitted_apps.all():
         if org_obj[0].role != 'admin':
-            return HttpResponse('Unorized', status=401)    
+            return HttpResponse('Unauthorized', status=401)
     # Uses standard django forms
     if request.method == "POST":
         print(request.POST)
@@ -354,11 +355,11 @@ def app_settings(request, organization_pk, app_pk):
                 #print(org_user.permitted_apps.objects.all())
                 app.save()
             except:
-                
+
                 u = InactiveUsers.objects.get_or_create(user_email=request.POST['email'])
                 u[0].attached_workspaces.add(app)
                 organization.inactive_users.add(u[0])
-                
+
                 u[0].save()
                 organization.save()
             return JsonResponse({
@@ -379,19 +380,32 @@ def app_settings(request, organization_pk, app_pk):
 
             return JsonResponse({
                 "removed" : "true"
-            })        
-    
+            })
+
+        elif request.POST['type'] == 'change_role':
+            org_user = OrganizationUser.objects.get(organization=organization,user__email=request.POST['email'])
+            print(org_user)
+            org_user.role = request.POST['to']
+            org_user.save()
+
+            return JsonResponse({
+                "changed_to" : org_user.role
+            })
+
     else:
         form = AppForm(instance=app)
-        active_users = OrganizationUser.objects.filter(organization_id=organization,permitted_apps=app)
+        active_users = OrganizationUser.objects.filter(organization_id=organization,permitted_apps=app).exclude(role='admin')
+        admin = OrganizationUser.objects.filter(organization_id=organization.pk,role='admin')
         inactive_users = InactiveUsers.objects.filter(attached_workspaces=app)
-        connection = chain(active_users,inactive_users)
+        connection = chain(admin,active_users,inactive_users)
+        is_admin = OrganizationUser.objects.filter(organization=organization,user=request.user,role='admin').exists
         #print(connection)
         context = {
         'organization': organization,
         'app': app,
         'form': form,
-        "connection":connection 
+        "connection":connection,
+        "is_admin" : is_admin
         }
 
     return render(request, 'home/app-settings.html', context=context)
@@ -451,8 +465,6 @@ def dashboard(request, organization_pk, app_pk):
 
     else:
 
-        # If accessing the url directly, load full page
-
         context = {
             'organization': organization,
             'app': app,
@@ -476,8 +488,8 @@ def lists(request, organization_pk, app_pk):
     elif app not in org_obj[0].permitted_apps.all():
         if org_obj[0].role != 'admin':
             return HttpResponse('Unorized', status=401)
- 
-    
+
+
     # lists = List.objects.all().filter(status='active', app=app)
     lists = List.objects.filter(status='active', app=app).order_by('name',)
 
@@ -518,14 +530,13 @@ def list(request, organization_pk, app_pk, list_pk):
     search = request.GET.get('search', None)
 
     if search != None:
-        fields = RecordField.objects.filter(value__icontains=search)
+        fields = RecordField.objects.filter(value__icontains=search, record__list=list)
         list_of_records=fields.values_list('record_id',flat=True)
         records=Record.objects.filter(pk__in=list_of_records)
     else:
         records = Record.objects.filter(status='active', list=list)
 
     per_page = request.GET.get('per_page', None)
-    print(request.GET.get('per_page', None))
     search = request.GET.get('search', None)
 
     if per_page != None:
@@ -534,13 +545,12 @@ def list(request, organization_pk, app_pk, list_pk):
         paginator = Paginator(records, 10)
 
     page_number = request.GET.get('page', None)
-    print(type(request.GET.get('page', None)))
     records_page = paginator.get_page(1)
     if page_number != '':
         records_page = paginator.get_page(page_number)
     else:
         records_page = paginator.get_page(1)
-   
+
     if request.is_ajax() and request.method == "GET":
         search_value = request.GET.get('search_value')
         if search_value:
@@ -549,8 +559,8 @@ def list(request, organization_pk, app_pk, list_pk):
             records = Record.objects.filter(id__in=record_ids, status='active', list=list)
         # Call is ajax, just load main content needed here
         #paginator = Paginator(records, 10)
-        
-        
+
+
         html = render_to_string(
             template_name="home/list.html",
             context={
@@ -567,8 +577,8 @@ def list(request, organization_pk, app_pk, list_pk):
 
     else:
         # If accessing the url directly, load full page
-        
-            
+
+
         context = {
             'organization': organization,
             'app': app,
@@ -635,7 +645,7 @@ def create_list(request, organization_pk, app_pk):
 
                 for select_list_id in request.POST.getlist(f'form-{index}-select_list'):
                     if form.cleaned_data.get('select_list') is not None:
-                        if int(select_list_id) != int(form.cleaned_data.get('select_list').id):
+                        if select_list_id != form.cleaned_data.get('select_list').id:
                             ListField.objects.create(
                                 created_at=timezone.now(),
                                 created_user=request.user,
@@ -779,17 +789,9 @@ def list_settings(request, organization_pk, app_pk, list_pk):
 #===============================================================================
 @login_required
 def add_record(request, organization_pk, app_pk, list_pk):
-    # Very similar to the edit_record view, but includes the field values previously saved
-    # Probably a way to combine these views to consolidate
 
-    # We are not using the following here:
-    # 1) Django form.Forms (couldn't find a way to create dynamic forms this approach,
-    # but we may be able to find eventually)
-    # 2) the models.Model @property for list.list_fields or the record.record_fields >>
-    # needed an object with both the field inforation and value included so we can edit previous values here
-
-    # Instead, only approach could find is building an object here then passing it to the frontend
-    # template for rending the form
+    # Not the most 'django' way of doing this, may be ways to improve in the future
+    # that better uses the django out of the box forms functionality
 
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
@@ -855,6 +857,7 @@ def save_record(request, organization_pk, app_pk, list_pk):
     record_id = request.POST.get('record_id', None)
     fields = json.loads(request.POST['field_values'])
     print(request.POST)
+
     # TODO
     # Needs error handling here verify if the form is valid (i.e. all required fields, acceptable data types, etc)
 
@@ -872,9 +875,8 @@ def save_record(request, organization_pk, app_pk, list_pk):
             created_user=request.user,
             id=randomstr())
         record.save()
-
     for field in fields:
-            if field['fieldValue']:
+            # if field['fieldValue']:
             # if field['fieldValue'] is not None:
                 # Only save a RecordField object if there is a value
 
@@ -886,10 +888,10 @@ def save_record(request, organization_pk, app_pk, list_pk):
                         if field['fieldType'] == "choose-from-list":
                            record_field.selected_record_id = field['fieldValue']
                            record_field.value = field['selectListValue']
-                           record_field.id = randomstr()
+                        #    record_field.id = randomstr()
                         else:
                             record_field.value = field['fieldValue']
-                            record_field.id = randomstr()
+                            # record_field.id = randomstr()
                         record_field.save()
 
                         # Update existing relationship
@@ -907,7 +909,9 @@ def save_record(request, organization_pk, app_pk, list_pk):
                                     list_field=record_field.list_field,
                                     status='active',
                                     created_at=timezone.now(),
-                                    created_user=request.user)
+                                    created_user=request.user,
+                                    id=randomstr()
+                                    )
                                 record_relation.save()
 
                     except RecordField.DoesNotExist:
@@ -942,7 +946,8 @@ def save_record(request, organization_pk, app_pk, list_pk):
                                     list_field=record_field.list_field,
                                     status='active',
                                     created_at=timezone.now(),
-                                    created_user=request.user)
+                                    created_user=request.user,
+                                    id=randomstr())
                                 record_relation.save()
 
                         except ListField.DoesNotExist:
@@ -950,7 +955,6 @@ def save_record(request, organization_pk, app_pk, list_pk):
                             pass
 
                 else:
-
                     try:
 
                         # Create new record field
@@ -982,16 +986,13 @@ def save_record(request, organization_pk, app_pk, list_pk):
                                 list_field=record_field.list_field,
                                 status='active',
                                 created_at=timezone.now(),
-                                created_user=request.user)
+                                created_user=request.user,
+                                id=randomstr())
                             record_relation.save()
 
                     except ListField.DoesNotExist:
                         # Easy error handling for now
                         pass
-
-    # Using ajax here to save because cannot do a POST request and get the field values
-    # from a dynamically created form (or at least I couldn't figure out how to
-    # do this, although there may be a way to!)
 
     # Redirect based on ajax call from frontend on success
 
@@ -1011,7 +1012,7 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
     comments = RecordComment.objects.filter(record_id=record_pk).order_by('-pk')
     files = RecordFile.objects.filter(record_id=record_pk).order_by('-pk')
     media = RecordMedia.objects.filter(record_id=record_pk).order_by('-pk')
-    
+
 
     if request.is_ajax() and request.method == "GET":
 
@@ -1023,12 +1024,7 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
                 'organization': organization,
                 'app': app,
                 'list': list,
-                'record': record,
-                'type': 'record',
-                'record_view': 'record-details',
-                'comments' : comments,
-                'files':files,
-                "media":media
+                'record': record
             }
         )
 
@@ -1039,6 +1035,7 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
     else:
 
         # If accessing the url directly, load full page
+        # Same as dashboard, else if accessing fir
 
         context = {
             'organization': organization,
@@ -1066,7 +1063,7 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
     comments = RecordComment.objects.filter(record_id=record_pk).order_by('-created_at')
     media = RecordMedia.objects.filter(record_id=record_pk).order_by('-pk')
     files = RecordFile.objects.filter(record_id=record_pk).order_by('-pk')
-    note_form = NoteForm()
+
 
     if request.is_ajax() and request.method == "GET":
 
@@ -1079,10 +1076,6 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
                 'app': app,
                 'list': list,
                 'record': record,
-                'note_form': note_form,
-                "comments":comments,
-                "files": files,
-                "media":media
 
             }
         )
@@ -1102,7 +1095,7 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
             'app': app,
             'list': list,
             'record': record,
-            'note_form': note_form,
+
             'type': 'record',
             'record_view': 'record-details',
             "comments":comments,
@@ -1112,26 +1105,10 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
 
         return render(request, 'home/workspace.html', context=context)
 
-    if request.method == "POST":
-        form = NoteForm(request.POST)
-        if form.is_valid():
 
-            # Save the new project
-            note = form.save()
-
-            context = {
-                'organization': organization,
-                'app': app,
-                'list': list,
-                'record': record,
-                'note_form': note_form,
-                'type': 'record',
-                'record_view': 'record-details'
-            }
-
-            return render(request, 'home/workspace.html', context=context)
-
-
+#=========================================================================================
+# Record Links
+#=========================================================================================
 
 @login_required
 def record_links(request, organization_pk, app_pk, list_pk, record_pk):
@@ -1158,7 +1135,6 @@ def record_links(request, organization_pk, app_pk, list_pk, record_pk):
                 'app': app,
                 'list': list,
                 'record': record,
-                'type':record,
                 'records': records
 
             }
@@ -1197,7 +1173,7 @@ def edit_record(request, organization_pk, app_pk, list_pk, record_pk):
 
     # We are not using the following here:
     # 1) Django form.Forms (couldn't find a way to create dynamic forms this approach,
-    # but we may be able to  find eventually)
+    # but we may be able to find eventually)
     # 2) the models.Model @property for list.list_fields or the record.record_fields >>
     # needed an object with both the field inforation and value included so we can edit prvious values here
 
@@ -1266,14 +1242,11 @@ def edit_record(request, organization_pk, app_pk, list_pk, record_pk):
 
 # TODO need view for archiving records
 def archive_record(request, organization_pk, app_pk, list_pk, record_pk):
+    #   this functional is call when user click on the "Archive Record" button on Record Detail Page
     record = get_object_or_404(Record, pk=record_pk)
     record.status = "archived"
     record.save()
-    return JsonResponse({
-            "record_archieved":"true"
-        })
-
-
+    return redirect('list', organization_pk=organization_pk, app_pk=app_pk, list_pk=list_pk)
 
 #===============================================================================
 # Records
@@ -1297,20 +1270,20 @@ def post_record_comment(request,organization_pk, app_pk, list_pk, record_pk):
             record_comment = RecordComment(created_user=request.user,content = request.POST['content'],record_id=record_pk)
             record_comment.id = randomstr()
             record_comment.save()
-            comment_json = {}
-            comment_json['delete_url'] = record_comment.delete_url()
-            comment_json['content'] = record_comment.content
-            comment_json['edit_url'] = record_comment.edit_url()
-            comment_json['id'] = record_comment.pk
-            comment_json =json.dumps(comment_json)
-            return JsonResponse(data=comment_json, safe=False)
+            final = {}
+            final['delete_url'] = record_comment.delete_url()
+            final['id'] = record_comment.pk
+            final['edit_url'] = record_comment.edit_url()
+            final['content'] =record_comment.content
+            final =json.dumps(final)
+            return JsonResponse(data=final, safe=False)
     else:
         return HttpResponse('Unauthorized', status=401)
 
 
 
 @csrf_exempt
-def post_record_file(request,organization_pk, app_pk, list_pk, record_pk):      
+def post_record_file(request,organization_pk, app_pk, list_pk, record_pk):
     record_file = RecordFile(file=request.FILES['file'],record_id=record_pk,created_user = request.user)
     record_file.id =randomstr()
     record_file.save()
@@ -1318,10 +1291,10 @@ def post_record_file(request,organization_pk, app_pk, list_pk, record_pk):
     final = {}
     splited_name = record_file.filename().split('.')
     record_file.name_of_file = splited_name[0]
-    record_file.file_extension ='.'+splited_name[-1] 
+    record_file.file_extension ='.'+splited_name[-1]
     record_file.save()
     final['file_name'] = splited_name[0]
-    final['file_extension'] = '.'+splited_name[-1] 
+    final['file_extension'] = '.'+splited_name[-1]
     final['file_url'] = record_File.url()
     final['delete_url'] = record_File.delete_url()
     final['edit_url']=record_File.edit_url()
@@ -1331,13 +1304,13 @@ def post_record_file(request,organization_pk, app_pk, list_pk, record_pk):
 
 
 @csrf_exempt
-def post_record_media(request,organization_pk, app_pk, list_pk, record_pk):      
+def post_record_media(request,organization_pk, app_pk, list_pk, record_pk):
     record_file = RecordMedia(file=request.FILES['file'],record_id=record_pk,created_user = request.user)
     record_file.id = randomstr()
     record_file.save()
     record_File = RecordMedia.objects.get(pk=record_file.pk)
     final = {}
-    record_file.name_of_file = record_file.filename()   
+    record_file.name_of_file = record_file.filename()
     record_file.save()
     final['file_name'] = record_file.filename()
     if record_file.type == "V":
@@ -1345,14 +1318,13 @@ def post_record_media(request,organization_pk, app_pk, list_pk, record_pk):
     else:
         final['file_url'] = record_File.url()
     final['delete_url'] = record_File.delete_url()
-    final['id']=record_file.pk
     final =json.dumps(final)
     return JsonResponse(data=final, safe=False)
 
 
 
 @csrf_exempt
-def delete_record_media(request,organization_pk, app_pk, list_pk, record_pk,record_media_pk):      
+def delete_record_media(request,organization_pk, app_pk, list_pk, record_pk,record_media_pk):
     record_File = RecordMedia.objects.get(pk=record_media_pk)
     record_File.delete()
     final = {}
@@ -1368,7 +1340,7 @@ def delete_record_media(request,organization_pk, app_pk, list_pk, record_pk,reco
 
 
 @csrf_exempt
-def delete_record_file(request,organization_pk, app_pk, list_pk, record_pk,record_file_pk):      
+def delete_record_file(request,organization_pk, app_pk, list_pk, record_pk,record_file_pk):
     record_File = RecordFile.objects.get(pk=record_file_pk)
     record_File.delete()
     final = {}
@@ -1383,16 +1355,18 @@ def delete_record_file(request,organization_pk, app_pk, list_pk, record_pk,recor
 
 
 @csrf_exempt
-def delete_record_comment(request,record_comment_pk,organization_pk, app_pk, list_pk, record_pk):      
+def delete_record_comment(request,record_comment_pk,organization_pk, app_pk, list_pk, record_pk):
     record_Comment = RecordComment.objects.get(pk=record_comment_pk)
     record_Comment.delete()
     final = {}
     final['deleted'] = "deleted"
     final =json.dumps(final)
-    return JsonResponse({
-            "comment_deleted":"true"
-        })
-
+    return redirect(reverse('record',kwargs={
+        'organization_pk':record_Comment.record.list.app.organization.pk,
+        'list_pk':record_Comment.record.list.pk,
+        'app_pk':record_Comment.record.list.app.pk,
+        'record_pk':record_Comment.record.pk,
+    }))
 
 @csrf_exempt
 def edit_record_comment(request,organization_pk, app_pk, list_pk, record_pk,record_comment_pk):
@@ -1416,10 +1390,10 @@ def edit_record_comment(request,organization_pk, app_pk, list_pk, record_pk,reco
 #     file = RecordFile.objects.get(pk=file_id)
 #     filename = file.filename
 #     filename = filename.split('.')[0]
-    
+
 
 @csrf_exempt
-def edit_record_file(request,organization_pk, app_pk, list_pk, record_pk,record_file_pk):      
+def edit_record_file(request,organization_pk, app_pk, list_pk, record_pk,record_file_pk):
     record_File = RecordFile.objects.get(pk=record_file_pk)
     new_name = request.POST['content']
     record_File.name_of_file = new_name

@@ -2,7 +2,7 @@
 <div class="row">
   {% for list in lists %}
     <div class="col-lg-4 mb-4">
-      <div class="card card-header-actions lift lift-sm h-100">
+      <div class="card card-header-actions">
           <div class="card-header bg-white">
               <a href="javascript:void(0);" onclick="getPage('{% url 'list' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk %}');">{{ list.name }}</a>
               <div class="dropdown no-caret">

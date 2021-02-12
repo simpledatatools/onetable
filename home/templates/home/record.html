@@ -23,8 +23,6 @@
     {% block recorddetailscontent %}
     {% if record_view == 'record-details' %}
     {% include 'home/record-details.html' %}
-    {% elif record_view == 'record-tasks' %}
-    {% include 'home/record-tasks.html' %}
     {% elif record_view == 'record-links' %}
     {% include 'home/record-links.html' %}
     {% else %}
@@ -41,25 +39,14 @@
 
   var showActiveLink = (record_view) => {
     if (record_view === 'record-details') {
-      // Activate details link
       $('#record-details-link').addClass("active")
-      $('#record-tasks-link').removeClass("active")
-      $('#record-links-link').removeClass("active")
-    } else if (record_view == 'record-tasks') {
-      // Activate tasks link
-      $('#record-details-link').removeClass("active")
-      $('#record-tasks-link').addClass("active")
       $('#record-links-link').removeClass("active")
     } else if (record_view == 'record-links') {
-      // Activate tasks link
       $('#record-details-link').removeClass("active")
-      $('#record-tasks-link').removeClass("active")
       $('#record-links-link').addClass("active")
     } else {
       // Load default details
-      // Activate details link
       $('#record-details-link').addClass("active")
-      $('#record-tasks-link').removeClass("active")
       $('#record-links-link').removeClass("active")
     }
   }
@@ -72,14 +59,11 @@
     $('#record-details-link').click(() => {
       showActiveLink('record-details')
     })
-    $('#record-tasks-link').click(() => {
-      showActiveLink('record-tasks')
-    })
     $('#record-links-link').click(() => {
       showActiveLink('record-links')
     })
 
-      
+
   })
 
   function getRecordView(url) {

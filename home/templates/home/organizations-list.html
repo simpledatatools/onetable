@@ -2,7 +2,7 @@
 <div class="row">
   {% for organization in organizations %}
     <div class="col-lg-4 mb-4">
-      <div class="card card-header-actions lift lift-sm h-100">
+      <div class="card card-header-actions">
           <div class="card-header bg-white">
               <a href="{% url 'apps' organization_pk=organization.pk %}">{{ organization.name }}</a>
               <div class="dropdown no-caret">
