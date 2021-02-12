@@ -2,6 +2,9 @@
 
 We are so glad you are reading this and you are interested in contributing to OneTable! We hope to build a community of great minds who can help us tackle new technology challenges each day. If you haven't already, please introduce yourself - we'd love to meet you and learn more about your background. We want you working on things you're excited about, and hope we can build opportunities for that through work with OneTable.
 
+Please also be sure to read our [Code of Conduct][conduct].
+[conduct]: https://github.com/simpledatatools/onetable/blob/master/CODE_OF_CONDUCT.md
+
 **Casual Contributors**
 
 A list of current issues are always updated on this repository. You are welcome to help solve an issue that is not currently assigned to another person and is marked as 'Open'. If you are interested in solving an issue, please reach out and we will assign the issue to you so others know you are working on it.
@@ -48,7 +51,7 @@ If you would like to use a library as part of the codebase you contribute, pleas
 
 ## Coding conventions
 
-
+We follow the PEP8 standards for all python code. 
 
 
 ## Not a developer but interested in getting involved?
