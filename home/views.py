@@ -530,7 +530,7 @@ def list(request, organization_pk, app_pk, list_pk):
     search = request.GET.get('search', None)
 
     if search != None:
-        fields = RecordField.objects.filter(value__icontains=search)
+        fields = RecordField.objects.filter(value__icontains=search, record__list=list)
         list_of_records=fields.values_list('record_id',flat=True)
         records=Record.objects.filter(pk__in=list_of_records)
     else:
