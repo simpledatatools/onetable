@@ -101,7 +101,7 @@ We follow a simple, but strict process for git branches and contributing:
 
 **Full-time contributors**
 
-We also have opportunities for you to work on this project in a paid position (as a full / part time job) if you are able to lead large portions of the development and can work regular hours. If you are available to contribute to the project in this way, please reach out. The setup works as:
+We also have opportunities for you to work on this project in a paid position (as a full / part time job) if you are able to lead large portions of the development and can work regular hours. We are a team that is scattered across the globe in almost every timezone and we are happy to have you work any schedule that is best for you. If you are available to contribute to the project in this way, please reach out. The setup works as:
 
 - We would like someone who works consistent hours each day. This helps us to more easily coordinate tasks, ensure upcoming tasks are prepared in advance, make sure code is reviewed in a timely manner, and to make sure we can track and monitor your progress.
 
@@ -111,7 +111,7 @@ We also have opportunities for you to work on this project in a paid position (a
 
 - You can choose the hours you prefer to work, but they should be the same hours each each day (i.e. always working 10am - 3pm IST each day Monday - Friday).
 
-- You must work through the platform Upwork, which allows us to transfer salaries easily to multiple countries. 
+- You must work through the platform Upwork, which allows us to transfer salaries easily to multiple countries, unless you are based in the United States. 
 
 - At your start time each day, you must check in with Matt (@mattcapelli) for a virtual daily standup meeting to discuss what you are working on, your plans for the day, and the goals of what you plan to complete. During this time, please also ask any questions or clarifications you have.
 
