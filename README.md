@@ -125,6 +125,10 @@ We try to release a new version as soon as a usable feature has passed all tests
 
 No problem! You can use OneTable through the deployed instance we provide at www.onetableapp.com, including a generous free-forever tier. Contact us through the support chat on the website if you need help getting setup!
 
+## Want to use OneTable to create your own business?
+
+Fantastic! Please reach out if you would like and we can rely at least a decade of terrible business ideas that will help you avoid landmines. We hope OneTable can be a foundation for you to launch consulting companies with clients in your local communities, or of course, by white labeling the platform through a Software as a Service model. The more businesses the better! 
+
 ## OneTable Key Contacts
 
 - **Matt Capelli**: Founder | Mostly focused on the project roadmap and designs. Occasionally tries to hack together python code | Username: _**@mattcapelli**_
