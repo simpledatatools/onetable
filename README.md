@@ -119,6 +119,10 @@ OneTable is very new and evolving quickly! If you have an idea or feature reques
 
 We try to release a new version as soon as a usable feature has passed all tests. We follow a standard X.X.X format for minor / major updates. Of course we are still very much in version 0.X.X and will be for quite some time :) Releases are managed by @locAtLaheriyam. If you would like to be added to a mailing list with an update sent each time there is a release, just let him know. 
 
+## Want to use OneTable but don't want to build from source?
+
+No problem! You can use OneTable through the deployed instance we provide at www.onetableapp.com, including a generous free-forever tier. Contact us through the support chat on the website if you need help getting setup!
+
 ## OneTable Key Contacts
 
 - **Matt Capelli**: Founder | Mostly focused on the project roadmap and designs. Occasionally tries to hack together python code | Username: _**@mattcapelli**_
