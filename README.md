@@ -1,6 +1,6 @@
 # OneTable
 
-### About this project
+## About this project
 
 OneTable is an open source project helping organizations and teams quickly build small apps to digitalize their operations. The app works by helping users to create lists of data that organically evolve over time into relational databases and advanced functionality.
 
@@ -15,20 +15,17 @@ OneTable is open sourced for the following reasons:
 - We hope there is always transparency into what the platform can and cannot do, so organizations using the platform are never misled!
 
 
---------------
 
-
-### Why is this project developed on Django?
+## Why is this project developed on Django?
 
 Django was a natural choice because of the framework's focus on quickly creating relational databases. There are some limits to Django for this use case, which we will try to solve over time. First, there are some cases within the project where we have not yet figured out how to do things the pure 'Django way', such as dynamically building forms using the out of the box Django functionality. We'll likely solve this over time - and other related issues - by switching at some point to the Django Rest Framework with an Angular front end. Similarly, python-based backends have limitations, which we plan to explore and overcome over time as the project grows. For now, the project is considered a 'beta' test concept in the very early stages of development.
 
 Django was also chosen because python is popular programming language that is known by many developers. Django is very easy to learn, and we hope this means that many developers of all levels will be able to contribute to the project and/or use the codebase for their own work across the globe. Our dream is to create a community of businesses across the globe using OneTable to solve challenges. The team for this project is based across the globe, from Nairobi Kenya to Ho Chi Minh City, and we are glad to support you in any way we can if you would like to create a business using the OneTable platform.  
 
 
---------------
 
 
-### How to run the project and get started
+## How to run the project and get started
 
 We will always make sure the project is easy to get started with right away. You can clone the project and begin by going through the typical Django initiation steps noted below:
 
@@ -47,10 +44,9 @@ Please note that the project does rely on some third party services, such as Mai
 We have also setup the project to deploy automatically to Heroku, which offers free hosting for small applications that you can use to get started.
 
 
---------------
 
 
-### Architecture
+## Architecture
 
 The application relies on some key Models to help create lists and store records. In OneTable a `List` is a data structure for creating forms and form fields. The user defines these `List` objects to help them collect the data they need. Data is saved into the `List` structure through associated `Record` and `RecordField` objects. Additional detail is provided below:
 
@@ -67,10 +63,9 @@ Please also note:
 - Static files used on the website (i.e. images on the homepage) are served from the same intance that hosts the app / as part of django, but S3 is used for user uploads when in production using the django-storages and boto3 libraries. In development, we don't use S3 -- just uploads to django project. I need to move the S3 credentials to environment variables in heroku so these are protected, once I create a new S3 bucket for this site.
 
 
---------------
 
 
-### Deployment
+## Deployment
 
 - The app has been configured to be deployed on Heroku, as noted above
 - There is a setup for dev and production, using an environment variable `environment` on Heroku to designate 'production' settings should be used. There may be a better approach for switching between development and production settings (just an initial approach I tried)
@@ -78,10 +73,9 @@ Please also note:
 - The `dev` branch is 'bleeding edge' and always still being tested, though usually quite stable and able to be deployed as well
 
 
---------------
 
 
-### Contributing to this project
+## Contributing to this project
 
 **Casual Contributors**
 
@@ -126,7 +120,7 @@ We also have opportunities for you to work on this project in a paid position (a
 
 **For people who are not developers**
 
-If you are interested in contributing to the project more regularly through this way, by developing mockups or helping to develop the roadmap, please reach out as well and we will schedule a call to help you get involved.
+If you are interested in contributing to the project but you are not a developer, please do reach out. There is plenty of other tasks that support the project - from developing mockups or helping to develop the roadmap to connecting with new organizations who can give feedback and inputs. Please reach out to @mattcapelli and we will schedule a call to help you get involved.
 
 
 --------------
@@ -134,5 +128,5 @@ If you are interested in contributing to the project more regularly through this
 
 ### OneTable Key Contacts
 
-- **Matt Capelli**: Founder, mostly focused on the project roadmap and designs. Occasionally tries to hack together python code. Username: _**mattcapelli**_
-- **Bui Tan Loc**: Senior Developer / Architect, leads project architecture and manages all PR's and issues. Username: _**locAtLaheriyam**_
+- **Matt Capelli**: Founder | Mostly focused on the project roadmap and designs. Occasionally tries to hack together python code | Username: _**@mattcapelli**_
+- **Bui Tan Loc**: Senior Developer / Architect | Leads project architecture and manages all PR's and issues | Username: _**@locAtLaheriyam**_
