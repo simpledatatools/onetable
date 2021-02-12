@@ -35,7 +35,6 @@ INSTALLED_APPS = [
     'accounts',
     'home',
     'imagekit',
-    'django_cleanup.apps.CleanupConfig',
     ]
 
 MIDDLEWARE = [
