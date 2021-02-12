@@ -76,10 +76,10 @@
         </div>
     </div>
 </div>
-<div class="py-5 px-2 container">
+<div class="mb-5 px-2 container">
     <div class="mb-3 row no-gutters">
         <div class="col-6">
-            <h5>Files and Uploads</h5>
+            <h5 class="ml-3">Files and Uploads</h5>
         </div>
         <div class="col-6">
             <div id="postRecordFile" class="btn btn-primary float-right" action="{% url 'post_record_file' organization.pk app.pk list.pk record.pk %}">
@@ -93,8 +93,8 @@
         <div id="template-preview" class="d-none"></div>
 
         {% for file in files %}
-        <div id="file-{{file.pk}}" class="col-xl-6">
-            <div class="text-center m-3 card">
+        <div id="file-{{file.pk}}" class="col-xl-6 col-lg-6">
+            <div class="text-center my-3 card">
                 <div class="row card-body">
                     <div style="font-size:0px;" class="col-10 card-text text-left">
                         <span class="d-inline content">
@@ -132,10 +132,10 @@
         {% endfor %}
     </div>
 </div>
-<div class="py-5 px-2 container">
+<div class="mb-5 px-2 container">
     <div class="mb-3 row no-gutters">
         <div class="col-6">
-            <h5>Images and Videos</h5>
+            <h5 class="ml-3">Images and Videos</h5>
         </div>
         <div class="col-6">
             <div id="postRecordMedia" class="btn btn-primary float-right" action="{% url 'post_record_media' organization.pk app.pk list.pk record.pk %}">
@@ -149,7 +149,7 @@
         <div id="template-preview" class="d-none"></div>
 
         {% for file in media %}
-        <div id="media-{{file.pk}}" class="col-xl-3 h-100">
+        <div id="media-{{file.pk}}" class="col-xl-6 col-lg-6 h-100">
             <div class="text-center m-3 card">
                 <div class="card-body">
                     <p class="card-text text-left">
@@ -194,8 +194,8 @@
         {% endfor %}
     </div>
 </div>
-<div class="py-5 px-2 container">
-    <h5>Comments</h5>
+<div class="mb-5 px-2 container">
+    <h5 class="ml-3">Comments</h5>
     <hr />
 
     <div class="d-block" id="record_comments">

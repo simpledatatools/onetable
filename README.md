@@ -2,9 +2,9 @@
 
 ### About this project
 
-OneTable is a simple interface for helping users to quickly create relational database structures for storing data. It is designed to be used for small businesses, projects, or groups who want to store simple lists of data that they define themselves (and that may change over time). The interface is designed to help them create 'links' between lists of data (i.e. relations) similar to how relational databases work, but through an interface that all users would understand. 
+OneTable is a simple interface for helping users to quickly create relational database structures for storing data. It is designed to be used for small businesses, projects, or groups who want to store simple lists of data that they define themselves (and that may change over time). The interface is designed to help them create 'links' between lists of data (i.e. relations) similar to how relational databases work, but through an interface that all users would understand.
 
-This project has been inspired by working with businesses across the globe who want to quickly begin to digitalize their operations, but do not have the resources (or time) to go through a full procurement proces with an expensive technology provider of traditional ERP systems. There are other free, or free-trial, software as a service platforms exists for specific purposes (i.e. sales, crm, etc.) but we've found in many cases these are over-engineered and with pre-defined features that dictate how businesses operations and data collection need to take place. With OneTable, we are hoping to create the absolute simplest, most flexible platform possible that allows users to build anything they need. In this way, you can think of OneTable as the most simple "no-code" interface possible for building relational databases. 
+This project has been inspired by working with businesses across the globe who want to quickly begin to digitalize their operations, but do not have the resources (or time) to go through a full procurement proces with an expensive technology provider of traditional ERP systems. There are other free, or free-trial, software as a service platforms exists for specific purposes (i.e. sales, crm, etc.) but we've found in many cases these are over-engineered and with pre-defined features that dictate how businesses operations and data collection need to take place. With OneTable, we are hoping to create the absolute simplest, most flexible platform possible that allows users to build anything they need. In this way, you can think of OneTable as the most simple "no-code" interface possible for building relational databases.
 
 OneTable is open sourced for the following reasons:
 
@@ -48,7 +48,7 @@ Please note that the project does rely on some third party services, such as Mai
 
 ### Architecture
 
-The application relies on some key Models to help create lists and store records. In OneTable a `List` is a data structure for creating forms and form fields. The user defines these `List` objects to help them collect the data they need. Data is saved into the `List` structure through associated `Record` and `RecordField` objects. Additional detail is provided below: 
+The application relies on some key Models to help create lists and store records. In OneTable a `List` is a data structure for creating forms and form fields. The user defines these `List` objects to help them collect the data they need. Data is saved into the `List` structure through associated `Record` and `RecordField` objects. Additional detail is provided below:
 
 - `List`: parent object which manages the `ListField` objects that define the form fields
 - `ListField`: objects for each form field, defining attributes such as field type and if the form field is required on the form
@@ -56,11 +56,11 @@ The application relies on some key Models to help create lists and store records
 - `RecordField`: objects that store the data for each form field, and are directly connected to a `ListField`
 
 
-Please also note: 
+Please also note:
 
 - Right now caching is not setup on the app - should probably implement redis at some point soon
 - Whitenoise is being used for serving static files, which seems like the recommendation
-- Static files used on the website (i.e. images on the homepage) are served from the same intance that hosts the app / as part of django, but S3 is used for user uploads when in production using the django-storages and boto3 libraries. In development, we don't use S3 -- just uploads to django project. I need to move the S3 credentials to environment variables in heroku so these are protected, once I create a new S3 bucket for this site. 
+- Static files used on the website (i.e. images on the homepage) are served from the same intance that hosts the app / as part of django, but S3 is used for user uploads when in production using the django-storages and boto3 libraries. In development, we don't use S3 -- just uploads to django project. I need to move the S3 credentials to environment variables in heroku so these are protected, once I create a new S3 bucket for this site.
 
 
 --------------
@@ -117,12 +117,12 @@ We also have opportunities for you to work on this project in a paid position (a
 
 - You will be expected to push your code to our git repository at the end of every day using the git branch process we have described above.
 
-- The work must be completed by you, and cannot be sent to others or subcontracted to other developers. 
+- The work must be completed by you, and cannot be sent to others or subcontracted to other developers.
 
 
 **For people who are not developers**
 
-If you are interested in contributing to the project more regularly through this way, by developing mockups or helping to develop the roadmap, please reach out as well and we will schedule a call to help you get involved. 
+If you are interested in contributing to the project more regularly through this way, by developing mockups or helping to develop the roadmap, please reach out as well and we will schedule a call to help you get involved.
 
 
 --------------
@@ -130,7 +130,5 @@ If you are interested in contributing to the project more regularly through this
 
 ### OneTable Key Contacts
 
-- **Matt Capelli**: Founder, mostly focused on the project roadmap and designs. Occationally tries to hack together python code. Username: _**mattcapelli**_
-- **Bui Tan Loc**: Senior Developer / Achitect, leads project architecture and manages all PR's and issues. Username: _**locAtLaheriyam**_
-
-
+- **Matt Capelli**: Founder, mostly focused on the project roadmap and designs. Occasionally tries to hack together python code. Username: _**mattcapelli**_
+- **Bui Tan Loc**: Senior Developer / Architect, leads project architecture and manages all PR's and issues. Username: _**locAtLaheriyam**_
