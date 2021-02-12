@@ -12,6 +12,7 @@
 /static/
 /media/
 .env
+.vscode
 
 # local DB credentials
 /core/settings/config.py
