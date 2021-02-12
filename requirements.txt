@@ -9,6 +9,7 @@ django-storages==1.10.1
 django-tinymce==3.2.0
 gunicorn==20.0.4
 jmespath==0.10.0
+libmagic==1.0
 numpy==1.20.0
 opencv-python==4.5.1.48
 pilkit==2.0
