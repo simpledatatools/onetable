@@ -34,16 +34,18 @@ We will always make sure the project is easy to get started with right away. You
 - Make sure you are in a virtualenv (we recommend setting up a new one)
 - Install everything from requirements.txt using ```pip3 install -r requirements.txt```
 - You will need to create a config.py file under `core > settings` to store your local database credentials (these are not version controlled). The file should contain:
-`local_database = {
+```
+local_database = {
       'default': {
           'ENGINE': 'django.db.backends.postgresql',
           'NAME': 'one-table-local',
-          'USER': 'postgres',
-          'PASSWORD': 'postgres',
+          'USER': 'YOUR LOCAL USER',
+          'PASSWORD': 'YOUR LOCAL PASSWORD',
           'HOST': 'localhost',
           'PORT': '5432',
       }
-}`
+}
+```
 - Make sure you create a local postgres database called 'one-table-local' (see the base.py and config.py settings files under core.settings)
 - Run ```python3 manage.py makemigrations``` to create database migrations
 - Run ```python3 manage.py migrate``` to create database tables / initial setup
