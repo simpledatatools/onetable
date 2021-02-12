@@ -111,9 +111,11 @@ We also have opportunities for you to work on this project in a paid position (a
 
 Fantastic! If you are interested in contributing to the project but you are not a developer, please do reach out. There are a huge amount of other tasks that support the project - from developing mockups or helping to develop the technology roadmap, to connecting with new organizations who can give feedback and test out new features. Please reach out to @mattcapelli and we will schedule a call to get you involved.
 
+## Feature Requests
 
+OneTable is very new and evolving quickly! If you have an idea or feature request, please reach out to @mattcapelli to discuss and we will try to get the new functionality into the backlog and product roadmap. As the project grows, we will formalize this process through a board / steering committee and dedicated product team, including releasing the product roadmap publically with regular updates. 
 
-### OneTable Key Contacts
+## OneTable Key Contacts
 
 - **Matt Capelli**: Founder | Mostly focused on the project roadmap and designs. Occasionally tries to hack together python code | Username: _**@mattcapelli**_
 - **Bui Tan Loc**: Senior Developer / Architect | Leads project architecture and manages all PR's and issues | Username: _**@locAtLaheriyam**_
