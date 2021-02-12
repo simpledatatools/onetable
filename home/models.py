@@ -149,34 +149,8 @@ class AppUser(models.Model):
     )
 
 
-class Menu(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
-    name = models.CharField(max_length=200)
-    app = models.ForeignKey('App', on_delete=models.SET_NULL, null=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
-    created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-    last_updated = models.DateTimeField(auto_now_add=True)
-    order = models.IntegerField()
-
-    MENU_STATUS = (
-        ('active', 'Active'),
-        ('archived', 'Archived'),
-        ('deleted', 'Deleted'),
-    )
-
-    status = models.CharField(
-        max_length=25,
-        choices=MENU_STATUS,
-        blank=False,
-        default='active',
-    )
-
-    def __str__(self):
-        return self.name
-
-
 class List(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     name = models.CharField(max_length=200)
     app = models.ForeignKey('App', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
@@ -215,7 +189,7 @@ class List(models.Model):
 
 class ListField(models.Model):
     list = models.ForeignKey('List', on_delete=models.SET_NULL, null=True, related_name='list')
-    field_id = models.CharField(max_length=10)
+    field_id = models.CharField(max_length=16)
     field_label = models.TextField()
 
     FIELD_TYPE = (
@@ -268,7 +242,7 @@ class ListField(models.Model):
 
 
 class Record(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     list = models.ForeignKey('List', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
@@ -306,7 +280,7 @@ class Record(models.Model):
 
 
 class RecordField(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     record = models.ForeignKey('Record', on_delete=models.SET_NULL, null=True, related_name='record')
     list_field = models.ForeignKey('ListField', on_delete=models.SET_NULL, null=True)
     value = models.TextField(null=True)
@@ -333,7 +307,7 @@ class RecordField(models.Model):
 
 
 class RecordRelation(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     parent_record = models.ForeignKey('Record', on_delete=models.SET_NULL, null=True, related_name='parent_record')
     child_record = models.ForeignKey('Record', on_delete=models.SET_NULL, null=True, related_name='child_record')
     list_field = models.ForeignKey('ListField', on_delete=models.SET_NULL, null=True, related_name='list_field')
@@ -377,7 +351,7 @@ def record_file_path(self, filename):
 
 
 class RecordFile(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     file = models.FileField(upload_to=record_file_path)
     record = models.ForeignKey(Record,on_delete=models.CASCADE,related_name="files")
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True)
@@ -419,7 +393,7 @@ def record_media_path(self, filename):
 
 
 class RecordMedia(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     file = models.FileField(upload_to=record_media_path)
     record = models.ForeignKey(Record,on_delete=models.CASCADE,related_name="media")
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True)
@@ -504,7 +478,7 @@ class RecordMedia(models.Model):
 
 
 class RecordComment(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     record = models.ForeignKey(Record,on_delete=models.CASCADE,null=True,blank=True)
     content = models.TextField(default='')
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
