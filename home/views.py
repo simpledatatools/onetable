@@ -21,19 +21,6 @@ N = 16
 def randomstr():
     return ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k = N))
 
-# TODO
-# On all views, @login_required prevents users not logged in, but need method and
-# approach for making sure users are viewing / editing / creating / etc. only in
-# the apps and organizations they have been added to and (eventually) have the
-# correct permissions for.
-
-
-# TODO
-# Urls for template / page rendering and ajax are mixed in together, messy and
-# hard to organize. Need to split somehow into ajax/ url or organize so it's clear
-# which url routes are used for ajax, and what is used for page template rendering
-
-
 
 #===============================================================================
 # Static Pages / Home Page Setup
@@ -61,7 +48,6 @@ def about(request):
 
 #===============================================================================
 # Organizations
-
 #===============================================================================
 
 
