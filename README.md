@@ -56,14 +56,6 @@ The application relies on some key Models to help create lists and store records
 - `RecordField`: objects that store the data for each form field, and are directly connected to a `ListField`
 
 
-Please also note:
-
-- Right now caching is not setup on the app - should probably implement redis at some point soon
-- Whitenoise is being used for serving static files, which seems like the recommendation
-- Static files used on the website (i.e. images on the homepage) are served from the same intance that hosts the app / as part of django, but S3 is used for user uploads when in production using the django-storages and boto3 libraries. In development, we don't use S3 -- just uploads to django project. I need to move the S3 credentials to environment variables in heroku so these are protected, once I create a new S3 bucket for this site.
-
-
-
 
 ## Deployment
 
