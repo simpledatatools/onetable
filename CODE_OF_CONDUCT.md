@@ -1,7 +1,5 @@
 # Contributor Code of Conduct
 
-_Our code of conduct is derived from both the Contributor Covenant Code of Conduct as well as the Django Code of Conduct_
-
 Like the technical community as a whole, the OneTable team and community is made up of a mixture of professionals and volunteers from all over the world, working on every aspect of the mission - including mentorship, teaching, and connecting people.
 
 Diversity is one of our huge strengths, but it can also lead to communication issues and unhappiness. To that end, we have a few ground rules that we ask people to adhere to. This code applies equally to founders, mentors and those seeking help and guidance.
@@ -90,7 +88,9 @@ members of the project's leadership.
 
 ## Attribution
 
-This Code of Conduct is adapted from the [Contributor Covenant][homepage], version 1.4,
+_Our code of conduct is derived from both the Contributor Covenant Code of Conduct as well as the Django Code of Conduct_
+
+You can find more information at [Contributor Covenant][homepage], version 1.4,
 available at https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
 
 [homepage]: https://www.contributor-covenant.org
