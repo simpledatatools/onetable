@@ -424,11 +424,9 @@ def app_details(request, organization_pk, app_pk):
     context = {
         'organization': organization,
         'app': app,
-        'type': 'dashboard'
+        'type': 'activity'
     }
 
-    # Always loads the full workspace here (no ajax), defaults to dashboard content
-    # in the template file
     return render(request, 'home/workspace.html', context=context)
 
 
@@ -437,7 +435,7 @@ def app_details(request, organization_pk, app_pk):
 #===============================================================================
 
 @login_required
-def dashboard(request, organization_pk, app_pk):
+def activity(request, organization_pk, app_pk):
 
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
@@ -452,7 +450,7 @@ def dashboard(request, organization_pk, app_pk):
         # Call is ajax, just load main content needed here
 
         html = render_to_string(
-            template_name="home/dashboard.html",
+            template_name="home/activity.html",
             context={
                 'organization': organization,
                 'app': app
@@ -468,7 +466,7 @@ def dashboard(request, organization_pk, app_pk):
         context = {
             'organization': organization,
             'app': app,
-            'type': 'dashboard'
+            'type': 'activity'
         }
 
         return render(request, 'home/workspace.html', context=context)
@@ -1033,9 +1031,6 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
         return JsonResponse(data=data_dict, safe=False)
 
     else:
-
-        # If accessing the url directly, load full page
-        # Same as dashboard, else if accessing fir
 
         context = {
             'organization': organization,
