@@ -11,33 +11,35 @@
                 <div class="page-header-subtitle"><a href="{% url 'add_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk %}">Add new record</a></div>
               </div>
           </div>
-          <div class="card mt-3">
-            <div class="card-body">
-              <div class="sbp-preview-content">
-              <form id="search" action="" method="POST">
-                  <input type="hidden">
-                    <div class="form-group mb-0 d-flex">
-                     <div class="input-group">
-                       <input type="text" class="form-control" id="search_value" placeholder="Search...">
-                       <button id='erase_search_button' type="button" class="btn bg-transparent" style="margin-left: -40px; z-index: 100;">
-                       <i class="fa fa-times"></i>
-                       </button>
-                      </div>
-                    </div>
-                </form>
-              </div>
-            </div>
-          </div>
+
       </div>
   </div>
 </header>
 <!-- Main page content-->
 <div class="container bg-white mt-n10">
+  <!-- search box -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="sbp-preview-content">
+      <form id="search" action="" method="POST">
+          <input type="hidden">
+            <div class="form-group mb-0 d-flex">
+             <div class="input-group">
+               <input type="text" class="form-control" id="search_value" placeholder="Search...">
+               <button id='erase_search_button' type="button" class="btn bg-transparent" style="margin-left: -40px; z-index: 100;">
+               <i class="fa fa-times"></i>
+               </button>
+              </div>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
 <!-- Main page content-->
   <div id="records-list">
     {% include "home/records-list.html" %}
   </div>
-  
+
 </div>
 <script>
 
@@ -60,7 +62,7 @@
     $('#erase_search_button').click(function(ev){
       ev.preventDefault();
       var next_url =  window.location.pathname ;
-      getPage(next_url);  
+      getPage(next_url);
     });
   });
 </script>

@@ -433,7 +433,7 @@ $(document).ready(function() {
                     console.log(data);
                     data = JSON.parse(data);
                     var comment_div = `<form data-comment-id="${data.id}" class="edit_comment_form" action="${data.edit_url}" method="POST">
-                    <div class="card m-3" id="comment-${data.id}" class="card text-center m-3">
+                    <div class="card my-3" id="comment-${data.id}" class="card text-center m-3">
                       <div class="card-body">
                         <div class="main-change">
                           <div id="comment-content-${data.id}" class="card-text text-left content">

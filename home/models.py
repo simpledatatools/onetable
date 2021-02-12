@@ -19,7 +19,7 @@ from django.dispatch import receiver
 
 
 class Organization(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     name = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     active_users = models.ManyToManyField(User,through="OrganizationUser",through_fields=( 'organization','user'))
@@ -89,7 +89,7 @@ class OrganizationUser(models.Model):
 
 
 class App(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     name = models.CharField(max_length=200)
     organization = models.ForeignKey('Organization', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
@@ -149,34 +149,8 @@ class AppUser(models.Model):
     )
 
 
-class Menu(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
-    name = models.CharField(max_length=200)
-    app = models.ForeignKey('App', on_delete=models.SET_NULL, null=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
-    created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-    last_updated = models.DateTimeField(auto_now_add=True)
-    order = models.IntegerField()
-
-    MENU_STATUS = (
-        ('active', 'Active'),
-        ('archived', 'Archived'),
-        ('deleted', 'Deleted'),
-    )
-
-    status = models.CharField(
-        max_length=25,
-        choices=MENU_STATUS,
-        blank=False,
-        default='active',
-    )
-
-    def __str__(self):
-        return self.name
-
-
 class List(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     name = models.CharField(max_length=200)
     app = models.ForeignKey('App', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
@@ -215,7 +189,7 @@ class List(models.Model):
 
 class ListField(models.Model):
     list = models.ForeignKey('List', on_delete=models.SET_NULL, null=True, related_name='list')
-    field_id = models.CharField(max_length=10)
+    field_id = models.CharField(max_length=16)
     field_label = models.TextField()
 
     FIELD_TYPE = (
@@ -268,7 +242,7 @@ class ListField(models.Model):
 
 
 class Record(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     list = models.ForeignKey('List', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
@@ -306,7 +280,7 @@ class Record(models.Model):
 
 
 class RecordField(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     record = models.ForeignKey('Record', on_delete=models.SET_NULL, null=True, related_name='record')
     list_field = models.ForeignKey('ListField', on_delete=models.SET_NULL, null=True)
     value = models.TextField(null=True)
@@ -333,7 +307,7 @@ class RecordField(models.Model):
 
 
 class RecordRelation(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     parent_record = models.ForeignKey('Record', on_delete=models.SET_NULL, null=True, related_name='parent_record')
     child_record = models.ForeignKey('Record', on_delete=models.SET_NULL, null=True, related_name='child_record')
     list_field = models.ForeignKey('ListField', on_delete=models.SET_NULL, null=True, related_name='list_field')
@@ -377,13 +351,53 @@ def record_file_path(self, filename):
 
 
 class RecordFile(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     file = models.FileField(upload_to=record_file_path)
     record = models.ForeignKey(Record,on_delete=models.CASCADE,related_name="files")
     created_at = models.DateTimeField(auto_now_add=True)
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True)
     name_of_file = models.CharField(max_length=200,default='')
     file_extension = models.CharField(max_length=200,default='')
+
+    def __str__(self):
+        return (str(self.record.list.name) + ' ' + str(self.created_user) )
+
+    def filename(self):
+        return os.path.basename(self.file.name)
+
+    def url(self):
+        if self.file and hasattr(self.file, 'url'):
+            return self.file.url
+
+    def delete_url(self):
+        return reverse('delete_record_file', kwargs={
+            'organization_pk':self.record.list.app.organization.pk,
+            'list_pk':self.record.list.pk,
+            'app_pk':self.record.list.app.pk,
+            'record_pk':self.record.pk,
+            'record_file_pk':self.pk
+            })
+
+    def edit_url(self):
+        return reverse('edit_record_file', kwargs={
+            'organization_pk':self.record.list.app.organization.pk,
+            'list_pk':self.record.list.pk,
+            'app_pk':self.record.list.app.pk,
+            'record_pk':self.record.pk,
+            'record_file_pk':self.pk
+            })
+
+
+def record_media_path(self, filename):
+    new_path = "record" + "/media/" + str(self.record.pk) + '/'
+    return os.path.join(new_path, filename)
+
+
+class RecordMedia(models.Model):
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
+    file = models.FileField(upload_to=record_media_path)
+    record = models.ForeignKey(Record,on_delete=models.CASCADE,related_name="media")
+    created_user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True)
     image_types = ['image/jpeg', 'image/gif', 'image/png']
     video_types = ['video/mp4', 'video/x-matroska',
                                'video/ogg','video/quicktime', 'video/x-ms-wmv',
@@ -511,7 +525,7 @@ def record_media_path(self, filename):
 
 
 class RecordComment(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     record = models.ForeignKey(Record,on_delete=models.CASCADE,null=True,blank=True)
     content = models.TextField(default='')
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)

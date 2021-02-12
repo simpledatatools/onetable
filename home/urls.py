@@ -37,8 +37,8 @@ urlpatterns = [
     path('organizations/<organization_pk>/apps/<app_pk>/lists/<list_pk>/records/<record_pk>/links/', views.record_links, name='record_links'),
     path('organizations/<organization_pk>/apps/<app_pk>/lists/<list_pk>/records/<record_pk>/edit/', views.edit_record, name='edit_record'),
 
-    path('organizations/<organization_pk>/apps/<app_pk>/dashboard/', views.dashboard, name='dashboard'),
+    path('organizations/<organization_pk>/apps/<app_pk>/activity/', views.activity, name='activity'),
 
-   
+
     path('organizations/<organization_pk>/apps/<app_pk>/lists/<list_pk>/record/<record_pk>/', views.archive_record, name='archive_record'),
 ]
