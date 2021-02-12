@@ -115,6 +115,10 @@ Fantastic! If you are interested in contributing to the project but you are not 
 
 OneTable is very new and evolving quickly! If you have an idea or feature request, please reach out to @mattcapelli to discuss and we will try to get the new functionality into the backlog and product roadmap. As the project grows, we will formalize this process through a board / steering committee and dedicated product team, including releasing the product roadmap publically with regular updates. 
 
+## Releases
+
+We try to release a new version as soon as a usable feature has passed all tests. We follow a standard X.X.X format for minor / major updates. Of course we are still very much in version 0.X.X and will be for quite some time :) Releases are managed by @locAtLaheriyam. If you would like to be added to a mailing list with an update sent each time there is a release, just let him know. 
+
 ## OneTable Key Contacts
 
 - **Matt Capelli**: Founder | Mostly focused on the project roadmap and designs. Occasionally tries to hack together python code | Username: _**@mattcapelli**_
