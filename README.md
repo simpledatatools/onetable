@@ -106,6 +106,7 @@ We also have opportunities for you to work on this project in a paid position (a
 
 - The work must be completed by you, and cannot be sent to others or subcontracted to other developers.
 
+Please see our contribution guidelines, community guidelines, and code standards for more detail. 
 
 ## Not a developer but interested in getting involved?
 
