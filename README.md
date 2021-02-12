@@ -112,8 +112,6 @@ We also have opportunities for you to work on this project in a paid position (a
 Fantastic! If you are interested in contributing to the project but you are not a developer, please do reach out. There are a huge amount of other tasks that support the project - from developing mockups or helping to develop the technology roadmap, to connecting with new organizations who can give feedback and test out new features. Please reach out to @mattcapelli and we will schedule a call to get you involved.
 
 
---------------
-
 
 ### OneTable Key Contacts
 
