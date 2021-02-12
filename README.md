@@ -6,6 +6,8 @@ OneTable is an open source project helping organizations and teams quickly build
 
 This project has been inspired by working with businesses across the globe who want to quickly begin to digitalize their operations, but do not have the resources (or time) to go through a full procurement proces with an expensive technology providers or traditional ERP systems. There are other free (or free-trial) software as a service platforms that exist for specific purposes (i.e. sales, crm, etc.) but in many cases these solutions are over-engineered with pre-defined features that dictate how businesses operations and data collection need to take place. With OneTable, we are hoping to create the absolute simplest, most flexible platform possible that allows users to build anything they need for their business and the first stages of digitalization. In this way, you can think of OneTable as the most simple "no-code" interface possible for small apps and relational data structures. Although OneTable can be used in almost any context, the heart of the project and inspiration for this building the platform is from years of work in emerging economies, where we've seen time and time again a landscape ripe with opportunity and full of brilliant minds changing the world. 
 
+The name OneTable comes from a two part vision. First that we can come together collaboratively around the same table to share perspectives and ideas, to solve tech challenges together. Second, we believe that everyone should have the chance to sit around the same table of opportunity, that access to technology is a right and a public good, and that technology should always be transparent and fair. 
+
 OneTable is open sourced for the following reasons:
 
 - We hope others will see value in the vision for the platform and contribute to the codebase
@@ -31,6 +33,19 @@ We will always make sure the project is easy to get started with right away. You
 
 - Make sure you are in a virtualenv (we recommend setting up a new one)
 - Install everything from requirements.txt using ```pip3 install -r requirements.txt```
+- You will need to create a `config.py` file under `core > settings` to store your local database credentials (these are not version controlled). The file should contain:
+```
+local_database = {
+      'default': {
+          'ENGINE': 'django.db.backends.postgresql',
+          'NAME': 'one-table-local',
+          'USER': 'YOUR LOCAL USER',
+          'PASSWORD': 'YOUR LOCAL PASSWORD',
+          'HOST': 'localhost',
+          'PORT': '5432',
+      }
+}
+```
 - Make sure you create a local postgres database called 'one-table-local' (see the base.py and config.py settings files under core.settings)
 - Run ```python3 manage.py makemigrations``` to create database migrations
 - Run ```python3 manage.py migrate``` to create database tables / initial setup
@@ -123,6 +138,10 @@ We try to release a new version as soon as a usable feature has passed all tests
 ## Want to use OneTable but don't want to build from source?
 
 No problem! You can use OneTable through the deployed instance we provide at www.onetableapp.com, including a generous free-forever tier. Contact us through the support chat on the website if you need help getting setup!
+
+## Want to use OneTable to create your own business?
+
+Fantastic! Please reach out if you would like and we can rely at least a decade of terrible business ideas that will help you avoid landmines. We hope OneTable can be a foundation for you to launch consulting companies with clients in your local communities, or of course, by white labeling the platform through a Software as a Service model. The more businesses the better! 
 
 ## OneTable Key Contacts
 
