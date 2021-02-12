@@ -33,7 +33,7 @@ We will always make sure the project is easy to get started with right away. You
 
 - Make sure you are in a virtualenv (we recommend setting up a new one)
 - Install everything from requirements.txt using ```pip3 install -r requirements.txt```
-- You will need to create a config.py file under `core > settings` to store your local database credentials (these are not version controlled). The file should contain:
+- You will need to create a `config.py` file under `core > settings` to store your local database credentials (these are not version controlled). The file should contain:
 ```
 local_database = {
       'default': {
