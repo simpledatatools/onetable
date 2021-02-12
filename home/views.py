@@ -17,9 +17,9 @@ from django.views.decorators.csrf import csrf_exempt
 import subprocess
 from itertools import chain
 
-N = 10
+N = 16
 def randomstr():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k = N))
+    return ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k = N))
 
 # TODO
 # On all views, @login_required prevents users not logged in, but need method and
@@ -479,11 +479,6 @@ def dashboard(request, organization_pk, app_pk):
 
     else:
 
-        # If accessing the url directly, load full page
-
-        # Else if not ajax, render entire workspace.html page
-        # When rendered, workspace.html will "look for" the right content tempate
-
         context = {
             'organization': organization,
             'app': app,
@@ -808,17 +803,9 @@ def list_settings(request, organization_pk, app_pk, list_pk):
 #===============================================================================
 @login_required
 def add_record(request, organization_pk, app_pk, list_pk):
-    # Very similar to the edit_record view, but includes the field values previously saved
-    # Probably a way to combine these views to consolidate
 
-    # We are not using the following here:
-    # 1) Django form.Forms (couldn't find a way to create dynamic forms this approach,
-    # but we may be able to find eventually)
-    # 2) the models.Model @property for list.list_fields or the record.record_fields >>
-    # needed an object with both the field inforation and value included so we can edit previous values here
-
-    # Instead, only approach could find is building an object here then passing it to the frontend
-    # template for rending the form
+    # Not the most 'django' way of doing this, may be ways to improve in the future
+    # that better uses the django out of the box forms functionality
 
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
@@ -1020,10 +1007,6 @@ def save_record(request, organization_pk, app_pk, list_pk):
                     except ListField.DoesNotExist:
                         # Easy error handling for now
                         pass
-
-    # Using ajax here to save because cannot do a POST request and get the field values
-    # from a dynamically created form (or at least I couldn't figure out how to
-    # do this, although there may be a way to!)
 
     # Redirect based on ajax call from frontend on success
 

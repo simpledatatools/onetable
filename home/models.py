@@ -19,7 +19,7 @@ from django.dispatch import receiver
 
 
 class Organization(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     name = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     active_users = models.ManyToManyField(User,through="OrganizationUser",through_fields=( 'organization','user'))
@@ -89,7 +89,7 @@ class OrganizationUser(models.Model):
 
 
 class App(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     name = models.CharField(max_length=200)
     organization = models.ForeignKey('Organization', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
