@@ -31,16 +31,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'storages',
-
     'accounts',
     'home',
-    'imagekit'
-
-
-
-]
+    'imagekit',
+    'django_cleanup.apps.CleanupConfig',
+    ]
 
 MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',

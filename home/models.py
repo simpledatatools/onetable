@@ -371,7 +371,7 @@ class RecordRelation(models.Model):
         return str(self.id)
 
 def record_file_path(self, filename):
-    new_path = "record" + "/" + str(self.record.pk) + '/'
+    new_path = "record" + "/" + str(self.record.pk) + '/' + self.id + '/'
     return os.path.join(new_path, filename)
 
 
@@ -380,49 +380,10 @@ class RecordFile(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
     file = models.FileField(upload_to=record_file_path)
     record = models.ForeignKey(Record,on_delete=models.CASCADE,related_name="files")
+    created_at = models.DateTimeField(auto_now_add=True)
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True)
     name_of_file = models.CharField(max_length=200,default='')
     file_extension = models.CharField(max_length=200,default='')
-
-    def __str__(self):
-        return (str(self.record.list.name) + ' ' + str(self.created_user) )
-
-    def filename(self):
-        return os.path.basename(self.file.name)
-
-    def url(self):
-        if self.file and hasattr(self.file, 'url'):
-            return self.file.url
-
-    def delete_url(self):
-        return reverse('delete_record_file', kwargs={
-            'organization_pk':self.record.list.app.organization.pk,
-            'list_pk':self.record.list.pk,
-            'app_pk':self.record.list.app.pk,
-            'record_pk':self.record.pk,
-            'record_file_pk':self.pk
-            })
-
-    def edit_url(self):
-        return reverse('edit_record_file', kwargs={
-            'organization_pk':self.record.list.app.organization.pk,
-            'list_pk':self.record.list.pk,
-            'app_pk':self.record.list.app.pk,
-            'record_pk':self.record.pk,
-            'record_file_pk':self.pk
-            })
-
-
-def record_media_path(self, filename):
-    new_path = "record" + "/media/" + str(self.record.pk) + '/'
-    return os.path.join(new_path, filename)
-
-
-class RecordMedia(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
-    file = models.FileField(upload_to=record_media_path)
-    record = models.ForeignKey(Record,on_delete=models.CASCADE,related_name="media")
-    created_user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True)
     image_types = ['image/jpeg', 'image/gif', 'image/png']
     video_types = ['video/mp4', 'video/x-matroska',
                                'video/ogg','video/quicktime', 'video/x-ms-wmv',
@@ -430,18 +391,20 @@ class RecordMedia(models.Model):
 
     IMAGE = 'I'
     VIDEO = 'V'
+    FILE = 'F'
     TYPES = [
         (IMAGE, 'Image'),
         (VIDEO, 'Video'),
+        (FILE,'File')
     ]
     thumbnail_millisecond = models.IntegerField(default=0)
     type = models.CharField(max_length=1, choices=TYPES, blank=True)
     thumbnail_source_image = models.ImageField(upload_to='post_files/%Y/%m/%d/', null=True, blank=True)
     image_thumbnail = ImageSpecField(source='thumbnail_source_image',
                                      processors=[
-                                         ResizeToFit(300,
-                                                     300,
-                                                     mat_color=(230, 230, 230)),
+                                         ResizeToFit(700,
+                                                     394,
+                                                     mat_color=(0,0,0)),
                                      ],
                                      format='JPEG',
                                      options={'quality': 95})
@@ -477,6 +440,8 @@ class RecordMedia(models.Model):
             self.type = self.IMAGE
         elif mime in self.video_types:
             self.type = self.VIDEO
+        else:
+            self.type=self.FILE
 
     def _set_thumbnail_source_image(self):
         if self.type == self.IMAGE:
@@ -490,6 +455,8 @@ class RecordMedia(models.Model):
             media_image_path = os.path.relpath(image_path, settings.MEDIA_ROOT)
 
             self.thumbnail_source_image = media_image_path
+        else:
+            self.thumbnail_source_image=None
 
     def save(self, *args, **kwargs):
         if self.type == '':
@@ -501,6 +468,46 @@ class RecordMedia(models.Model):
             self._set_thumbnail_source_image()
 
         super().save(*args, **kwargs)
+
+
+    def __str__(self):
+        return (str(self.record.list.name) + ' ' + str(self.created_user) )
+
+    def filename(self):
+        return os.path.basename(self.file.name)
+
+    def url(self):
+        if self.file and hasattr(self.file, 'url'):
+            return self.file.url
+
+    def delete_url(self):
+        return reverse('delete_record_file', kwargs={
+            'organization_pk':self.record.list.app.organization.pk,
+            'list_pk':self.record.list.pk,
+            'app_pk':self.record.list.app.pk,
+            'record_pk':self.record.pk,
+            'record_file_pk':self.pk
+            })
+
+    def edit_url(self):
+        return reverse('edit_record_file', kwargs={
+            'organization_pk':self.record.list.app.organization.pk,
+            'list_pk':self.record.list.pk,
+            'app_pk':self.record.list.app.pk,
+            'record_pk':self.record.pk,
+            'record_file_pk':self.pk
+            })
+
+
+def randomstr():
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k = N))
+
+def record_media_path(self, filename):
+    new_path = "record" + "/media/" + str(self.record.pk) + '/' + self.id + '/'
+    return os.path.join(new_path, filename)
+
+
+
 
 
 class RecordComment(models.Model):
@@ -565,3 +572,6 @@ def update_stock(sender, instance, **kwargs):
             org_user[0].permitted_apps.add(wrksps)
             org_user[0].save()
         inactive_user.delete()
+
+
+
