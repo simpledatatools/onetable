@@ -534,30 +534,6 @@ class RecordComment(models.Model):
 
 
 
-class Note(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
-    note = models.TextField()
-    record = models.ForeignKey('Record', on_delete=models.SET_NULL, null=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
-    created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-    last_updated = models.DateTimeField(auto_now_add=True)
-
-    NOTE_STATUS = (
-        ('active', 'Active'),
-        ('archived', 'Archived'),
-        ('deleted', 'Deleted'),
-    )
-
-    status = models.CharField(
-        max_length=25,
-        choices=NOTE_STATUS,
-        blank=False,
-        default='active',
-    )
-
-    def __str__(self):
-        return self.note
-
 
 
 class InactiveUsers(models.Model):

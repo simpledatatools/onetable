@@ -1131,7 +1131,7 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
     comments = RecordComment.objects.filter(record_id=record_pk).order_by('-created_at')
     media = RecordMedia.objects.filter(record_id=record_pk).order_by('-pk')
     files = RecordFile.objects.filter(record_id=record_pk).order_by('-pk')
-    note_form = NoteForm()
+
 
     if request.is_ajax() and request.method == "GET":
 
@@ -1144,8 +1144,7 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
                 'app': app,
                 'list': list,
                 'record': record,
-                'note_form': note_form
-
+              
             }
         )
 
@@ -1164,7 +1163,7 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
             'app': app,
             'list': list,
             'record': record,
-            'note_form': note_form,
+           
             'type': 'record',
             'record_view': 'record-details',
             "comments":comments,
@@ -1174,25 +1173,7 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
 
         return render(request, 'home/workspace.html', context=context)
 
-    if request.method == "POST":
-        form = NoteForm(request.POST)
-        if form.is_valid():
-
-            # Save the new project
-            note = form.save()
-
-            context = {
-                'organization': organization,
-                'app': app,
-                'list': list,
-                'record': record,
-                'note_form': note_form,
-                'type': 'record',
-                'record_view': 'record-details'
-            }
-
-            return render(request, 'home/workspace.html', context=context)
-
+    
 
 #=========================================================================================
 # Tasks Views
