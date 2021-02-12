@@ -5,20 +5,20 @@
             <div class="nav accordion" id="accordionSidenav">
                 <!-- Sidenav Menu Heading (Core)-->
                 <div class="sidenav-menu-heading">Activity</div>
-                <!-- Sidenav Accordion (Dashboard)-->
-                <a class="nav-link" id="dashboard" href="javascript:void(0);" onclick="getPage('{% url 'dashboard' organization_pk=organization.pk app_pk=app.pk %}');">
+                <!-- Sidenav Accordion (activity)-->
+                <a class="nav-link" id="activity" href="javascript:void(0);" onclick="getPage('{% url 'activity' organization_pk=organization.pk app_pk=app.pk %}');">
                     <div class="nav-link-icon"></div>
-                    Dashboard
+                    Activity
                 </a>
-               
+
                 <a class="nav-link" id="lists" href="javascript:void(0);" onclick="getPage('{% url 'lists' organization_pk=organization.pk app_pk=app.pk %}');">
                     <div class="nav-link-icon"></div>
                     Lists
                 </a>
                 <!-- Sidenav Menu Heading (Core)-->
                 <div class="sidenav-menu-heading">Configuration</div>
-                <!-- Sidenav Accordion (Dashboard)-->
-                <a class="nav-link" id="dashboard" href="{% url 'app_settings' organization_pk=organization.pk app_pk=app.pk %}">
+                <!-- Sidenav Accordion (activity)-->
+                <a class="nav-link" id="settings" href="{% url 'app_settings' organization_pk=organization.pk app_pk=app.pk %}">
                     <div class="nav-link-icon"></div>
                     Settings
                 </a>
