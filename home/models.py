@@ -388,16 +388,6 @@ class RecordFile(models.Model):
             })
 
 
-def record_media_path(self, filename):
-    new_path = "record" + "/media/" + str(self.record.pk) + '/'
-    return os.path.join(new_path, filename)
-
-
-class RecordMedia(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
-    file = models.FileField(upload_to=record_media_path)
-    record = models.ForeignKey(Record,on_delete=models.CASCADE,related_name="media")
-    created_user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True)
     image_types = ['image/jpeg', 'image/gif', 'image/png']
     video_types = ['video/mp4', 'video/x-matroska',
                                'video/ogg','video/quicktime', 'video/x-ms-wmv',
@@ -411,6 +401,7 @@ class RecordMedia(models.Model):
         (VIDEO, 'Video'),
         (FILE,'File')
     ]
+    
     thumbnail_millisecond = models.IntegerField(default=0)
     type = models.CharField(max_length=1, choices=TYPES, blank=True)
     thumbnail_source_image = models.ImageField(upload_to='post_files/%Y/%m/%d/', null=True, blank=True)
@@ -422,25 +413,6 @@ class RecordMedia(models.Model):
                                      ],
                                      format='JPEG',
                                      options={'quality': 95})
-
-    def __str__(self):
-        return (str(self.record.list.name) + ' ' + str(self.created_user) )
-
-    def filename(self):
-        return os.path.basename(self.file.name)
-
-    def url(self):
-        if self.file and hasattr(self.file, 'url'):
-            return self.file.url
-
-    def delete_url(self):
-        return reverse('delete_record_media', kwargs={
-            'organization_pk':self.record.list.app.organization.pk,
-            'list_pk':self.record.list.pk,
-            'app_pk':self.record.list.app.pk,
-            'record_pk':self.record.pk,
-            'record_media_pk':self.pk
-            })
 
     def _set_type(self):
         # max bytes to read for file type detection
@@ -484,41 +456,11 @@ class RecordMedia(models.Model):
         super().save(*args, **kwargs)
 
 
-    def __str__(self):
-        return (str(self.record.list.name) + ' ' + str(self.created_user) )
-
-    def filename(self):
-        return os.path.basename(self.file.name)
-
-    def url(self):
-        if self.file and hasattr(self.file, 'url'):
-            return self.file.url
-
-    def delete_url(self):
-        return reverse('delete_record_file', kwargs={
-            'organization_pk':self.record.list.app.organization.pk,
-            'list_pk':self.record.list.pk,
-            'app_pk':self.record.list.app.pk,
-            'record_pk':self.record.pk,
-            'record_file_pk':self.pk
-            })
-
-    def edit_url(self):
-        return reverse('edit_record_file', kwargs={
-            'organization_pk':self.record.list.app.organization.pk,
-            'list_pk':self.record.list.pk,
-            'app_pk':self.record.list.app.pk,
-            'record_pk':self.record.pk,
-            'record_file_pk':self.pk
-            })
 
 
 def randomstr():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k = N))
 
-def record_media_path(self, filename):
-    new_path = "record" + "/media/" + str(self.record.pk) + '/' + self.id + '/'
-    return os.path.join(new_path, filename)
 
 
 
