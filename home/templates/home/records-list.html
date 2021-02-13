@@ -57,19 +57,10 @@
                 {% endif %}
               {% endif %}
             {% endfor %}
+            <p class="card-text"><small class="text-muted">Created : {{record.created_at| date:"M d, Y"}}</small></p>
+            <p class="card-text"><small class="text-muted">Created By : {{record.created_user.first_name}}</small></p>
           </div>
           {% endif %}
-          <div class="card-footer text-right">
-              <p class="card-text"> <small class="text-muted">Created : {{record.created_at| date:"M d, Y"}}</small></p>
-              <p class="card-text">
-
-              <small class="text-muted">Created By : {{record.created_user.first_name}}
-
-              </small>
-            </p>
-
-
-          </div>
       </div>
     </div>
     <div class="modal fade" id="archive_record_{{record.id}}" tabindex="-1" role="dialog" aria-hidden="true">
