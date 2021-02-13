@@ -1369,6 +1369,8 @@ def delete_record_file(request,organization_pk, app_pk, list_pk, record_pk,recor
 @csrf_exempt
 def delete_record_comment(request,record_comment_pk,organization_pk, app_pk, list_pk, record_pk):
     record_Comment = RecordComment.objects.get(pk=record_comment_pk)
+    if record_Comment.created_by != request.user:
+         HttpResponse('Unauthorized', status=401)
     record_Comment.delete()
     final = {}
     final['deleted'] = "deleted"
