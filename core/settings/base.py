@@ -71,7 +71,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-DATABASES = None #This will be set in individual dev / production settings files
+DATABASES = {
+      'default': {
+          'ENGINE': 'django.db.backends.postgresql',
+          'NAME': 'one-table-local',
+          'USER': 'postgres',
+          'PASSWORD': 'postgres',
+          'HOST': 'localhost',
+          'PORT': '5432',
+      }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
