@@ -348,11 +348,6 @@ def record_file_path(self, filename):
     new_path = "record" + "/" + str(self.record.pk) + '/' + self.id + '/'
     return os.path.join(new_path, filename)
 
-def record_file_path(self, filename):
-    new_path = "record" + "/" + str(self.record.pk) + '/' + self.id + '/'
-    return os.path.join(new_path, filename)
-
-
 
 class RecordFile(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=16)

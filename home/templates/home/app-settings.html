@@ -46,13 +46,10 @@ class="bg-white"
       <div class="col-lg-8">
          <!-- Email notifications preferences card-->
          <div style="box-shadow:None;" class="border-0 card card-header-actions mb-4">
-            <div class="bg-white card-header">
-               Details
-            </div>
             <div class="card-body">
                {% if not is_admin %}
                 <p>You cannot modify details unless you are an Admin role.</p>
-               {% endif %}
+               {% else %}
                <form method="POST" action="{% url 'edit_app' organization_pk=organization.pk app_pk=app.pk %}">{% csrf_token %}
                   {% if is_admin %}
                      <input name="type" value="add_user" type="hidden"/>
@@ -64,6 +61,7 @@ class="bg-white"
                      <input type="text" value="{{ app.name }}" class="form-control form-control-solid" readonly>
                   {% endif %}
                </form>
+              {% endif %}
             </div>
          </div>
       </div>
@@ -104,7 +102,7 @@ class="bg-white"
                <div email-main="{{connect.user.email}}" class="mb-3 card w-100">
                   {% else %}
                   <div email-main="{{connect.user_email}}" class="mb-3 card w-100">
-                     {% endif %}    
+                     {% endif %}
                      <div class="card-body">
                         {% if is_admin %}
                         <div class="float-right">
@@ -125,7 +123,7 @@ class="bg-white"
                                  {% else %}
                                  data-to='admin'
                                  {% endif %}
-                                 data-user-email='{{connect.user.email}}' data-user-type='active'>Make  
+                                 data-user-email='{{connect.user.email}}' data-user-type='active'>Make
                                  {% if connect.role == 'admin' %}
                                  a User
                                  {% else %}
@@ -141,7 +139,7 @@ class="bg-white"
                         {% endif %}
                         <h5 class="card-title">
                            {% if connect.user %}
-                           {{connect.user.first_name}} {{connect.user.last_name}} 
+                           {{connect.user.first_name}} {{connect.user.last_name}}
                            {% else %}
                            <i class="text-muted"> {Pending user Sign Up} </i>
                            {% endif %}
@@ -197,7 +195,7 @@ class="bg-white"
 
 $(document).ready(function() {
 
-function changeRole(){ 
+function changeRole(){
       $(document).ready(function() {
 $('.change-role').click(function(ev){
   ev.preventDefault();
@@ -231,7 +229,7 @@ $('.remove-user').click(function(ev){
     },function(data, status){
       console.log('[email-main='+$(this).attr('data-user-email')+']');
     $('[email-main="'+email_main+'"]').hide();
-    
+
   });
 });
 }
@@ -239,7 +237,7 @@ removeUser();
 $('#add_user').submit(function(ev){
 
    ev.preventDefault();
-               
+
                var frm = $(this);
                console.log(frm.serialize());
 
@@ -248,7 +246,7 @@ $('#add_user').submit(function(ev){
                     type: $(this).attr('method'),
                     url: window.location.href,
                     data: $(this).serialize(),
-                    
+
                     success: function(data) {
                       $('#nav-users').load(window.location.href + ' #nav-users',function(){
                           removeUser();

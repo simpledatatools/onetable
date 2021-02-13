@@ -49,7 +49,7 @@ class="bg-white"
                <div class="card-body">
                {% if not is_admin %}
                 <p>You cannot modify details unless you are an Admin role.</p>
-               {% endif %}
+               {% else %}
                   <form method="POST" action="{% url 'edit_organization' organization_pk=organization.pk %}">{% csrf_token %}
                      {% if is_admin %}
                         {{ form.as_p }}
@@ -60,6 +60,7 @@ class="bg-white"
                         <input type="text" value="{{ organization.name }}" class="form-control form-control-solid" readonly>
                      {% endif %}
                   </form>
+                {% endif %}
                </div>
             </div>
          </div>
@@ -117,7 +118,7 @@ class="bg-white"
                                  {% else %}
                                  data-to='admin'
                                  {% endif %}
-                                 data-user-email='{{connect.user.email}}' data-user-type='active'>Make  
+                                 data-user-email='{{connect.user.email}}' data-user-type='active'>Make
                                  {% if connect.role == 'admin' %}
                                  a User
                                  {% else %}
@@ -133,7 +134,7 @@ class="bg-white"
                         {% endif %}
                         <h5 class="card-title">
                            {% if connect.user %}
-                           {{connect.user.first_name}} {{connect.user.last_name}} 
+                           {{connect.user.first_name}} {{connect.user.last_name}}
                            {% else %}
                            <i class="text-muted">Pending User Sign Up</i>
                            {% endif %}
@@ -198,7 +199,7 @@ $('.remove-user').click(function(ev){
     },function(data, status){
       console.log('[email-main='+$(this).attr('data-user-email')+']');
       $('[email-main="'+email_main+'"]').hide();
-    
+
   });
 });
 });
@@ -229,7 +230,7 @@ changeRole();
 $('#add_user').submit(function(ev){
 
    ev.preventDefault();
-               
+
                var frm = $(this);
                console.log(frm.serialize());
 
@@ -238,7 +239,7 @@ $('#add_user').submit(function(ev){
                     type: $(this).attr('method'),
                     url: window.location.href,
                     data: $(this).serialize(),
-                    
+
                     success: function(data) {
                         $('#nav-users').load(window.location.href + ' #nav-users',function(){
                           removeUser();
@@ -246,7 +247,7 @@ $('#add_user').submit(function(ev){
                         });
                         $('#addUser').modal('hide');
                         $("#addUser [type='email']").val('');
-                        
+
                     }
                 });
 
@@ -256,7 +257,7 @@ $('#add_user').submit(function(ev){
 removeUser();
 });
 
-    
+
 </script>
 
 
