@@ -37,6 +37,13 @@ AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']
 AWS_S3_REGION_NAME = os.environ['AWS_S3_REGION_NAME']
 DEFAULT_FILE_STORAGE = os.environ['DEFAULT_FILE_STORAGE']
 
+EMAIL_HOST = os.environ['EMAIL_HOST']
+EMAIL_PORT = os.environ['EMAIL_PORT']
+EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
+EMAIL_USE_TLS = os.environ['EMAIL_USE_TLS']
+BASE_URL = os.environ['BASE_URL']
+
 # Detailed logging using  heroku logs --tail --app simple-data-tools on heroku cli
 LOGGING = {
     'version': 1,
@@ -53,13 +60,6 @@ LOGGING = {
         },
     },
 }
-
-EMAIL_HOST = os.environ['EMAIL_HOST']
-EMAIL_PORT = os.environ['EMAIL_PORT']
-EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
-EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
-EMAIL_USE_TLS = os.environ['EMAIL_USE_TLS']
-BASE_URL = os.environ['BASE_URL']
 
 try:
     from .local import *
