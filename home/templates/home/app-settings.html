@@ -50,31 +50,38 @@ class="bg-white"
                Details
             </div>
             <div class="card-body">
+                <p>You cannot modify details unless you are an Admin role.</p>
                <form method="POST" action="{% url 'edit_app' organization_pk=organization.pk app_pk=app.pk %}">{% csrf_token %}
-                  <input name="type" value="add_user" type="hidden"/>
-                  {{ form.as_p }}
-                  <button type="submit" class="btn btn-lg btn-primary font-weight-500 mr-3">
-                  Update Workspace
-                  </button>
+                  {% if is_admin %}
+                     <input name="type" value="add_user" type="hidden"/>
+                     {{ form.as_p }}
+                     <button type="submit" class="btn btn-lg btn-primary font-weight-500 mr-3">
+                     Update Workspace
+                     </button>
+                  {% else %}
+                     <input type="text" value="{{ app.name }}" class="form-control form-control-solid" readonly>
+                  {% endif %}
                </form>
             </div>
          </div>
       </div>
-      <div class="col-lg-4">
-         <!-- Notifications preferences card-->
-         <div class="card">
-            <div class="card-header">Archive Workspace</div>
-            <div class="card-body">
-               <p>You can archive this workspace if you will no longer use it. Data will still be available under the archived filter.
-               <form method="POST" action="{% url 'archive_app' organization_pk=organization.pk app_pk=app.pk %}">
-                  {% csrf_token %}
-                  <button type="submit" name="project_id" class="btn btn-danger-soft text-danger">
-                  Archive this workspace
-                  </button>
-               </form>
+      {% if is_admin %}
+         <div class="col-lg-4">
+            <!-- Notifications preferences card-->
+            <div class="card">
+               <div class="card-header">Archive Workspace</div>
+               <div class="card-body">
+                  <p>You can archive this workspace if you will no longer use it. Data will still be available under the archived filter.
+                  <form method="POST" action="{% url 'archive_app' organization_pk=organization.pk app_pk=app.pk %}">
+                     {% csrf_token %}
+                     <button type="submit" name="project_id" class="btn btn-danger-soft text-danger">
+                     Archive this workspace
+                     </button>
+                  </form>
+               </div>
             </div>
          </div>
-      </div>
+      {% endif %}
    </div>
 </div>
 <div class="tab-pane fade show" id="nav-users" role="tabpanel" aria-labelledby="nav-users-tab">
