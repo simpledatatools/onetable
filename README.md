@@ -4,7 +4,9 @@
 
 OneTable is an open source project helping organizations and teams quickly build small apps to digitalize their operations. The app works by helping users to create lists of data that organically evolve over time into relational databases and advanced functionality.
 
-This project has been inspired by working with businesses across the globe who want to quickly begin to digitalize their operations, but do not have the resources (or time) to go through a full procurement proces with an expensive technology providers or traditional ERP systems. There are other free (or free-trial) software as a service platforms that exist for specific purposes (i.e. sales, crm, etc.) but in many cases these solutions are over-engineered with pre-defined features that dictate how businesses operations and data collection need to take place. With OneTable, we are hoping to create the absolute simplest, most flexible platform possible that allows users to build anything they need for their business and the first stages of digitalization. In this way, you can think of OneTable as the most simple "no-code" interface possible for small apps and relational data structures.
+This project has been inspired by working with businesses across the globe who want to quickly begin to digitalize their operations, but do not have the resources (or time) to go through a full procurement proces with an expensive technology providers or traditional ERP systems. There are other free (or free-trial) software as a service platforms that exist for specific purposes (i.e. sales, crm, etc.) but in many cases these solutions are over-engineered with pre-defined features that dictate how businesses operations and data collection need to take place. With OneTable, we are hoping to create the absolute simplest, most flexible platform possible that allows users to build anything they need for their business and the first stages of digitalization. In this way, you can think of OneTable as the most simple "no-code" interface possible for small apps and relational data structures. Although OneTable can be used in almost any context, the heart of the project and inspiration for this building the platform is from years of work in emerging economies, where we've seen time and time again a landscape ripe with opportunity and full of brilliant minds changing the world. 
+
+The name OneTable comes from a two part vision. First that we can come together collaboratively around the same table to share perspectives and ideas, to solve tech challenges together. Second, we believe that everyone should have the chance to sit around the same table of opportunity, that access to technology is a right and a public good, and that technology should always be transparent and fair. 
 
 OneTable is open sourced for the following reasons:
 
@@ -20,7 +22,7 @@ OneTable is open sourced for the following reasons:
 
 Django was a natural choice because of the framework's focus on quickly creating relational databases. There are some limits to Django for this use case, which we will try to solve over time. First, there are some cases within the project where we have not yet figured out how to do things the pure 'Django way', such as dynamically building forms using the out of the box Django functionality. We'll likely solve this over time - and other related issues - by switching at some point to the Django Rest Framework with an Angular front end. Similarly, python-based backends have limitations, which we plan to explore and overcome over time as the project grows. For now, the project is considered a 'beta' test concept in the very early stages of development.
 
-Django was also chosen because python is popular programming language that is known by many developers. Django is very easy to learn, and we hope this means that many developers of all levels will be able to contribute to the project and/or use the codebase for their own work across the globe. Our dream is to create a community of businesses across the globe using OneTable to solve challenges. The team for this project is based across the globe, from Nairobi Kenya to Ho Chi Minh City, and we are glad to support you in any way we can if you would like to create a business using the OneTable platform.  
+Django was also chosen because python is popular programming language that is known by many developers. Django is very easy to learn, and we hope this means that many developers of all levels will be able to contribute to the project and/or use the codebase for their own work in their local communities across the globe. The team for this project is based around the world in places like Washington DC, Nairobi, and Ho Chi Minh City. We are glad to support you in any way we can as you use the OneTable platform, and we look forward to connecting with contributors in new countries.   
 
 
 
@@ -31,6 +33,19 @@ We will always make sure the project is easy to get started with right away. You
 
 - Make sure you are in a virtualenv (we recommend setting up a new one)
 - Install everything from requirements.txt using ```pip3 install -r requirements.txt```
+- You will need to create a `config.py` file under `core > settings` to store your local database credentials (these are not version controlled). The file should contain:
+```
+local_database = {
+      'default': {
+          'ENGINE': 'django.db.backends.postgresql',
+          'NAME': 'one-table-local',
+          'USER': 'YOUR LOCAL USER',
+          'PASSWORD': 'YOUR LOCAL PASSWORD',
+          'HOST': 'localhost',
+          'PORT': '5432',
+      }
+}
+```
 - Make sure you create a local postgres database called 'one-table-local' (see the base.py and config.py settings files under core.settings)
 - Run ```python3 manage.py makemigrations``` to create database migrations
 - Run ```python3 manage.py migrate``` to create database tables / initial setup
@@ -86,7 +101,7 @@ We follow a simple, but strict process for git branches and contributing:
 
 **Full-time contributors**
 
-We also have opportunities for you to work on this project in a paid position (as a full / part time job) if you are able to lead large portions of the development and can work regular hours. If you are available to contribute to the project in this way, please reach out. The setup works as:
+We also have opportunities for you to work on this project in a paid position (as a full / part time job) if you are able to lead large portions of the development and can work regular hours. We are a team that is scattered across the globe in almost every timezone and we are happy to have you work any schedule that is best for you. If you are available to contribute to the project in this way, please reach out. The setup works as:
 
 - We would like someone who works consistent hours each day. This helps us to more easily coordinate tasks, ensure upcoming tasks are prepared in advance, make sure code is reviewed in a timely manner, and to make sure we can track and monitor your progress.
 
@@ -96,7 +111,7 @@ We also have opportunities for you to work on this project in a paid position (a
 
 - You can choose the hours you prefer to work, but they should be the same hours each each day (i.e. always working 10am - 3pm IST each day Monday - Friday).
 
-- You must work through the platform Upwork, which allows us to transfer salaries easily to multiple countries. 
+- You must work through the platform Upwork, which allows us to transfer salaries easily to multiple countries, unless you are based in the United States. 
 
 - At your start time each day, you must check in with Matt (@mattcapelli) for a virtual daily standup meeting to discuss what you are working on, your plans for the day, and the goals of what you plan to complete. During this time, please also ask any questions or clarifications you have.
 
@@ -106,6 +121,10 @@ We also have opportunities for you to work on this project in a paid position (a
 
 - The work must be completed by you, and cannot be sent to others or subcontracted to other developers.
 
+Please see our [Contributing Guidelines][contributing] and [Code of Conduct][conduct] for more information
+
+[contributing]: https://github.com/simpledatatools/onetable/blob/master/CONTRIBUTING.md
+[conduct]: https://github.com/simpledatatools/onetable/blob/master/CODE_OF_CONDUCT.md
 
 ## Not a developer but interested in getting involved?
 
@@ -114,6 +133,18 @@ Fantastic! If you are interested in contributing to the project but you are not 
 ## Feature Requests
 
 OneTable is very new and evolving quickly! If you have an idea or feature request, please reach out to @mattcapelli to discuss and we will try to get the new functionality into the backlog and product roadmap. As the project grows, we will formalize this process through a board / steering committee and dedicated product team, including releasing the product roadmap publically with regular updates. 
+
+## Releases
+
+We try to release a new version as soon as a usable feature has passed all tests. We follow a standard X.X.X format for minor / major updates. Of course we are still very much in version 0.X.X and will be for quite some time :) Releases are managed by @locAtLaheriyam. If you would like to be added to a mailing list with an update sent each time there is a release, just let him know. 
+
+## Want to use OneTable but don't want to build from source?
+
+No problem! You can use OneTable through the deployed instance we provide at www.onetableapp.com, including a generous free-forever tier. Contact us through the support chat on the website if you need help getting setup!
+
+## Want to use OneTable to create your own business?
+
+Fantastic! Please reach out if you would like and we can rely at least a decade of terrible business ideas that will help you avoid landmines. We hope OneTable can be a foundation for you to launch consulting companies with clients in your local communities, or of course, by white labeling the platform through a Software as a Service model. The more businesses the better! 
 
 ## OneTable Key Contacts
 

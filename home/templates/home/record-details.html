@@ -105,7 +105,11 @@
         <div id="file-{{file.pk}}" class="col-xl-6 col-lg-6">
             <div class="text-center my-3 card">
                 <div class="row card-body">
-                    <div style="font-size:0px;" class="col-10 card-text text-left">
+                    <div style="font-size:0px;" class="{% if file.type == 'F' %}col-10{% else %}col-12{% endif %} card-text text-left">
+
+                    {% if file.type == 'F' %}
+                   
+
                         <span class="d-inline content">
                             <span   style="font-size:16px;" class="d-inline name-of-file">{{file.name_of_file}}</span>
                         </span>
@@ -113,14 +117,22 @@
                         <div style="font-size:16px;display:none;" class="m-1 error_message text-danger">
                         <ul>
                         <li>The file name should <b>not be empty</b></li>
-                        <li>The file name should not contain any space</li>
                         </ul>
                         </div>
+
+                    {% else %}
+                    <img src="\media\{{file.thumbnail_source_image}}" class="img-fluid" />
+                    {% endif %}
+
+        
                     </div>
+                    {% if file.type == 'F' %}
                     <div class="col-2"><a href="{{file.edit_url}}" data-file-id="{{file.pk}}" class="edit-file btn btn-link">Edit</a></div>
+                    {% endif %}
+
                 </div>
                 <div class="card-footer bg-white">
-                    <button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-file-{{file.id}}">Remove</button><a class="btn btn-link float-right" href="{{file.url}}">Download</a>
+                    <button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-file-{{file.id}}">Remove</button><a class="btn btn-link float-right download" href="{{file.url}}">Download</a>
                 </div>
             </div>
         </div>
@@ -128,73 +140,11 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalCenterTitle">Are you sure that you want to remove {{file.filename}}?</h5>
+                        <h5 class="modal-title" id="exampleModalCenterTitle">Are you sure that you want to remove this?</h5>
                         <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                     </div>
                     <div class="modal-footer">
                         <span class="btn btn-danger remove-record-file" type="button" data-dismiss="modal" href="{{file.delete_url}}" data-content-id="{{file.id}}">Confirm</span>
-                        <span class="btn btn-light" type="button" data-dismiss="modal">No</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-<div class="mb-5 px-2 container">
-    <div class="mb-3 row no-gutters">
-        <div class="col-6">
-            <h5 class="ml-3">Images and Videos</h5>
-        </div>
-        <div class="col-6">
-            <div id="postRecordMedia" class="btn btn-primary float-right" action="{% url 'post_record_media' organization.pk app.pk list.pk record.pk %}">
-                Add File
-            </div>
-        </div>
-    </div>
-    <hr />
-    <div id="mediaprogress"></div>
-    <div id="medialist" class="row">
-        <div id="template-preview" class="d-none"></div>
-
-        {% for file in media %}
-        <div id="media-{{file.pk}}" class="col-xl-6 col-lg-6">
-            <div class="text-center m-3 card">
-                <div class="card-body">
-                    <p class="card-text text-left">
-                        {% if file.type == 'V' %}
-                        <center><img src="{{file.image_thumbnail.url}}" class="img-fluid" /></center>
-                        {% else %}
-                        <center><img src="{{file.url}}" class="img-fluid" /></center>
-                        {% endif %}
-                    </p>
-
-                    <p></p>
-                </div>
-
-                <div class="card-footer bg-white">
-                    <button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-media-{{file.pk}}">Remove</button><a class="btn btn-link float-right" href="{{file.url}}">Download</a>
-                </div>
-            </div>
-        </div>
-        <div class="modal fade" id="remove-media-{{file.pk}}" tabindex="-1" role="dialog" aria-labelledby="Remove-comment" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalCenterTitle">Are you sure that you want to remove this?</h5>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                    </div>
-                    <center>
-                        <div class="modal-body">
-                            {% if file.type == 'V' %}
-                            <center><img src="{{file.image_thumbnail.url}}" class="img-fluid" /></center>
-                            {% else %}
-                            <center><img src="{{file.url}}" class="img-fluid" /></center>
-                            {% endif %}
-                        </div>
-                    </center>
-                    <div class="modal-footer">
-                        <span class="btn btn-danger remove-record-media" type="button" data-dismiss="modal" href="{{file.delete_url}}" data-content-id="{{file.id}}">Confirm</span>
                         <span class="btn btn-light" type="button" data-dismiss="modal">No</span>
                     </div>
                 </div>
@@ -239,6 +189,7 @@
                         <input type="submit" data-comment-id="{{comment.pk}}" class="btn btn-link float-right save" style="display: none;" value="Save" />
                     </span>
                 </div>
+                {% endif %}
             </div>
         </form>
         <div class="modal fade" id="remove-comment-{{comment.pk}}" tabindex="-1" role="dialog" aria-labelledby="Remove-comment" aria-hidden="true">
@@ -269,10 +220,7 @@
 
 <script>
 var record_files = $('#fileslist');
-var record_media = $('#medialist');
-function hasWhiteSpace(s) {
-  return s.indexOf(' ') >= 0;
-}
+
 function EditFile() {
     var file_edit_mode = false;
     var file_current_edit = null;
@@ -295,7 +243,7 @@ function EditFile() {
             } else {
                 this_file = $(this).attr('data-file-id');
                 var new_file_name=$('#file-edit-' + file_id).val();
-                if( new_file_name != '' && !hasWhiteSpace(new_file_name) ){
+                if( new_file_name != ''){
                 if (this_file == file_current_edit) {
                     edit_url = $(this).attr('href');
 
@@ -308,7 +256,8 @@ function EditFile() {
                         content_box.html('<span   style="font-size:16px;" class="d-inline name-of-file">'+data['content']+'</span>');
                         $('#file-' + file_id + ' .file-extension').removeClass('d-none');
                         $('#file-' + file_id + ' .file-extension').addClass('d-inline');
-                         $('#file-' + file_id + ' .error_message').hide()
+                        $('#file-' + file_id + ' .error_message').hide();
+                        $('#file-' + file_id + ' .download').attr('href',data['file_url'])
                     });
                 } }else{
                     console.log('a')
@@ -343,7 +292,7 @@ Dropzone.autoDiscover = false;
 var cookie = document.cookie;
 var csrftoken = getCookie('csrftoken');
 var post_file_url = $('#postRecordFile').attr('action');
-var post_media_url = $('#postRecordMedia').attr('action');
+
 $(function() {
     var myDrop = new Dropzone("div#postRecordFile", {
         url: post_file_url,
@@ -358,7 +307,54 @@ $(function() {
     myDrop.on("success", function(file, data) {
         data = JSON.parse(data);
         console.log(data);
-        var file_div = ' <div id="file-' + data.id + '" class="col-xl-6"> <div class="text-center m-3 card"> <div class="row card-body"> <div class="col-10 card-text text-left"> <span class="d-inline content"> <span class="d-inline name-of-file">' + data.file_name + '</span> </span> <span class="d-inline file-extension">' + data.file_extension + '</span> </div> <div class="col-2"><a href="' + data.edit_url + '" data-file-id="' + data.id + '" class="edit-file btn btn-link">Edit</a></div> </div> <div class="card-footer bg-white"><button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-file-' + data.id + '" >Remove</button><a class="btn btn-link float-right" href="' + data.file_url + '">Download</a></div> </div> </div> <div class="modal fade" id="remove-file-' + data.id + '" tabindex="-1" role="dialog" aria-labelledby="Remove-comment" aria-hidden="true"> <div class="modal-dialog modal-dialog-centered" role="document"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title" id="exampleModalCenterTitle">Are you sure that you want to remove ' + data.file_name + '?</h5> <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button> </div> <div class="modal-footer"><span class="btn btn-danger remove-record-file" type="button" data-dismiss="modal" href="' + data.delete_url + '" data-content-id="' + data.id + '">Confirm</span><span class="btn btn-light" type="button" data-dismiss="modal">No</span></div> </div> </div> </div>';
+        var file_div = `<div id="file-${data.id}" class="col-xl-6 col-lg-6">
+            <div class="text-center my-3 card">
+                <div class="row card-body">
+                    <div style="font-size:0px;" class="`+((data.type == 'F') ? 'col-10 ':'col-12 ') + `card-text text-left">`
+                    +
+
+                    ((data.type == 'F') ?
+
+                        `<span class="d-inline content">
+                            <span   style="font-size:16px;" class="d-inline name-of-file">${data.file_name}</span>
+                        </span>
+                        <span  style="font-size:16px;"  class="d-inline file-extension">${data.file_extension}</span>
+                        <div style="font-size:16px;display:none;" class="m-1 error_message text-danger">
+                        <ul>
+                        <li>The file name should <b>not be empty</b></li>
+                        </ul>
+                        </div>` :
+                    `<img src='${data.thumbnail}' class="img-fluid" />`
+                    )
+                    +
+
+        `
+                    </div>
+         `+((data.type=='F') ?
+                    `<div class="col-2"><a href="${data.edit_url}" data-file-id="${data.id}" class="edit-file btn btn-link">Edit</a></div>`
+                    : '')
+                    +
+
+                `</div>
+                <div class="card-footer bg-white">
+                    <button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-file-${data.id}">Remove</button><a class="btn btn-link float-right download" href="${data.file_url}">Download</a>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="remove-file-${data.id}" tabindex="-1" role="dialog" aria-labelledby="Remove-comment" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalCenterTitle">Are you sure that you want to remove this?</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-footer">
+                        <span class="btn btn-danger remove-record-file" type="button" data-dismiss="modal" href="${data.delete_url}" data-content-id="${file.id}">Confirm</span>
+                        <span class="btn btn-light" type="button" data-dismiss="modal">No</span>
+                    </div>
+                </div>
+            </div>
+        </div>`;
         record_files.prepend(file_div);
         RemoveContent('.remove-record-file', 'file');
         var progress_bar = '<div style="height:30px;font-size:22px;height:40px" class="progress"><div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">' + "uploaded successfully!" + '</div></div>';
@@ -400,41 +396,6 @@ function RemoveContent(className, content) {
 
 
 
-$(function() {
-    var myDrop = new Dropzone("div#postRecordMedia", {
-        url: post_media_url,
-        method: "post",
-        headers: {
-            "csrfmiddlewaretoken": csrftoken
-        },
-        previewsContainer: null,
-        previewTemplate: document.getElementById('medialist').innerHTML
-    });
-
-    myDrop.on("success", function(file, data) {
-        data = JSON.parse(data);
-        console.log(data);
-        var media_div = ' <div id="media-' + data.id + '" class="col-xl-3 h-100"> <div class="text-center m-3 card"> <div class="card-body"> <p class="card-text text-center"> <img src="' + data.file_url + '" class="img-fluid"/> </p> </div> <div class="card-footer bg-white"><button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-media-' + data.id + '">Remove</button><a class="btn btn-link float-right" href="' + data.url + '">Download</a></div> </div> </div> <div class="modal fade" id="remove-media-' + data.id + '" tabindex="-1" role="dialog" aria-labelledby="Remove-comment" aria-hidden="true"> <div class="modal-dialog modal-dialog-centered" role="document"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title" id="exampleModalCenterTitle">Are you sure that you want to remove this?</h5> <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button> </div> <div class="modal-body"><center><img src="' + data.file_url + '" class="img-fluid"/></center></div> <div class="modal-footer"><span class="btn btn-danger remove-record-media" type="button" data-dismiss="modal" href="' + data.file_url + '" data-content-id="' + data.id + '">Confirm</span><span class="btn btn-light" type="button" data-dismiss="modal">No</span></div> </div> </div></div>';
-        record_media.prepend(media_div);
-        RemoveContent('.remove-record-media', 'media');
-
-    });
-
-    myDrop.on("totaluploadprogress", function(progress) {
-        console.log(progress);
-        var progress_bar = '<div style="font-size:22px;height:40px" class="progress p-1"><div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: ' + progress + '%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">' + parseInt(progress) + '%</div></div>';
-        $('#mediaprogress').html(progress_bar);
-    });
-
-    myDrop.on("queuecomplete", function(file) {
-        var progress_bar = '<div style="font-size:22px;height:40px" class="progress"><div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">' + "uploaded successfully!" + '</div></div>';
-        $('#mediaprogress').html(progress_bar);
-        setTimeout(function() {
-            $('#mediaprogress').html('');
-        }, 5000);
-    });
-
-});
 
 
 $(document).ready(function() {
@@ -546,16 +507,16 @@ $(document).ready(function() {
         $('.edit-comment').on('click', function(ev) {
                 ev.preventDefault();
 
-                if (current_edit == null) {
+               
                     var comment_id = $(this).attr('data-comment-id');
 
                 var content = $('#comment-' + comment_id + ' .content');
                 var content_message = content.text()
-                    var edit_mode = false;
+                    
                     frm = $('.edit_comment_form');
-                    if (edit_mode == false) {
+                   
 
-                        edit_mode = true;
+                        
 
 
 
@@ -566,8 +527,8 @@ $(document).ready(function() {
                         $('#edit-save-' + comment_id + ' .edit').hide();
                         $('#edit-save-' + comment_id + ' .save').show();
 
-                    }
-                }
+                    
+                
 
             }
 
@@ -589,11 +550,12 @@ $(document).ready(function() {
                         'X-CSRFToken': csrftoken
                     },
                     success: function(data) {
-                        $('#comment-' + comment_id + ' .main-change').html(data.content);
+                        $('#comment-' + comment_id + ' .main-change').html(
+                            `<div id="comment-content-${comment_id}" class="card-text text-left content">
+                             ${data.content} 
+                        </div>`);
                         $('#edit-save-' + comment_id + ' .edit').show();
                         $('#edit-save-' + comment_id + ' .save').hide();
-                        edit_mode = false;
-                        current_edit = null;
                     }
                 });
 
@@ -627,7 +589,6 @@ $(document).ready(function() {
     ArchiveRecord();
 
     RemoveContent('.remove-record-file', 'file');
-    RemoveContent('.remove-record-media', 'media');
     RemoveContent('.remove-record-comment', 'comment');
 
 
@@ -650,4 +611,8 @@ $(document).ready(function() {
 
 
 });
+
+  
+
+
 </script>

@@ -16,6 +16,10 @@ from .forms import OrganizationForm, AppForm, ListForm, ListFieldFormset
 from django.views.decorators.csrf import csrf_exempt
 import subprocess
 from itertools import chain
+from tempfile import NamedTemporaryFile
+from subprocess import call
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
 
 N = 16
 def randomstr():
@@ -1009,7 +1013,7 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
     record = get_object_or_404(Record, pk=record_pk)
     comments = RecordComment.objects.filter(record_id=record_pk).order_by('-pk')
     files = RecordFile.objects.filter(record_id=record_pk).order_by('-pk')
-    media = RecordMedia.objects.filter(record_id=record_pk).order_by('-pk')
+    # media = RecordMedia.objects.filter(record_id=record_pk).order_by('-pk')
 
 
     if request.is_ajax() and request.method == "GET":
@@ -1022,7 +1026,11 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
                 'organization': organization,
                 'app': app,
                 'list': list,
-                'record': record
+                'record': record,
+                'record_view': 'record-details',
+                'comments' : comments,
+                'files':files,
+               
             }
         )
 
@@ -1041,7 +1049,7 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
             'record_view': 'record-details',
             'comments' : comments,
             'files':files,
-            "media":media
+          
         }
 
         return render(request, 'home/workspace.html', context=context)
@@ -1056,7 +1064,7 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
     list = get_object_or_404(List, pk=list_pk)
     record = get_object_or_404(Record, pk=record_pk)
     comments = RecordComment.objects.filter(record_id=record_pk).order_by('-created_at')
-    media = RecordMedia.objects.filter(record_id=record_pk).order_by('-pk')
+    # media = RecordMedia.objects.filter(record_id=record_pk).order_by('-pk')
     files = RecordFile.objects.filter(record_id=record_pk).order_by('-pk')
 
 
@@ -1071,7 +1079,11 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
                 'app': app,
                 'list': list,
                 'record': record,
-
+                'type': 'record',
+                'record_view': 'record-details',
+                "comments":comments,
+                "files": files,
+                
             }
         )
 
@@ -1090,12 +1102,11 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
             'app': app,
             'list': list,
             'record': record,
-
             'type': 'record',
             'record_view': 'record-details',
             "comments":comments,
             "files": files,
-            "media":media
+           
         }
 
         return render(request, 'home/workspace.html', context=context)
@@ -1288,49 +1299,55 @@ def post_record_file(request,organization_pk, app_pk, list_pk, record_pk):
     record_file.name_of_file = splited_name[0]
     record_file.file_extension ='.'+splited_name[-1]
     record_file.save()
+    record_File = RecordFile.objects.get(pk=record_file.pk)
     final['file_name'] = splited_name[0]
     final['file_extension'] = '.'+splited_name[-1]
     final['file_url'] = record_File.url()
+    if str(record_File.image_thumbnail) != '':
+        final['thumbnail'] = record_File.image_thumbnail.url
+    else:
+        final['thumbnail'] = None
     final['delete_url'] = record_File.delete_url()
     final['edit_url']=record_File.edit_url()
     final['id']=record_file.pk
+    final['type'] = record_file.type
     final =json.dumps(final)
     return JsonResponse(data=final, safe=False)
 
 
-@csrf_exempt
-def post_record_media(request,organization_pk, app_pk, list_pk, record_pk):
-    record_file = RecordMedia(file=request.FILES['file'],record_id=record_pk,created_user = request.user)
-    record_file.id = randomstr()
-    record_file.save()
-    record_File = RecordMedia.objects.get(pk=record_file.pk)
-    final = {}
-    record_file.name_of_file = record_file.filename()
-    record_file.save()
-    final['file_name'] = record_file.filename()
-    if record_file.type == "V":
-       final['file_url'] = record_File.image_thumbnail.url
-    else:
-        final['file_url'] = record_File.url()
-    final['delete_url'] = record_File.delete_url()
-    final =json.dumps(final)
-    return JsonResponse(data=final, safe=False)
+# @csrf_exempt
+# def post_record_media(request,organization_pk, app_pk, list_pk, record_pk):
+#     record_file = RecordMedia(file=request.FILES['file'],record_id=record_pk,created_user = request.user)
+#     record_file.id = randomstr()
+#     record_file.save()
+#     record_File = RecordMedia.objects.get(pk=record_file.pk)
+#     final = {}
+#     record_file.name_of_file = record_file.filename()
+#     record_file.save()
+#     final['file_name'] = record_file.filename()
+#     if record_file.type == "V":
+#        final['file_url'] = record_File.image_thumbnail.url
+#     else:
+#         final['file_url'] = record_File.url()
+#     final['delete_url'] = record_File.delete_url()
+#     final =json.dumps(final)
+#     return JsonResponse(data=final, safe=False)
 
 
 
-@csrf_exempt
-def delete_record_media(request,organization_pk, app_pk, list_pk, record_pk,record_media_pk):
-    record_File = RecordMedia.objects.get(pk=record_media_pk)
-    record_File.delete()
-    final = {}
-    final['deleted'] = "deleted"
-    final =json.dumps(final)
-    return redirect(reverse('record',kwargs={
-        'organization_pk':record_File.record.list.app.organization.pk,
-        'list_pk':record_File.record.list.pk,
-        'app_pk':record_File.record.list.app.pk,
-        'record_pk':record_File.record.pk,
-    }))
+# @csrf_exempt
+# def delete_record_media(request,organization_pk, app_pk, list_pk, record_pk,record_media_pk):
+#     record_File = RecordMedia.objects.get(pk=record_media_pk)
+#     record_File.delete()
+#     final = {}
+#     final['deleted'] = "deleted"
+#     final =json.dumps(final)
+#     return redirect(reverse('record',kwargs={
+#         'organization_pk':record_File.record.list.app.organization.pk,
+#         'list_pk':record_File.record.list.pk,
+#         'app_pk':record_File.record.list.app.pk,
+#         'record_pk':record_File.record.pk,
+#     }))
 
 
 
@@ -1352,6 +1369,8 @@ def delete_record_file(request,organization_pk, app_pk, list_pk, record_pk,recor
 @csrf_exempt
 def delete_record_comment(request,record_comment_pk,organization_pk, app_pk, list_pk, record_pk):
     record_Comment = RecordComment.objects.get(pk=record_comment_pk)
+    if record_Comment.created_by != request.user:
+         HttpResponse('Unauthorized', status=401)
     record_Comment.delete()
     final = {}
     final['deleted'] = "deleted"
@@ -1392,7 +1411,19 @@ def edit_record_file(request,organization_pk, app_pk, list_pk, record_pk,record_
     record_File = RecordFile.objects.get(pk=record_file_pk)
     new_name = request.POST['content']
     record_File.name_of_file = new_name
+    new_name += record_File.file_extension
+    initial_path = record_File.file.path
+    initial_name = record_File.file.name
+    new_path = initial_name.split('/')
+    new_path.pop()
+    new_path_proto = '/'.join(new_path)
+    new_path_proto += '/'
+    new_path = settings.MEDIA_ROOT + '/' +  new_path_proto  + new_name
+    os.rename(initial_path, new_path)
+    record_File.file.name = new_path_proto + new_name
+    print(record_File.file.name,record_File.file.url,record_File.file.path)
     record_File.save()
     return JsonResponse({
-            "content":new_name
-        })
+        "content": record_File.name_of_file,
+        "file_url":record_File.file.url
+    })
