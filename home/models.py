@@ -114,7 +114,7 @@ class App(models.Model):
         return self.name
 
     def membersCount(self):
-        active_users = OrganizationUser.objects.filter(organization = self.organization,status='active',permitted_apps = self).count()
+        active_users = OrganizationUser.objects.filter(organization = self.organization,status='active').count()
         inactive_users = InactiveUsers.objects.filter(attached_workspaces = self).count()
         return active_users + inactive_users
 
