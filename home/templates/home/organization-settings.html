@@ -47,7 +47,9 @@ class="bg-white"
             <!-- Email notifications preferences card-->
             <div class="mb-4">
                <div class="card-body">
-                  <p>You cannot modify details unless you are an Admin role.</p>
+               {% if not is_admin %}
+                <p>You cannot modify details unless you are an Admin role.</p>
+               {% endif %}
                   <form method="POST" action="{% url 'edit_organization' organization_pk=organization.pk %}">{% csrf_token %}
                      {% if is_admin %}
                         {{ form.as_p }}

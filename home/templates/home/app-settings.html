@@ -50,7 +50,9 @@ class="bg-white"
                Details
             </div>
             <div class="card-body">
+               {% if not is_admin %}
                 <p>You cannot modify details unless you are an Admin role.</p>
+               {% endif %}
                <form method="POST" action="{% url 'edit_app' organization_pk=organization.pk app_pk=app.pk %}">{% csrf_token %}
                   {% if is_admin %}
                      <input name="type" value="add_user" type="hidden"/>
