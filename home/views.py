@@ -1031,7 +1031,7 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
                 'comments' : comments,
                 'files':files,
                 'user' : request.user
-               
+
             }
         )
 
@@ -1051,7 +1051,7 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
             'comments' : comments,
             'files':files,
             'user' : request.user
-          
+
         }
 
         return render(request, 'home/workspace.html', context=context)
@@ -1086,7 +1086,7 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
                 "comments":comments,
                 "files": files,
                 'user' : request.user
-                
+
             }
         )
 
@@ -1110,7 +1110,7 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
             "comments":comments,
             "files": files,
             "user" : request.user
-           
+
         }
 
         return render(request, 'home/workspace.html', context=context)
@@ -1409,14 +1409,13 @@ def edit_record_comment(request,organization_pk, app_pk, list_pk, record_pk,reco
 #     filename = file.filename
 #     filename = filename.split('.')[0]
 
-
 @csrf_exempt
 def edit_record_file(request,organization_pk, app_pk, list_pk, record_pk,record_file_pk):
     record_File = RecordFile.objects.get(pk=record_file_pk)
     new_name = request.POST['content']
     record_File.name_of_file = new_name
     new_name += record_File.file_extension
-    initial_path = record_File.file.path
+    #initial_path = record_File.file.name
     initial_name = record_File.file.name
     new_path = initial_name.split('/')
     new_path.pop()
@@ -1425,7 +1424,7 @@ def edit_record_file(request,organization_pk, app_pk, list_pk, record_pk,record_
     new_path = settings.MEDIA_ROOT + '/' +  new_path_proto  + new_name
     os.rename(initial_path, new_path)
     record_File.file.name = new_path_proto + new_name
-    print(record_File.file.name,record_File.file.url,record_File.file.path)
+    print(record_File.file.name,record_File.file.url)
     record_File.save()
     return JsonResponse({
         "content": record_File.name_of_file,
