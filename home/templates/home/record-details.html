@@ -73,6 +73,15 @@
                 <p><b>{{ field.list_field.field_label }}:</b> {{ field.value |safe}}</p>
                 {% endif %} {% endif %} {% endfor %} {% endif %}
             </div>
+            <div class="card-footer text-right bg-white">
+            <p class="card-text"> <small class="text-muted">Created : {{record.created_at| date:"M d, Y"}}</small></p>
+            <p class="card-text">
+        
+            <small class="text-muted">Created By : {{record.created_user}}
+        
+            </small>
+          </p>
+        </div>
         </div>
     </div>
 </div>
@@ -152,6 +161,9 @@
         {% for comment in comments %}
         <form data-comment-id="{{comment.pk}}" class="edit_comment_form" action="{% url 'edit_record_comment' organization.pk app.pk list.pk record.pk comment.pk %}" method="POST">
             <div class="card my-3" id="comment-{{comment.pk}}" class="card text-center m-3">
+                <div class="card-header text-left">
+                <p class="card-text">Created By : {{comment.created_user}}</p>
+                </div>
                 <div class="card-body">
                     <div class="main-change">
                         <div id="comment-content-{{comment.pk}}"class="card-text text-left content">
@@ -159,7 +171,16 @@
                         </div>
                     </div>
                 </div>
-                {% if comment.created_user.pk == user.pk %}
+                <div class="card-footer text-right">
+                    <p class="card-text">
+      
+                    <small class="text-muted">Created : {{comment.created_at| date:"M d, Y"}} 
+      
+                    </small>
+                  </p>
+      
+                
+                </div>
                 <div class="card-footer bg-white">
                     <button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-comment-{{comment.pk}}">Remove</button>
                     <span id="edit-save-{{comment.pk}}">
@@ -195,6 +216,7 @@
         </form>
     </div>
 </div>
+
 
 <script>
 var record_files = $('#fileslist');
