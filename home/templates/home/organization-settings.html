@@ -47,30 +47,39 @@ class="bg-white"
             <!-- Email notifications preferences card-->
             <div class="mb-4">
                <div class="card-body">
+               {% if not is_admin %}
+                <p>You cannot modify details unless you are an Admin role.</p>
+               {% endif %}
                   <form method="POST" action="{% url 'edit_organization' organization_pk=organization.pk %}">{% csrf_token %}
-                     {{ form.as_p }}
-                     <button type="submit" class="btn btn-lg btn-primary font-weight-500 mr-3">
-                     Update Organization
-                     </button>
+                     {% if is_admin %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-lg btn-primary font-weight-500 mr-3">
+                        Update Organization
+                        </button>
+                     {% else %}
+                        <input type="text" value="{{ organization.name }}" class="form-control form-control-solid" readonly>
+                     {% endif %}
                   </form>
                </div>
             </div>
          </div>
-         <div class="col-lg-4">
-            <!-- Notifications preferences card-->
-            <div class="card">
-               <div class="card-header">Archive Organization</div>
-               <div class="card-body">
-                  <p>You can archive this organization if you will no longer use it. Data will still be available under the archived filter.
-                  <form method="POST" action="{% url 'archive_organization' organization_pk=organization.pk %}">
-                     {% csrf_token %}
-                     <button type="submit" name="project_id" class="btn btn-danger-soft text-danger">
-                     Archive this organization
-                     </button>
-                  </form>
+         {% if is_admin %}
+            <div class="col-lg-4">
+               <!-- Notifications preferences card-->
+               <div class="card">
+                  <div class="card-header">Archive Organization</div>
+                  <div class="card-body">
+                     <p>You can archive this organization if you will no longer use it. Data will still be available under the archived filter.
+                     <form method="POST" action="{% url 'archive_organization' organization_pk=organization.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" name="project_id" class="btn btn-danger-soft text-danger">
+                        Archive this organization
+                        </button>
+                     </form>
+                  </div>
                </div>
             </div>
-         </div>
+         {% endif %}
       </div>
    </div>
    <div class="tab-pane fade show list-of-users" id="nav-users" role="tabpanel" aria-labelledby="nav-users-tab">
