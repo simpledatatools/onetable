@@ -348,6 +348,10 @@ def record_file_path(self, filename):
     new_path = "record" + "/" + str(self.record.pk) + '/' + self.id + '/'
     return os.path.join(new_path, filename)
 
+def record_file_path(self, filename):
+    new_path = "record" + "/" + str(self.record.pk) + '/' + self.id + '/'
+    return os.path.join(new_path, filename)
+
 
 
 class RecordFile(models.Model):
@@ -401,7 +405,7 @@ class RecordFile(models.Model):
         (VIDEO, 'Video'),
         (FILE,'File')
     ]
-    
+
     thumbnail_millisecond = models.IntegerField(default=0)
     type = models.CharField(max_length=1, choices=TYPES, blank=True)
     thumbnail_source_image = models.ImageField(upload_to='post_files/%Y/%m/%d/', null=True, blank=True)
@@ -456,15 +460,8 @@ class RecordFile(models.Model):
         super().save(*args, **kwargs)
 
 
-
-
 def randomstr():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k = N))
-
-
-
-
-
 
 class RecordComment(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
@@ -528,6 +525,3 @@ def update_stock(sender, instance, **kwargs):
             org_user[0].permitted_apps.add(wrksps)
             org_user[0].save()
         inactive_user.delete()
-
-
-
