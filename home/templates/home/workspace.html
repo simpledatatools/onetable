@@ -60,6 +60,8 @@ class="bg-white"
     if (typeof searchValue === 'undefined' || searchValue === ''){
       searchValue = ''
     }
+    
+
     $.ajax({
         type: "GET",
         url: url,
@@ -77,6 +79,17 @@ class="bg-white"
     }).always(()=> {
       window.history.pushState({}, '', url);
     });
+    if (url.indexOf("lists") > -1) {
+      $( "#lists" ).addClass( "active" );
+      $( "#activity" ).removeClass( "active" )
+
+    }
+    else
+    {
+      $( "#activity" ).addClass( "active" );
+      $( "#lists" ).removeClass( "active" )
+
+    }
   }
 </script>
 {% endblock %}
