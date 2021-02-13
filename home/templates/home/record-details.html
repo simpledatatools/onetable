@@ -71,17 +71,14 @@
                 </div>
                 {% else %}
                 <p><b>{{ field.list_field.field_label }}:</b> {{ field.value |safe}}</p>
-                {% endif %} {% endif %} {% endfor %} {% endif %}
+                {% endif %} {% endif %} {% endfor %}
+                <p class="card-text"> <small class="text-muted">Created : {{record.created_at| date:"M d, Y"}}</small></p>
+                <p class="card-text"><small class="text-muted">Created By : {{record.created_user.first_name}}</small></p>
+                {% endif %}
             </div>
             <div class="card-footer text-right bg-white">
-            <p class="card-text"> <small class="text-muted">Created : {{record.created_at| date:"M d, Y"}}</small></p>
-            <p class="card-text">
 
-            <small class="text-muted">Created By : {{record.created_user.first_name}}
-
-            </small>
-          </p>
-        </div>
+            </div>
         </div>
     </div>
 </div>
@@ -132,7 +129,7 @@
 
                 </div>
                 <div class="card-footer bg-white">
-                    <button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-file-{{file.id}}">Remove</button><a class="btn btn-link float-right download" href="{{file.url}}">Download</a>
+                    <button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-file-{{file.id}}">Remove</button><a class="btn btn-link float-right download" href="{{file.url}}" target="_blank">Download</a>
                 </div>
             </div>
         </div>
@@ -344,7 +341,7 @@ $(function() {
                         <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                     </div>
                     <div class="modal-footer">
-                        <span class="btn btn-danger remove-record-file" type="button" data-dismiss="modal" href="${data.delete_url}" data-content-id="${file.id}">Confirm</span>
+                        <span class="btn btn-danger remove-record-file" type="button" data-dismiss="modal" href="${data.delete_url}" data-content-id="${data.id}">Confirm</span>
                         <span class="btn btn-light" type="button" data-dismiss="modal">No</span>
                     </div>
                 </div>

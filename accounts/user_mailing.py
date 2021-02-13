@@ -37,6 +37,7 @@ class SendUserMail:
         Sincerely,\n
         OneTable Support
         """
+        print(content)
         return content
 
     def __reset_password_compose_mail(self):
@@ -49,6 +50,7 @@ class SendUserMail:
         Sincerely,\n
         OneTable Support
         """
+        print(content)
         return content
 
     def send(self):
