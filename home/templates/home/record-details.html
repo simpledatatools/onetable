@@ -76,9 +76,9 @@
             <div class="card-footer text-right bg-white">
             <p class="card-text"> <small class="text-muted">Created : {{record.created_at| date:"M d, Y"}}</small></p>
             <p class="card-text">
-        
-            <small class="text-muted">Created By : {{record.created_user}}
-        
+
+            <small class="text-muted">Created By : {{record.created_user.first_name}}
+
             </small>
           </p>
         </div>
@@ -108,7 +108,7 @@
                     <div style="font-size:0px;" class="{% if file.type == 'F' %}col-10{% else %}col-12{% endif %} card-text text-left">
 
                     {% if file.type == 'F' %}
-                   
+
 
                         <span class="d-inline content">
                             <span   style="font-size:16px;" class="d-inline name-of-file">{{file.name_of_file}}</span>
@@ -124,7 +124,7 @@
                     <img src="\media\{{file.thumbnail_source_image}}" class="img-fluid" />
                     {% endif %}
 
-        
+
                     </div>
                     {% if file.type == 'F' %}
                     <div class="col-2"><a href="{{file.edit_url}}" data-file-id="{{file.pk}}" class="edit-file btn btn-link">Edit</a></div>
@@ -162,7 +162,7 @@
         <form data-comment-id="{{comment.pk}}" class="edit_comment_form" action="{% url 'edit_record_comment' organization.pk app.pk list.pk record.pk comment.pk %}" method="POST">
             <div class="card my-3" id="comment-{{comment.pk}}" class="card text-center m-3">
                 <div class="card-header text-left">
-                <p class="card-text">Created By : {{comment.created_user}}</p>
+                <p class="card-text">Created By : {{comment.created_user.first_name}}</p>
                 </div>
                 <div class="card-body">
                     <div class="main-change">
@@ -173,13 +173,11 @@
                 </div>
                 <div class="card-footer text-right">
                     <p class="card-text">
-      
-                    <small class="text-muted">Created : {{comment.created_at| date:"M d, Y"}} 
-      
+
+                    <small class="text-muted">Created : {{comment.created_at| date:"M d, Y"}}
+
                     </small>
                   </p>
-      
-                
                 </div>
                 <div class="card-footer bg-white">
                     <button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-comment-{{comment.pk}}">Remove</button>
@@ -189,7 +187,6 @@
                         <input type="submit" data-comment-id="{{comment.pk}}" class="btn btn-link float-right save" style="display: none;" value="Save" />
                     </span>
                 </div>
-                {% endif %}
             </div>
         </form>
         <div class="modal fade" id="remove-comment-{{comment.pk}}" tabindex="-1" role="dialog" aria-labelledby="Remove-comment" aria-hidden="true">
@@ -507,16 +504,16 @@ $(document).ready(function() {
         $('.edit-comment').on('click', function(ev) {
                 ev.preventDefault();
 
-               
+
                     var comment_id = $(this).attr('data-comment-id');
 
                 var content = $('#comment-' + comment_id + ' .content');
                 var content_message = content.text()
-                    
-                    frm = $('.edit_comment_form');
-                   
 
-                        
+                    frm = $('.edit_comment_form');
+
+
+
 
 
 
@@ -527,8 +524,8 @@ $(document).ready(function() {
                         $('#edit-save-' + comment_id + ' .edit').hide();
                         $('#edit-save-' + comment_id + ' .save').show();
 
-                    
-                
+
+
 
             }
 
@@ -552,7 +549,7 @@ $(document).ready(function() {
                     success: function(data) {
                         $('#comment-' + comment_id + ' .main-change').html(
                             `<div id="comment-content-${comment_id}" class="card-text text-left content">
-                             ${data.content} 
+                             ${data.content}
                         </div>`);
                         $('#edit-save-' + comment_id + ' .edit').show();
                         $('#edit-save-' + comment_id + ' .save').hide();
@@ -612,7 +609,7 @@ $(document).ready(function() {
 
 });
 
-  
+
 
 
 </script>

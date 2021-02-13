@@ -3,14 +3,14 @@
 <div class="row">
 
   {% for record in records %}
-  
+
     <div id="record-{{record.pk}}" class="col-lg-12 mb-4">
       <div class="card card-header-actions">
           <div class="card-header bg-white">
               <a href="javascript:void(0);" onclick="getPage('{% url 'record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk record_pk=record.pk %}');">
                 {{ record.primary_field.value }}
               </a>
-              
+
 
               <div class="dropdown no-caret">
                   <button class="btn btn-transparent-dark btn-icon dropdown-toggle" id="dropdownMenuButton" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-bars"></i></button>
@@ -64,12 +64,12 @@
               <p class="card-text"> <small class="text-muted">Created : {{record.created_at| date:"M d, Y"}}</small></p>
               <p class="card-text">
 
-              <small class="text-muted">Created By : {{record.created_user}}
+              <small class="text-muted">Created By : {{record.created_user.first_name}}
 
               </small>
             </p>
 
-          
+
           </div>
       </div>
     </div>
