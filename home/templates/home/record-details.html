@@ -297,7 +297,16 @@ Dropzone.autoDiscover = false;
 var cookie = document.cookie;
 var csrftoken = getCookie('csrftoken');
 var post_file_url = $('#postRecordFile').attr('action');
-
+function generate_file_group(length) {
+   var result           = '';
+   var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+   var charactersLength = characters.length;
+   for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   }
+   return result;
+}
+var file_group =generate_file_group(20);
 $(function() {
     var myDrop = new Dropzone("div#postRecordFile", {
         url: post_file_url,
@@ -369,6 +378,11 @@ $(function() {
         EditFile();
     });
 
+
+    myDrop.on('sending', function(file, xhr, formData){
+    formData.append('file_group', file_group);
+    });
+
     myDrop.on("totaluploadprogress", function(progress) {
         console.log(file, progress, bytesSent);
         var progress_bar = '<div style="height:30px;font-size:22px;height:40px" class="progress"><div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: ' + progress + '%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">' + parseInt(progress) + '%</div></div>';
@@ -376,6 +390,7 @@ $(function() {
     });
 
     myDrop.on("queuecomplete", function(file) {
+        file_group = generate_file_group(20);
         var progress_bar = '<div style="height:30px;font-size:22px;height:40px" class="progress"><div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">' + "uploaded successfully!" + '</div></div>';
         $('#fileprogress').html(progress_bar);
         setTimeout(function() {

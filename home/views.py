@@ -428,6 +428,7 @@ def app_details(request, organization_pk, app_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
     org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user, status__exact='active')
+    activities = Activity.objects.filter(app=app).order_by('-created_at')
     if not org_obj.exists():
         return HttpResponse('You are not allowed here!', status=401)
     elif app not in org_obj[0].permitted_apps.all():
@@ -436,9 +437,9 @@ def app_details(request, organization_pk, app_pk):
     context = {
         'organization': organization,
         'app': app,
-        'type': 'activity'
+        'type': 'activity',
+        'activities' : activities
     }
-
     return render(request, 'home/workspace.html', context=context)
 
 
@@ -452,6 +453,7 @@ def activity(request, organization_pk, app_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
     org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user, status__exact='active')
+    activities = Activity.objects.filter(app=app).order_by('-created_at')
     if not org_obj.exists():
         return HttpResponse('You are not allowed here!', status=401)
     elif app not in org_obj[0].permitted_apps.all():
@@ -465,7 +467,8 @@ def activity(request, organization_pk, app_pk):
             template_name="home/activity.html",
             context={
                 'organization': organization,
-                'app': app
+                'app': app,
+                "activities" : activities
             }
         )
 
@@ -478,7 +481,8 @@ def activity(request, organization_pk, app_pk):
         context = {
             'organization': organization,
             'app': app,
-            'type': 'activity'
+            'type': 'activity',
+            "activities" : activities
         }
 
         return render(request, 'home/workspace.html', context=context)
@@ -1316,7 +1320,7 @@ def post_record_comment(request,organization_pk, app_pk, list_pk, record_pk):
 
 @csrf_exempt
 def post_record_file(request,organization_pk, app_pk, list_pk, record_pk):
-    record_file = RecordFile(file=request.FILES['file'],record_id=record_pk,created_user = request.user)
+    record_file = RecordFile(file=request.FILES['file'],record_id=record_pk,created_user = request.user,group=request.POST['file_group'])
     record_file.id =randomstr()
     record_file.save()
     record_File = RecordFile.objects.get(pk=record_file.pk)
