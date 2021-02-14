@@ -27,10 +27,10 @@ Django was also chosen because python is popular programming language that is kn
 
 ## How to run the project and get started
 
-We will always make sure the project is easy to get started with right away. You can clone the project and begin by going through the typical Django initiation steps noted below:
+We will always make sure the project is easy to get started with right away so you can spend more time coding and less time fighting configurations and environment setup. You can clone the project and begin by going through the typical Django initiation steps noted below:
 
 - Make sure you are in a virtualenv (we recommend setting up a new one)
-- Install everything from requirements.txt using ```pip3 install -r requirements.txt```
+- Install everything from `requirements.txt` using ```pip3 install -r requirements.txt```
 - You will need to create a `config.py` file under `core > settings` to store your local database credentials (these are not version controlled). The file should contain:
 ```
 local_database = {
@@ -44,7 +44,7 @@ local_database = {
       }
 }
 ```
-- Make sure you create a local postgres database called 'one-table-local' (see the base.py and config.py settings files under core.settings)
+- Make sure you create a local postgres database called `one-table-local` (or whichever local database name you want to use)
 - Run ```python3 manage.py makemigrations``` to create database migrations
 - Run ```python3 manage.py migrate``` to create database tables / initial setup
 - Run ```python3 manage.py createsuperuser``` to create an admin user
@@ -52,16 +52,16 @@ local_database = {
 - The project should be running now at http://127.0.0.1:8000/
 - The admin panel should be running now at http://127.0.0.1:8000/admin
 
-Please note that the project does rely on some third party services, such as Mailgun for registration and password reset. For local development these have been configured using Django's web server and services such as smtp. Please reach out to us if you need help setting up or configuring these third parties while you are deploying the platform. You may also want to test at first using an admin superuser created in the above process, so you do not need to go through the user verification process by email.
+Please note that the project does rely on some third party services, such as Mailgun for registration and password reset. For local development these have been configured using Django's web server and smtp, and usually the information (i.e. emails send will be printed to the command line). Please reach out to us if you need help setting up or configuring third party libraries while you are deploying the platform to your own instance. You may also want to test the platform at first using an admin superuser created in the above process, so you do not need to go through the user verification process by email.
 
-We have also setup the project to deploy automatically to Heroku, which offers free hosting for small applications that you can use to get started.
+We have also setup the project to deploy automatically to Heroku, which offers free hosting for small applications that you can use to get started. We can also help you get setup with this as well if you have any questions.
 
 
 
 
 ## Architecture
 
-The application relies on some key Models to help create lists and store records. In OneTable a `List` is a data structure for creating forms and form fields. The user defines these `List` objects to help them collect the data they need. Data is saved into the `List` structure through associated `Record` and `RecordField` objects. Additional detail is provided below:
+The application relies on some key Django Models to help create data structures and store records. In OneTable a `List` is a data structure for creating forms and form fields. The user defines these `List` objects to help them collect the data they need. Data is saved into the `List` structure through associated `Record` and `RecordField` objects. Additional detail is provided below:
 
 - `List`: parent object which manages the `ListField` objects that define the form fields
 - `ListField`: objects for each form field, defining attributes such as field type and if the form field is required on the form
@@ -73,8 +73,8 @@ The application relies on some key Models to help create lists and store records
 ## Deployment
 
 - The app has been configured to be deployed on Heroku, as noted above
-- There is a setup for dev and production, using an environment variable `environment` on Heroku to designate 'production' settings should be used. There may be a better approach for switching between development and production settings (just an initial approach I tried)
-- If deploying a cloned copy of this repository please use the `master` branch which is the most stable, released version
+- There is a setup for dev and production, using an environment variable `environment` on Heroku to designate 'production' settings should be used. There may be a better approach for switching between development and production settings, but for now an initial setup we are using that works well enough :)
+- If deploying a cloned copy of this repository please use the `master` branch which is the most stable, released version; however, note there are some differences between the dev and prod `requirements.txt` files because Heroku does not support packages like `python-magic-bin`
 - The `dev` branch is 'bleeding edge' and always still being tested, though usually quite stable and able to be deployed as well
 
 
