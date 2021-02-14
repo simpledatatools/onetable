@@ -398,9 +398,10 @@ def app_settings(request, organization_pk, app_pk):
 
     else:
         form = AppForm(instance=app)
-        active_users = OrganizationUser.objects.filter(organization_id=organization,permitted_apps=app).exclude(role='admin')
+        active_users = OrganizationUser.objects.filter(organization_id=organization,permitted_apps=app, status='active').exclude(role='admin')
         admin = OrganizationUser.objects.filter(organization_id=organization.pk,role='admin')
-        inactive_users = InactiveUsers.objects.filter(attached_workspaces=app)
+        organization_inactive = [inactive.user_email for inactive in organization.inactive_users.all()]
+        inactive_users = InactiveUsers.objects.filter(attached_workspaces=app, user_email__in=organization_inactive)
         connection = chain(admin,active_users,inactive_users)
         is_admin = OrganizationUser.objects.filter(organization=organization,user=request.user,role='admin').exists
         #print(connection)
