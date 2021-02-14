@@ -117,8 +117,19 @@
                         </ul>
                         </div>
 
-                    {% else %}
+                    {% elif  file.type == 'V'%}
+                    <a href="\media\{{file.file}}" data-toggle="lightbox" data-type="video">
+
+                  
                     <img src="\media\{{file.thumbnail_source_image}}" class="img-fluid" />
+                </a>
+                {% else %}
+                <a href="\media\{{file.thumbnail_source_image}}" data-toggle="lightbox" >
+
+                  
+                    <img src="\media\{{file.thumbnail_source_image}}" class="img-fluid" />
+                </a>
+
                     {% endif %}
 
 
@@ -126,6 +137,8 @@
                     {% if file.type == 'F' %}
                     <div class="col-2"><a href="{{file.edit_url}}" data-file-id="{{file.pk}}" class="edit-file btn btn-link">Edit</a></div>
                     {% endif %}
+
+                    
 
                 </div>
                 <div class="card-footer bg-white">
@@ -316,7 +329,9 @@ $(function() {
                         <li>The file name should <b>not be empty</b></li>
                         </ul>
                         </div>` :
-                    `<img src='${data.thumbnail}' class="img-fluid" />`
+                    `<a data-toggle="lightbox"`
+                    + ((data.type == 'V') ?` href='${data.file_url}' data-type="video"`:` href='${data.thumbnail}' data-type="image"`)+`>
+                        <img src='${data.thumbnail}' class="img-fluid" /></a>`
                     )
                     +
 
@@ -605,6 +620,11 @@ $(document).ready(function() {
 });
 
 
-
+    $(document).on('click', '[data-toggle="lightbox"]', function (event) {
+      event.preventDefault();
+      $(this).ekkoLightbox({
+        alwaysShowClose: true,
+      });
+    });
 
 </script>
