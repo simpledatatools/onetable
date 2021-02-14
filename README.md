@@ -2,20 +2,18 @@
 
 ## About this project
 
-OneTable is an open source project helping organizations and teams quickly build small apps to digitalize their operations. The app works by helping users to create lists of data that organically evolve over time into relational databases and advanced functionality.
+OneTable is an open source project helping organizations and teams quickly build small apps to digitalize their operations. The platform works by helping users create lists of data that organically evolve over time into relational databases and advanced functionality.
 
-This project has been inspired by working with businesses across the globe who want to quickly begin to digitalize their operations, but do not have the resources (or time) to go through a full procurement proces with an expensive technology providers or traditional ERP systems. There are other free (or free-trial) software as a service platforms that exist for specific purposes (i.e. sales, crm, etc.) but in many cases these solutions are over-engineered with pre-defined features that dictate how businesses operations and data collection need to take place. With OneTable, we are hoping to create the absolute simplest, most flexible platform possible that allows users to build anything they need for their business and the first stages of digitalization. In this way, you can think of OneTable as the most simple "no-code" interface possible for small apps and relational data structures. Although OneTable can be used in almost any context, the heart of the project and inspiration for this building the platform is from years of work in emerging economies, where we've seen time and time again a landscape ripe with opportunity and full of brilliant minds changing the world. 
+This project has been inspired by working with businesses across the globe who want to quickly begin to digitalize their operations, but do not have the resources (or time) to go through a full procurement proces with an expensive technology providers. Traditional ERP systems are great, but they are insanely overpriced for most businesses in emerging economies. There are other free (or free-trial) software as a service platforms that exist for other specific purposes (i.e. sales platforms, a million different CRM platforms, etc.) but in many cases these solutions are over-engineered with pre-defined features that dictate how businesses operations must take place and how data should be collected. We definitely do not want to recreate the wheel, but we still find often in our work that there is a gap in management information systems available for organizations operating in developing nations, especially in the early stages of digitalization where data models and requirements are evolving quickly. You can think of OneTable as the absolute most simple, flexible "no-code" interface for small applications and relational data structures that allows users to build simple applications for their businesses. 
 
-The name OneTable comes from a two part vision. First that we can come together collaboratively around the same table to share perspectives and ideas, to solve tech challenges together. Second, we believe that everyone should have the chance to sit around the same table of opportunity, that access to technology is a right and a public good, and that technology should always be transparent and fair. 
+Although OneTable can be used in almost any context, the heart of the project and inspiration for building the platform is from years of work in emerging economies, where we've seen time and time again a landscape ripe with opportunity and full of brilliant minds who are changing the world. The name OneTable comes from a two part vision. First that we can come together collaboratively around the same table to share perspectives and ideas and to solve tech challenges together. Second, OneTable is rooted in a belief that everyone should have the chance to sit around the same table of opportunity, that access to technology is a right and a public good, and that technology should always be transparent and fair. 
 
-OneTable is open sourced for the following reasons:
+For these reasons, and many others, OneTable should be open sourced and free for everyone. We hope open sourcing the code will allow: 
 
-- We hope others will see value in the vision for the platform and contribute to the codebase
-- We hope to create a community of great minds who can collaborate to shape the vision moving forward
-- We hope others will launch companies and businesses from the foundation the platform provides and through the open Apache 2.0 license
-- We hope that there is always transparency into how the platform operates and the way that data is used and stored, as well as ensuring the platform is secure
-- We hope there is always transparency into what the platform can and cannot do, so organizations using the platform are never misled!
-
+- Others to see value in the vision for the platform and contribute to the codebase or the growth of a OneTable community
+- Create a community of great minds who can collaborate to shape the vision moving forward
+- Inspire others to launch companies and businesses from the foundation the platform provides and through the flexible Apache 2.0 license
+- Genuine transparency and honesty to be at the heart of everything we do, including ensuring all stakeholders have clarity into how the platform operates, the way that data is used and stored, the platform's security, and the limitations to the features and functionality
 
 
 ## Why is this project developed on Django?
