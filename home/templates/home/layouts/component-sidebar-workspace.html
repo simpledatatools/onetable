@@ -3,22 +3,60 @@
     <nav class="sidenav shadow-right sidenav-light">
         <div class="sidenav-menu">
             <div class="nav accordion" id="accordionSidenav">
+                <div class="sidenav-menu-heading d-sm-none"></div>
+
+              
+                <!-- Sidenav Link (Organizations)-->
+                <!-- * * Note: * * Visible only on and above the sm breakpoint-->
+                {% if organization.pk %}
+                <a class="nav-link d-sm-none" href="{% url 'organizations' %}">
+                    <div class="nav-link-icon"></div>
+
+                    Organizations
+                </a>
+                {% endif %}
+
+                <!-- Apps link -->
+                <!-- Sidenav Link (Workspaces)-->
+                <!-- * * Note: * * Visible only on and above the sm breakpoint-->
+                {% if app.pk %}
+
+                <a class="nav-link d-sm-none" href="{% url 'apps' organization_pk=organization.pk %}">
+                    <div class="nav-link-icon"></div>
+
+                    Workspaces
+                </a>
+                {% endif %}
+
+
+
+
+
+
+
+
+
                 <!-- Sidenav Menu Heading (Core)-->
                 <div class="sidenav-menu-heading">Activity</div>
                 <!-- Sidenav Accordion (activity)-->
-                <a class="nav-link {% if '/activity' in request.path %}active {% elif type == 'activity' %} active {% endif %}" id="activity"  href="javascript:void(0);" onclick="getPage('{% url 'activity' organization_pk=organization.pk app_pk=app.pk %}');">
+                <a class="nav-link {% if '/activity' in request.path %}active {% elif type == 'activity' %} active {% endif %}"
+                    id="activity" href="javascript:void(0);"
+                    onclick="getPage('{% url 'activity' organization_pk=organization.pk app_pk=app.pk %}');">
                     <div class="nav-link-icon"></div>
                     Activity
                 </a>
 
-                <a class="nav-link {% if '/lists' in request.path %} active  {% elif type == 'lists' %} active {% endif %}" id="lists" href="javascript:void(0);" onclick="getPage('{% url 'lists' organization_pk=organization.pk app_pk=app.pk %}');">
+                <a class="nav-link {% if '/lists' in request.path %} active  {% elif type == 'lists' %} active {% endif %}"
+                    id="lists" href="javascript:void(0);"
+                    onclick="getPage('{% url 'lists' organization_pk=organization.pk app_pk=app.pk %}');">
                     <div class="nav-link-icon"></div>
                     Lists
                 </a>
                 <!-- Sidenav Menu Heading (Core)-->
                 <div class="sidenav-menu-heading">Configuration</div>
                 <!-- Sidenav Accordion (activity)-->
-                <a class="nav-link" id="settings" href="{% url 'app_settings' organization_pk=organization.pk app_pk=app.pk %}">
+                <a class="nav-link" id="settings"
+                    href="{% url 'app_settings' organization_pk=organization.pk app_pk=app.pk %}">
                     <div class="nav-link-icon"></div>
                     Settings
                 </a>
