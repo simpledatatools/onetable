@@ -50,6 +50,13 @@ def about(request):
     context = {}
     return render(request, 'home/about.html', context=context)
 
+def is_unauthorized(request, organization, app):
+    org_obj = OrganizationUser.objects.filter(organization=organization, user=request.user, status__exact='active')
+    if not org_obj.exists():
+        return True
+    elif app not in org_obj[0].permitted_apps.all():
+        if org_obj[0].role != 'admin':
+            return True
 #===============================================================================
 # Organizations
 #===============================================================================
@@ -598,7 +605,8 @@ def create_list(request, organization_pk, app_pk):
 
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
-
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
     # Django formset stuff
 
     # Use model formset and not inline formset for more control over the data
@@ -687,6 +695,8 @@ def edit_list(request, organization_pk, app_pk, list_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
     # Django formset stuff
 
     # Use model formset and not inline formset for more control over the data
@@ -761,7 +771,8 @@ def archive_list(request, organization_pk, app_pk, list_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
-
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
     list.status = "archived"
     list.save()
 
@@ -777,6 +788,8 @@ def list_settings(request, organization_pk, app_pk, list_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
 
     context = {
         'organization': organization,
@@ -799,7 +812,8 @@ def add_record(request, organization_pk, app_pk, list_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
-
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
     fields = []
     for list_field in list.list_fields:
         field_object = {}
@@ -856,6 +870,8 @@ def save_record(request, organization_pk, app_pk, list_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
 
     record_id = request.POST.get('record_id', None)
     fields = json.loads(request.POST['field_values'])
@@ -1015,7 +1031,8 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
     comments = RecordComment.objects.filter(record_id=record_pk).order_by('-pk')
     files = RecordFile.objects.filter(record_id=record_pk).order_by('-pk')
     # media = RecordMedia.objects.filter(record_id=record_pk).order_by('-pk')
-
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
 
     if request.is_ajax() and request.method == "GET":
 
@@ -1069,7 +1086,8 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
     comments = RecordComment.objects.filter(record_id=record_pk).order_by('-created_at')
     # media = RecordMedia.objects.filter(record_id=record_pk).order_by('-pk')
     files = RecordFile.objects.filter(record_id=record_pk).order_by('-pk')
-
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
 
     if request.is_ajax() and request.method == "GET":
 
@@ -1127,6 +1145,8 @@ def record_links(request, organization_pk, app_pk, list_pk, record_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
 
     # Record details page (placeholder for now)
     record = get_object_or_404(Record, pk=record_pk)
@@ -1178,7 +1198,8 @@ def edit_record(request, organization_pk, app_pk, list_pk, record_pk):
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
     record = get_object_or_404(Record, pk=record_pk)
-
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
     # Very similar to the add_record view, but includes the field values previously saved
     # Probably a way to combine these views to consolidate
 
