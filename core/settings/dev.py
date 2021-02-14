@@ -33,6 +33,12 @@ ALLOWED_HOSTS = ['*']
 # EMAIL_HOST_PASSWORD = 'yourGmailPassword'
 # EMAIL_USE_TLS = True
 
+# The INTERNAL_IPS trick is enable checking if the env is debug or not in the template files
+INTERNAL_IPS = (
+    '127.0.0.1',
+    'localhost',
+)
+
 try:
     from .local import *
 except ImportError:
