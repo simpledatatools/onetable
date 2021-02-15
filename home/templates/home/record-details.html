@@ -1,3 +1,5 @@
+{% load static %}
+
 {% load custom_tags %}
 <div class="row mb-5 px-2">
     <div class="col-xl-12">
@@ -118,13 +120,13 @@
                         </div>
 
                     {% elif  file.type == 'V'%}
-                    <a href="\media\{{file.file}}" data-fslightbox="gallery" data-type="video">
+                    <a href="\media\{{file.file}}" data-fslightbox="lightbox{{file.id}}" data-type="video">
 
                   
                     <img src="\media\{{file.thumbnail_source_image}}" class="img-fluid" />
                 </a>
                 {% else %}
-                <a href="\media\{{file.thumbnail_source_image}}" data-fslightbox="gallery" data-type="image">
+                <a href="\media\{{file.thumbnail_source_image}}" data-fslightbox="lightbox{{file.id}}" data-type="image">
 
                   
                     <img src="\media\{{file.thumbnail_source_image}}" class="img-fluid" />
@@ -329,7 +331,7 @@ $(function() {
                         <li>The file name should <b>not be empty</b></li>
                         </ul>
                         </div>` :
-                    `<a data-toggle="lightbox"`
+                    `<a data-fslightbox="lightbox${data.id}"`
                     + ((data.type == 'V') ?` href='${data.file_url}' data-type="video"`:` href='${data.thumbnail}' data-type="image"`)+`>
                         <img src='${data.thumbnail}' class="img-fluid" /></a>`
                     )
@@ -618,13 +620,6 @@ $(document).ready(function() {
 
 
 });
-
-
-    $(document).on('click', '[data-toggle="lightbox"]', function (event) {
-      event.preventDefault();
-      $(this).ekkoLightbox({
-        alwaysShowClose: true,
-      });
-    });
-
 </script>
+<script src="{% static 'js/fslightbox.js' %}"></script>
+
