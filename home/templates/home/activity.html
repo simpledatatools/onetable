@@ -54,10 +54,22 @@
 {% for file in activity.group_of_files.media %}
 {% if forloop.first %} <div class="row"> {% endif %}
 {% if file.type == 'I' %}
-<div class="col-6 float-right"><img class='p-3 img-fluid' src="/media/{{file.thumbnail_source_image}}"/></div>
+<div class="col-6 float-right">
+  <a href="\media\{{file.thumbnail_source_image}}" data-fslightbox="lightbox_{{file.id}}" data-type="image">
+
+    <img class='p-3 img-fluid' src="/media/{{file.thumbnail_source_image}}"/>
+    
+</a>
+</div>
 {% endif %}
 {% if file.type == 'V' %}
-<div class="col-6 float-right"><img class='p-3 img-fluid' src="/media/{{file.thumbnail_source_image}}"/></div>
+<div class="col-6 float-right">
+  <a href="\media\{{file.file}}" data-fslightbox="lightbox_{{file.id}}" data-type="video">
+
+                  
+    <img src="\media\{{file.thumbnail_source_image}}" class="p-3 img-fluid" />
+</a>
+</div>
 {% endif %}
 {% if forloop.last %} </div> {% endif %}
 {% endfor %}
