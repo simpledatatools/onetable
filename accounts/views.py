@@ -17,7 +17,7 @@ class LoginView(View):
         else:
             form = UserLoginForm()
             return render(request, self.template_name, locals())
-    
+
     def post(self, request):
         form = UserLoginForm(request.POST)
         email = request.POST.get('email')
@@ -31,13 +31,13 @@ class LoginView(View):
                 return redirect('organizations')
         else:
             return render(request, self.template_name, locals())
-        
+
 
 class UserRegistrationView(View):
     def get(self, request):
         form = SignUpForm()
         return render(request, 'registration/register.html', locals())
-    
+
     def post(self, request):
         form = SignUpForm(request.POST)
         if form.is_valid():
@@ -48,7 +48,7 @@ class UserRegistrationView(View):
             obj, created = MailLinkModel.objects.update_or_create(user=user, link_type="sign_up", is_delete=False)
             obj.key = key
             obj.save()
-            mail = SendUserMail(recipient_name=user_name, link=link, recipient_list=user_email, subject="Email Confirmation Link", mail_for="sign-up")
+            mail = SendUserMail(recipient_name=user_name, link=link, recipient_list=user_email, subject="Complete OneTable Sign Up", mail_for="sign-up")
             status = mail.send()
             context = {'email': user_email, 'render_kind': 'signup'}
             return render(request, 'signup_thankyou_page.html', context)
@@ -80,7 +80,7 @@ class UpdateProfilePassword(View):
         user_object = get_object_or_404(User, pk=request.user.id)
         form = UpdatePasswordForm(user=user_object)
         return render(request, self.template_name, locals())
-    
+
     def post(self, request):
         user_object = get_object_or_404(User, pk=request.user.id)
         form = UpdatePasswordForm(data=request.POST, user=user_object)
@@ -129,7 +129,7 @@ class ResetPasswordView(View):
                 obj, created = MailLinkModel.objects.update_or_create(user=user, link_type="reset_password", is_delete=False)
                 obj.key = key
                 obj.save()
-                mail = SendUserMail(recipient_name=user_name, link=link, recipient_list=user_email, subject="Forgot Password Link", mail_for="reset-password")
+                mail = SendUserMail(recipient_name=user_name, link=link, recipient_list=user_email, subject="Reset your OneTable password", mail_for="reset-password")
                 status = mail.send()
                 context = {'email': user_email, 'render_kind': 'reset_password'}
                 return render(request, 'signup_thankyou_page.html', context)

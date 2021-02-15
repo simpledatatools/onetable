@@ -1,0 +1,16 @@
+            <div class="card my-3" id="comment-{{comment.pk}}" class="card text-center m-3">
+                <div class="card-body">
+                    <div class="main-change">
+                      <p class="card-text"><strong>{{comment.created_user.first_name}}</strong></p>
+                      <hr>
+                      <div id="comment-content-{{comment.pk}}"class="card-text text-left content">
+                          {% autoescape off %} {{comment.content}} {% endautoescape %}
+                      </div>
+                      <p class="card-text">
+
+                      <small class="text-muted">Created : {{comment.created_at| date:"M d, Y"}}
+
+                      </small>
+                    </div>
+                </div>
+            </div>

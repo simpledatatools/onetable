@@ -1,189 +1,221 @@
 {% extends "home/layouts/layout-no-side-nav.html" %}
 {% load static %}
-
 {% block title %}
-    OneTable - Workspace Settings
+OneTable - Workspace Settings
 {% endblock %}
-
 {% block headername %}
-  {{ app.name }}
+{{ app.name }}
 {% endblock %}
-
 {% block headerlink %}
-  {% url 'app_details' organization_pk=organization.pk app_pk=app.pk %}
+{% url 'app_details' organization_pk=organization.pk app_pk=app.pk %}
 {% endblock %}
-
 {% block header %}
-  {% include 'home/layouts/component-header-workspace.html' %}
+{% include 'home/layouts/component-header-workspace.html' %}
 {% endblock %}
-
 {% block bodyclass %}
-  class="bg-white"
+class="bg-white"
 {% endblock %}
-
 {% block content %}
-
 <div class="container mt-4">
-  <!-- Account page navigation-->
-  <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
-    <div class="container-fluid">
-        <div class="page-header-content">
-            <div class="row align-items-center justify-content-between pt-3">
-                <div class="col-auto mb-3">
-                    <h1 class="page-header-title">
-                        <div class="page-header-icon"><i data-feather="settings"></i></div>
-                        Settings for {{ app.name }} in {{ organization.name }}
-                    </h1>
-                </div>
+<!-- Account page navigation-->
+<header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+   <div class="container-fluid">
+      <div class="page-header-content">
+         <div class="row align-items-center justify-content-between pt-3">
+            <div class="col-auto mb-3">
+               <h1 class="page-header-title">
+                  <div class="page-header-icon"><i data-feather="settings"></i></div>
+                  Settings for {{ app.name }} in {{ organization.name }}
+               </h1>
             </div>
-        </div>
-    </div>
-  </header>
-  <!-- Main page content-->
-  <div class="container">
-  <nav>
-  <div class="nav nav-tabs" id="nav-tab" role="tablist">
-    <a class="nav-item nav-link active " id="nav-details-tab" data-toggle="tab" href="#nav-details" role="tab" aria-controls="nav-home" aria-selected="true">Details</a>
-    <a class="nav-item nav-link" id="nav-users-tab" data-toggle="tab" href="#nav-users" role="tab" aria-controls="nav-profile" aria-selected="false">Users</a>
-    </div>
-</nav>
-
-<div class="tab-content" id="nav-tabContent">
-  <div class="tab-pane fade show active" id="nav-details" role="tabpanel" aria-labelledby="nav-details-tab">
-  <div class="row mt-3">
-      <div class="col-lg-8">
-          <!-- Email notifications preferences card-->
-          <div style="box-shadow:None;" class="border-0 card card-header-actions mb-4">
-              <div class="bg-white card-header">
-                  Details
-              </div>
-              <div class="card-body">
-                <form method="POST" action="{% url 'edit_app' organization_pk=organization.pk app_pk=app.pk %}">{% csrf_token %}
-                 <input name="type" value="add_user" type="hidden"/>
-                  {{ form.as_p }}
-                  <button type="submit" class="btn btn-lg btn-primary font-weight-500 mr-3">
-                    Update Workspace
-                  </button>
-                </form>
-              </div>
-          </div>
+         </div>
       </div>
-      <div class="col-lg-4">
-          <!-- Notifications preferences card-->
-          <div class="card">
-              <div class="card-header">Archive Workspace</div>
-              <div class="card-body">
+   </div>
+</header>
+<!-- Main page content-->
+<div class="container">
+<nav>
+   <div class="nav nav-tabs" id="nav-tab" role="tablist">
+      <a class="nav-item nav-link active " id="nav-details-tab" data-toggle="tab" href="#nav-details" role="tab" aria-controls="nav-home" aria-selected="true">Details</a>
+      <a class="nav-item nav-link" id="nav-users-tab" data-toggle="tab" href="#nav-users" role="tab" aria-controls="nav-profile" aria-selected="false">Users</a>
+   </div>
+</nav>
+<div class="tab-content" id="nav-tabContent">
+<div class="tab-pane fade show active" id="nav-details" role="tabpanel" aria-labelledby="nav-details-tab">
+   <div class="row mt-3">
+      <div class="col-lg-8">
+         <!-- Email notifications preferences card-->
+         <div style="box-shadow:None;" class="border-0 card card-header-actions mb-4">
+            <div class="card-body">
+               {% if not is_admin %}
+                <p>You cannot modify details unless you are an Admin role.</p>
+               {% else %}
+               <form method="POST" action="{% url 'edit_app' organization_pk=organization.pk app_pk=app.pk %}">{% csrf_token %}
+                  {% if is_admin %}
+                     <input name="type" value="add_user" type="hidden"/>
+                     {{ form.as_p }}
+                     <button type="submit" class="btn btn-lg btn-primary font-weight-500 mr-3">
+                     Update Workspace
+                     </button>
+                  {% else %}
+                     <input type="text" value="{{ app.name }}" class="form-control form-control-solid" readonly>
+                  {% endif %}
+               </form>
+              {% endif %}
+            </div>
+         </div>
+      </div>
+      {% if is_admin %}
+         <div class="col-lg-4">
+            <!-- Notifications preferences card-->
+            <div class="card">
+               <div class="card-header">Archive Workspace</div>
+               <div class="card-body">
                   <p>You can archive this workspace if you will no longer use it. Data will still be available under the archived filter.
                   <form method="POST" action="{% url 'archive_app' organization_pk=organization.pk app_pk=app.pk %}">
-                    {% csrf_token %}
-                    <button type="submit" name="project_id" class="btn btn-danger-soft text-danger">
-                      Archive this workspace
-                    </button>
+                     {% csrf_token %}
+                     <button type="submit" name="project_id" class="btn btn-danger-soft text-danger">
+                     Archive this workspace
+                     </button>
                   </form>
-              </div>
-          </div>
-      </div>
-    </div>
-  </div>
-  <div class="tab-pane fade show" id="nav-users" role="tabpanel" aria-labelledby="nav-users-tab">
-    <div class="row">
-      <div class="col-12">
+               </div>
+            </div>
+         </div>
+      {% endif %}
+   </div>
+</div>
+<div class="tab-pane fade show" id="nav-users" role="tabpanel" aria-labelledby="nav-users-tab">
+<div class="row">
+   <div class="col-12">
       <div class="col-12 w-100 p-3 ">
-      <div class="btn btn-primary float-right mb-3" data-toggle="modal" data-target="#addUser">Add Users</div>
+         {% if is_admin %}
+         <div class="col-12">
+            <div class="col-12 w-100 p-3 ">
+               <div class="btn btn-primary float-right mb-3" data-toggle="modal" data-target="#addUser">Add Users</div>
+            </div>
+            <div>
+               {% endif %}
+            </div>
+            <div id="list_of_users">
+               {% for connect in connection %}
+               {% if connect.user.email %}
+               <div email-main="{{connect.user.email}}" class="mb-3 card w-100">
+                  {% else %}
+                  <div email-main="{{connect.user_email}}" class="mb-3 card w-100">
+                     {% endif %}
+                     <div class="card-body">
+                        {% if is_admin %}
+                        <div class="float-right">
+                           <div class="dropdown">
+                              <button class="btn btn-white dropdown-toggle p-1" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                 <svg class="svg-inline--fa fa-bars fa-w-14" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="bars" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg="">
+                                    <path fill="currentColor" d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z"></path>
+                                 </svg>
+                              </button>
+                              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                 {% if connect.user.email %}
+                                 {% if user != connect.user %}
+                                 <a class="dropdown-item remove-user" data-user-email='{{connect.user.email}}' data-user-type='active'>Remove</a>
+                                 {% endif %}
+                                 <a class="dropdown-item change-role"
+                                 {% if connect.role == 'admin' %}
+                                 data-to='user'
+                                 {% else %}
+                                 data-to='admin'
+                                 {% endif %}
+                                 data-user-email='{{connect.user.email}}' data-user-type='active'>Make
+                                 {% if connect.role == 'admin' %}
+                                 a User
+                                 {% else %}
+                                 an Admin
+                                 {% endif %}
+                                 </a>
+                                 {% else %}
+                                 <a class="dropdown-item remove-user" data-user-email='{{connect.user_email}}' data-user-type='inactive'>Remove</a>
+                                 {% endif %}
+                              </div>
+                           </div>
+                        </div>
+                        {% endif %}
+                        <h5 class="card-title">
+                           {% if connect.user %}
+                           {{connect.user.first_name}} {{connect.user.last_name}}
+                           {% else %}
+                           <i class="text-muted"> {Pending user Sign Up} </i>
+                           {% endif %}
+                           {% if connect.created %}
+                           <span class="bg-muted">(Creator)</span>
+                           {% endif %}
+                        </h5>
+                        <p class="card-text">
+                           {% if connect.user.email %}
+                           {{connect.user.email}}
+                           <br/>
+                           {{ connect.role }}
+                           {% else %}
+                           {{connect.user_email}}
+                           {% endif %}
+                        </p>
+                     </div>
+                  </div>
+                  {% endfor %}
+               </div>
+            </div>
+         </div>
       </div>
-      <div id="list_of_users">
-      {% for connect in connection %}
-        {% if connect.user.email %}
-          <div email-main="{{connect.user.email}}" class="mb-3 card w-100">  
-          {% else %}
-          <div email-main="{{connect.user_email}}" class="mb-3 card w-100">  
-          
-          {% endif %}    
-          <div class="card-body">
-           <div class="float-right dropdown">
-   <button class="btn btn-white dropdown-toggle p-1" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    <svg class="svg-inline--fa fa-bars fa-w-14" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="bars" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z"></path></svg>
-   </button>
-   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-    {% if connect.user.email %}
-      <a class="dropdown-item remove-user" data-user-email='{{connect.user.email}}' data-user-type='active'>Remove</a>
-    {% else %}
-      <a class="dropdown-item remove-user" data-user-email='{{connect.user_email}}' data-user-type='inactive'>Remove</a>
-    {% endif %}
    </div>
+</div>
+<div class="modal fade" id="addUser" tabindex="-1" role="dialog" aria-labelledby="addUSER" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+         <form id="add_user" method="POST" action="{% url 'app_settings' organization.pk app.pk %}">
+            <div class="modal-header">
+               <h5 class="modal-title" id="exampleModalLongTitle">Add User</h5>
+               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+               </button>
+            </div>
+            <div class="modal-body">
+               {% csrf_token %}
+               <input name="type" value="add_user" type="hidden"/>
+               <input type="email" name="email" placeholder="Enter user's E-mail" class="form-control" />
+            </div>
+            <div class="modal-footer">
+               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+               <input type="submit" class="btn btn-primary"  value="Add User" />
+            </div>
+         </form>
+      </div>
    </div>
-          <h5 class="card-title">
-          {% if connect.user %}
-          {{connect.user.first_name}} {{connect.user.last_name}} 
-          {% else %}
-            <i class="text-muted"> {Pending user Sign Up} </i>
-          {% endif %}
-          {% if connect.created %}
-          <span class="bg-muted">(Creator)</span>
-          {% endif %}
-          </h5>
-          <p class="card-text">
-          {% if connect.user.email %}
-          {{connect.user.email}}
-          {% else %}
-          {{connect.user_email}}
-          {% endif %}
-          
-          </p>  
-        </div>
-        </div>
-      {% endfor %}
-      </div>
-
-      </div>
-      {% comment %} <div class="col-lg-4">
-          <!-- Notifications preferences card-->
-          <div class="card">
-              <div class="card-header">Archive Organization</div>
-              <div class="card-body">
-                  <p>You can archive this organization if you will no longer use it. Data will still be available under the archived filter.
-                  <form method="POST" action="{% url 'archive_organization' organization_pk=organization.pk %}">
-                    {% csrf_token %}
-                    <button type="submit" name="project_id" class="btn btn-danger-soft text-danger">
-                      Archive this organization
-                    </button>
-                  </form>
-              </div>
-          </div> {% endcomment %}
-      </div>
-  </div>
-  
-  </div>
 </div>
-  <div class="modal fade" id="addUser" tabindex="-1" role="dialog" aria-labelledby="addUSER" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-     <form id="add_user" method="POST" action="{% url 'app_settings' organization.pk app.pk %}">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Add User</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-     
-      {% csrf_token %}
-      <input name="type" value="add_user" type="hidden"/>
-      <input type="email" name="email" placeholder="Enter user's E-mail" class="form-control" />
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <input type="submit" class="btn btn-primary"  value="Add User" />
-      </div>
-      </form>
-  </div>
-  </div>
-</div>
-
-
 
 <script>
+
+
+
 $(document).ready(function() {
+
+function changeRole(){
+      $(document).ready(function() {
+$('.change-role').click(function(ev){
+  ev.preventDefault();
+  var url = $('#add_user').attr('action');
+  var email_main = $(this).attr('data-user-email');
+  $.post(url,{
+    "type" : "change_role",
+    "to" : $(this).attr('data-to'),
+    "email": $(this).attr('data-user-email')
+    },function(data, status){
+      $('#nav-users').load(window.location.href + ' #nav-users',function(){
+                          removeUser();
+                          changeRole();
+                        });
+  });
+});
+});
+}
+changeRole();
+
 
 function removeUser(){
 $('.remove-user').click(function(ev){
@@ -197,7 +229,7 @@ $('.remove-user').click(function(ev){
     },function(data, status){
       console.log('[email-main='+$(this).attr('data-user-email')+']');
     $('[email-main="'+email_main+'"]').hide();
-    
+
   });
 });
 }
@@ -205,7 +237,7 @@ removeUser();
 $('#add_user').submit(function(ev){
 
    ev.preventDefault();
-               
+
                var frm = $(this);
                console.log(frm.serialize());
 
@@ -214,25 +246,14 @@ $('#add_user').submit(function(ev){
                     type: $(this).attr('method'),
                     url: window.location.href,
                     data: $(this).serialize(),
-                    
+
                     success: function(data) {
-                        $('#nav-users').load(window.location.href + ' #nav-users'),function(responseTxt, statusTxt, xhr){
-                         $('.remove-user').click(function(ev){
-  ev.preventDefault();
-  var url = $('#add_user').attr('action');
-  var email_main = $(this).attr('data-user-email');
-  $.post(url,{
-    "type" : "remove_user",
-    "user_type" : $(this).attr('data-user-type'),
-    "email": $(this).attr('data-user-email')
-    },function(data, status){
-      console.log('[email-main='+$(this).attr('data-user-email')+']');
-    $('[email-main="'+email_main+'"]').hide();
-    
-  });
-});     
-                                             };
+                      $('#nav-users').load(window.location.href + ' #nav-users',function(){
+                          removeUser();
+                          changeRole();
+                        });
                         $('#addUser').modal('hide');
+                        $("#addUser [type=email]").val('');
                         //setTimeout(removeUser(),3000);
                     }
                 });

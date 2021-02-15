@@ -30,8 +30,6 @@ urlpatterns = [
     path('organizations/<organization_pk>/apps/<app_pk>/lists/<list_pk>/records/<record_pk>/details/', views.record_details, name='record_details'),
     path('organizations/<organization_pk>/apps/<app_pk>/lists/<list_pk>/records/<record_pk>/details/post_comment/', views.post_record_comment, name='post_record_comments'),
     path('organizations/<organization_pk>/apps/<app_pk>/lists/<list_pk>/records/<record_pk>/details/post_file/', views.post_record_file, name='post_record_file'),
-    path('organizations/<organization_pk>/apps/<app_pk>/lists/<list_pk>/records/<record_pk>/details/post_media/', views.post_record_media, name='post_record_media'),
-    path('organizations/<organization_pk>/apps/<app_pk>/lists/<list_pk>/records/<record_pk>/details/delete_media/<record_media_pk>/', views.delete_record_media, name='delete_record_media'),
     path('organizations/<organization_pk>/apps/<app_pk>/lists/<list_pk>/records/<record_pk>/details/delete_comment/<record_comment_pk>/', views.delete_record_comment, name='delete_record_comment'),
     path('organizations/<organization_pk>/apps/<app_pk>/lists/<list_pk>/records/<record_pk>/details/edit_comment/<record_comment_pk>/', views.edit_record_comment, name='edit_record_comment'),
     path('organizations/<organization_pk>/apps/<app_pk>/lists/<list_pk>/records/<record_pk>/details/delete_file/<record_file_pk>/', views.delete_record_file, name='delete_record_file'),
@@ -39,8 +37,8 @@ urlpatterns = [
     path('organizations/<organization_pk>/apps/<app_pk>/lists/<list_pk>/records/<record_pk>/links/', views.record_links, name='record_links'),
     path('organizations/<organization_pk>/apps/<app_pk>/lists/<list_pk>/records/<record_pk>/edit/', views.edit_record, name='edit_record'),
 
-    path('organizations/<organization_pk>/apps/<app_pk>/dashboard/', views.dashboard, name='dashboard'),
+    path('organizations/<organization_pk>/apps/<app_pk>/activity/', views.activity, name='activity'),
 
-   
+
     path('organizations/<organization_pk>/apps/<app_pk>/lists/<list_pk>/record/<record_pk>/', views.archive_record, name='archive_record'),
 ]

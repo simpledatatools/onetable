@@ -15635,9 +15635,9 @@ body {
   height: 100%;
 }
 
-body {
+/* body {
   overflow-x: hidden;
-}
+} */
 
 .container,
 .container-fluid,
@@ -20533,3 +20533,4 @@ pre[class*=language-] {
   fill: #ffc107;
   stroke: #ffc107;
 }
+

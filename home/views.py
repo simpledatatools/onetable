@@ -16,24 +16,14 @@ from .forms import OrganizationForm, AppForm, ListForm, ListFieldFormset
 from django.views.decorators.csrf import csrf_exempt
 import subprocess
 from itertools import chain
+from tempfile import NamedTemporaryFile
+from subprocess import call
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
 
-N = 10
-
+N = 16
 def randomstr():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k = N)) 
-
-# TODO
-# On all views, @login_required prevents users not logged in, but need method and
-# approach for making sure users are viewing / editing / creating / etc. only in
-# the apps and organizations they have been added to and (eventually) have the
-# correct permissions for.
-
-
-# TODO
-# Urls for template / page rendering and ajax are mixed in together, messy and
-# hard to organize. Need to split somehow into ajax/ url or organize so it's clear
-# which url routes are used for ajax, and what is used for page template rendering
-
+    return ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k = N))
 
 
 #===============================================================================
@@ -60,9 +50,15 @@ def about(request):
     context = {}
     return render(request, 'home/about.html', context=context)
 
+def is_unauthorized(request, organization, app):
+    org_obj = OrganizationUser.objects.filter(organization=organization, user=request.user, status__exact='active')
+    if not org_obj.exists():
+        return True
+    elif app not in org_obj[0].permitted_apps.all():
+        if org_obj[0].role != 'admin':
+            return True
 #===============================================================================
 # Organizations
-
 #===============================================================================
 
 
@@ -108,7 +104,7 @@ def add_organization(request):
         form = OrganizationForm()
 
         return render(request, 'home/organization-form.html', {'form': form})
-        
+
 
 
 
@@ -156,8 +152,9 @@ def organization_settings(request, organization_pk):
     # Uses standard django forms
 
     organization = get_object_or_404(Organization, pk=organization_pk)
-
     if request.method == "POST":
+        if not OrganizationUser.objects.filter(organization=organization, user=request.user,role='admin').exists():
+            return HttpResponse('You are not allowed here!', status=401)
     #    print(request.POST)
         if request.POST['type'] == "add_user":
             try:
@@ -172,7 +169,7 @@ def organization_settings(request, organization_pk):
                 u[0].save()
                 organization.inactive_users.add(u[0])
                 organization.save()
-                
+
             return JsonResponse({
                 "added" : "true"
             })
@@ -186,9 +183,18 @@ def organization_settings(request, organization_pk):
                 u = InactiveUsers.objects.get(user_email=request.POST['email'])
                 organization.inactive_users.remove(u)
                 organization.save()
-
             return JsonResponse({
                 "removed" : "true"
+            })
+
+        elif request.POST['type'] == 'change_role':
+            org_user = OrganizationUser.objects.get(organization=organization,user__email=request.POST['email'])
+            print(org_user)
+            org_user.role = request.POST['to']
+            org_user.save()
+
+            return JsonResponse({
+                "changed_to" : org_user.role
             })
 
     else:
@@ -196,16 +202,18 @@ def organization_settings(request, organization_pk):
         active_users = organization.organizationuser_set.filter(status="active").order_by('-created_at')
         inactive_users = organization.inactive_users.all().order_by('-created_at')
         connection = chain(active_users,inactive_users)
+        is_admin = OrganizationUser.objects.filter(organization=organization,user=request.user,role='admin').exists
         print(connection)
         context = {
             'organization': organization,
             'form': form,
-            "connection":connection
+            "connection":connection,
+            "is_admin" : is_admin
      }
 
         return render(request, 'home/organization-settings.html', context=context)
 
-    
+
 
 #===============================================================================
 # Apps (Workspaces)
@@ -218,21 +226,23 @@ def apps(request, organization_pk):
     user_obj = OrganizationUser.objects.filter(user=request.user, status__exact='active', organization = organization).exists()
     if not user_obj:
          return HttpResponse('You are not allowed here!', status=401)
-    
+
     user_obj = OrganizationUser.objects.get(user=request.user, status__exact='active', organization = organization)
     if not user_obj.role == "admin":
-        userApps = user_obj.permitted_apps.all()
+        userApps = user_obj.permitted_apps.filter(status='active')
     else:
-        userApps =App.objects.filter(organization=organization)
-    
+        userApps =App.objects.filter(organization=organization,status='active')
+
     apps = []
 
     for userApp in userApps:
         apps.append(userApp)
 
+    is_admin_of_parent_org = OrganizationUser.objects.filter(user=request.user,organization=organization,role='admin').exists()
     context = {
         'organization': organization,
-        'apps': apps
+        'apps': apps,
+        'is_admin_of_parent_org' : is_admin_of_parent_org
     }
 
     return render(request, 'home/apps.html', context=context)
@@ -246,8 +256,10 @@ def add_app(request, organization_pk):
     # Uses standard django forms
 
     organization = get_object_or_404(Organization, pk=organization_pk)
+    if not OrganizationUser.objects.filter(organization=organization,role='admin',user=request.user):
+        return HttpResponse('You are not allowed here!', status=401)
 
-    if request.method == "POST":
+    if request.method == "POST" and OrganizationUser.objects.filter(organization=organization,role='admin',user=request.user):
         form = AppForm(request.POST)
         if form.is_valid():
 
@@ -286,12 +298,12 @@ def edit_app(request, organization_pk, app_pk):
 
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
-    org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user)
+    org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user, status__exact='active')
     if not org_obj.exists():
-        return HttpResponse('Unauthorized', status=401)
+        return HttpResponse('You are not allowed here!', status=401)
     elif app not in org_obj[0].permitted_apps.all():
         if org_obj[0].role != 'admin':
-            return HttpResponse('Unorized', status=401)
+            return HttpResponse('You are not allowed here!', status=401)
     if request.method == "POST":
         form = AppForm(request.POST, instance=app)
         if form.is_valid():
@@ -314,12 +326,12 @@ def archive_app(request, organization_pk, app_pk):
 
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
-    org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user)
+    org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user, status__exact='active')
     if not org_obj.exists():
-        return HttpResponse('Unauthorized', status=401)
+        return HttpResponse('You are not allowed here!', status=401)
     elif app not in org_obj[0].permitted_apps.all():
         if org_obj[0].role != 'admin':
-            return HttpResponse('Unorized', status=401)
+            return HttpResponse('You are not allowed here!', status=401)
     app.status = "archived"
     app.save()
 
@@ -330,12 +342,12 @@ def archive_app(request, organization_pk, app_pk):
 def app_settings(request, organization_pk, app_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
-    org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user)
+    org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user, status__exact='active')
     if not org_obj.exists():
-        return HttpResponse('Unauthorized', status=401)
+        return HttpResponse('You are not allowed here!', status=401)
     elif app not in org_obj[0].permitted_apps.all():
         if org_obj[0].role != 'admin':
-            return HttpResponse('Unorized', status=401)    
+            return HttpResponse('You are not allowed here!', status=401)
     # Uses standard django forms
     if request.method == "POST":
         print(request.POST)
@@ -354,11 +366,11 @@ def app_settings(request, organization_pk, app_pk):
                 #print(org_user.permitted_apps.objects.all())
                 app.save()
             except:
-                
+
                 u = InactiveUsers.objects.get_or_create(user_email=request.POST['email'])
                 u[0].attached_workspaces.add(app)
                 organization.inactive_users.add(u[0])
-                
+
                 u[0].save()
                 organization.save()
             return JsonResponse({
@@ -379,19 +391,33 @@ def app_settings(request, organization_pk, app_pk):
 
             return JsonResponse({
                 "removed" : "true"
-            })        
-    
+            })
+
+        elif request.POST['type'] == 'change_role':
+            org_user = OrganizationUser.objects.get(organization=organization,user__email=request.POST['email'])
+            print(org_user)
+            org_user.role = request.POST['to']
+            org_user.save()
+
+            return JsonResponse({
+                "changed_to" : org_user.role
+            })
+
     else:
         form = AppForm(instance=app)
-        active_users = OrganizationUser.objects.filter(organization_id=organization,permitted_apps=app)
-        inactive_users = InactiveUsers.objects.filter(attached_workspaces=app)
-        connection = chain(active_users,inactive_users)
+        active_users = OrganizationUser.objects.filter(organization_id=organization,permitted_apps=app, status='active').exclude(role='admin')
+        admin = OrganizationUser.objects.filter(organization_id=organization.pk,role='admin')
+        organization_inactive = [inactive.user_email for inactive in organization.inactive_users.all()]
+        inactive_users = InactiveUsers.objects.filter(attached_workspaces=app, user_email__in=organization_inactive)
+        connection = chain(admin,active_users,inactive_users)
+        is_admin = OrganizationUser.objects.filter(organization=organization,user=request.user,role='admin').exists
         #print(connection)
         context = {
         'organization': organization,
         'app': app,
         'form': form,
-        "connection":connection 
+        "connection":connection,
+        "is_admin" : is_admin
         }
 
     return render(request, 'home/app-settings.html', context=context)
@@ -401,20 +427,19 @@ def app_details(request, organization_pk, app_pk):
 
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
-    org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user)
+    org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user, status__exact='active')
+    activities = Activity.objects.filter(app=app).order_by('-created_at')
     if not org_obj.exists():
-        return HttpResponse('Unauthorized', status=401)
+        return HttpResponse('You are not allowed here!', status=401)
     elif app not in org_obj[0].permitted_apps.all():
         if org_obj[0].role != 'admin':
-            return HttpResponse('Unorized', status=401)
+            return HttpResponse('You are not allowed here!', status=401)
     context = {
         'organization': organization,
         'app': app,
-        'type': 'dashboard'
+        'type': 'activity',
+        'activities' : activities
     }
-
-    # Always loads the full workspace here (no ajax), defaults to dashboard content
-    # in the template file
     return render(request, 'home/workspace.html', context=context)
 
 
@@ -423,65 +448,27 @@ def app_details(request, organization_pk, app_pk):
 #===============================================================================
 
 @login_required
-def dashboard(request, organization_pk, app_pk):
+def activity(request, organization_pk, app_pk):
 
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
-    org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user)
+    org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user, status__exact='active')
+    activities = Activity.objects.filter(app=app).order_by('-created_at')
     if not org_obj.exists():
-        return HttpResponse('Unauthorized', status=401)
+        return HttpResponse('You are not allowed here!', status=401)
     elif app not in org_obj[0].permitted_apps.all():
         if org_obj[0].role != 'admin':
-            return HttpResponse('Unorized', status=401)
+            return HttpResponse('You are not allowed here!', status=401)
     if request.is_ajax() and request.method == "GET":
 
         # Call is ajax, just load main content needed here
 
         html = render_to_string(
-            template_name="home/dashboard.html",
-            context={
-                'organization': organization,
-                'app': app
-            }
-        )
-
-        data_dict = {"html_from_view": html}
-
-        return JsonResponse(data=data_dict, safe=False)
-
-    else:
-
-        # If accessing the url directly, load full page
-
-        # Else if not ajax, render entire workspace.html page
-        # When rendered, workspace.html will "look for" the right content tempate
-
-        context = {
-            'organization': organization,
-            'app': app,
-            'type': 'dashboard'
-        }
-
-        return render(request, 'home/workspace.html', context=context)
-
-@login_required
-def tasks(request, organization_pk, app_pk):
-    organization = get_object_or_404(Organization, pk=organization_pk)
-    app = get_object_or_404(App, pk=app_pk)
-    all_tasks = Task.objects.filter(status="active").order_by('record')
-
-    if request.is_ajax() and request.method == "GET":
-        search_value = request.GET.get('search_value')
-        if search_value:
-            all_tasks = Task.objects.filter(task__icontains=search_value, status="active").order_by('record')
-        # Call is ajax, just load main content needed here
-
-        html = render_to_string(
-            template_name="home/tasks.html",
+            template_name="home/activity.html",
             context={
                 'organization': organization,
                 'app': app,
-                'all_tasks': all_tasks,
+                "activities" : activities
             }
         )
 
@@ -490,13 +477,12 @@ def tasks(request, organization_pk, app_pk):
         return JsonResponse(data=data_dict, safe=False)
 
     else:
-        # If accessing the url directly, load full page
 
         context = {
             'organization': organization,
             'app': app,
-            'type': 'tasks',
-            'all_tasks': all_tasks,
+            'type': 'activity',
+            "activities" : activities
         }
 
         return render(request, 'home/workspace.html', context=context)
@@ -510,14 +496,14 @@ def tasks(request, organization_pk, app_pk):
 def lists(request, organization_pk, app_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
-    org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user)
+    org_obj = OrganizationUser.objects.filter(organization=organization,user=request.user, status__exact='active')
     if not org_obj.exists():
-        return HttpResponse('Unauthorized', status=401)
+        return HttpResponse('You are not allowed here!', status=401)
     elif app not in org_obj[0].permitted_apps.all():
         if org_obj[0].role != 'admin':
-            return HttpResponse('Unorized', status=401)
- 
-    
+            return HttpResponse('You are not allowed here!', status=401)
+
+
     # lists = List.objects.all().filter(status='active', app=app)
     lists = List.objects.filter(status='active', app=app).order_by('name',)
 
@@ -558,7 +544,7 @@ def list(request, organization_pk, app_pk, list_pk):
     search = request.GET.get('search', None)
 
     if search != None:
-        fields = RecordField.objects.filter(value__icontains=search)
+        fields = RecordField.objects.filter(value__icontains=search, record__list=list)
         list_of_records=fields.values_list('record_id',flat=True)
         records=Record.objects.filter(pk__in=list_of_records)
     else:
@@ -578,7 +564,7 @@ def list(request, organization_pk, app_pk, list_pk):
         records_page = paginator.get_page(page_number)
     else:
         records_page = paginator.get_page(1)
-   
+
     if request.is_ajax() and request.method == "GET":
         search_value = request.GET.get('search_value')
         if search_value:
@@ -587,8 +573,8 @@ def list(request, organization_pk, app_pk, list_pk):
             records = Record.objects.filter(id__in=record_ids, status='active', list=list)
         # Call is ajax, just load main content needed here
         #paginator = Paginator(records, 10)
-        
-        
+
+
         html = render_to_string(
             template_name="home/list.html",
             context={
@@ -605,8 +591,8 @@ def list(request, organization_pk, app_pk, list_pk):
 
     else:
         # If accessing the url directly, load full page
-        
-            
+
+
         context = {
             'organization': organization,
             'app': app,
@@ -623,7 +609,8 @@ def create_list(request, organization_pk, app_pk):
 
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
-
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
     # Django formset stuff
 
     # Use model formset and not inline formset for more control over the data
@@ -712,6 +699,8 @@ def edit_list(request, organization_pk, app_pk, list_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
     # Django formset stuff
 
     # Use model formset and not inline formset for more control over the data
@@ -785,7 +774,8 @@ def archive_list(request, organization_pk, app_pk, list_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
-
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
     list.status = "archived"
     list.save()
 
@@ -801,6 +791,8 @@ def list_settings(request, organization_pk, app_pk, list_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
 
     context = {
         'organization': organization,
@@ -816,22 +808,15 @@ def list_settings(request, organization_pk, app_pk, list_pk):
 #===============================================================================
 @login_required
 def add_record(request, organization_pk, app_pk, list_pk):
-    # Very similar to the edit_record view, but includes the field values previously saved
-    # Probably a way to combine these views to consolidate
 
-    # We are not using the following here:
-    # 1) Django form.Forms (couldn't find a way to create dynamic forms this approach,
-    # but we may be able to find eventually)
-    # 2) the models.Model @property for list.list_fields or the record.record_fields >>
-    # needed an object with both the field inforation and value included so we can edit previous values here
-
-    # Instead, only approach could find is building an object here then passing it to the frontend
-    # template for rending the form
+    # Not the most 'django' way of doing this, may be ways to improve in the future
+    # that better uses the django out of the box forms functionality
 
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
-
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
     fields = []
     for list_field in list.list_fields:
         field_object = {}
@@ -888,6 +873,8 @@ def save_record(request, organization_pk, app_pk, list_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
 
     record_id = request.POST.get('record_id', None)
     fields = json.loads(request.POST['field_values'])
@@ -1029,10 +1016,6 @@ def save_record(request, organization_pk, app_pk, list_pk):
                         # Easy error handling for now
                         pass
 
-    # Using ajax here to save because cannot do a POST request and get the field values
-    # from a dynamically created form (or at least I couldn't figure out how to
-    # do this, although there may be a way to!)
-
     # Redirect based on ajax call from frontend on success
 
     data_dict = {"success": True}
@@ -1050,8 +1033,9 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
     record = get_object_or_404(Record, pk=record_pk)
     comments = RecordComment.objects.filter(record_id=record_pk).order_by('-pk')
     files = RecordFile.objects.filter(record_id=record_pk).order_by('-pk')
-    media = RecordMedia.objects.filter(record_id=record_pk).order_by('-pk')
-
+    # media = RecordMedia.objects.filter(record_id=record_pk).order_by('-pk')
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
 
     if request.is_ajax() and request.method == "GET":
 
@@ -1063,7 +1047,12 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
                 'organization': organization,
                 'app': app,
                 'list': list,
-                'record': record
+                'record': record,
+                'record_view': 'record-details',
+                'comments' : comments,
+                'files':files,
+                'user' : request.user
+               
             }
         )
 
@@ -1072,9 +1061,6 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
         return JsonResponse(data=data_dict, safe=False)
 
     else:
-
-        # If accessing the url directly, load full page
-        # Same as dashboard, else if accessing fir
 
         context = {
             'organization': organization,
@@ -1085,7 +1071,8 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
             'record_view': 'record-details',
             'comments' : comments,
             'files':files,
-            "media":media
+            'user' : request.user
+          
         }
 
         return render(request, 'home/workspace.html', context=context)
@@ -1100,9 +1087,10 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
     list = get_object_or_404(List, pk=list_pk)
     record = get_object_or_404(Record, pk=record_pk)
     comments = RecordComment.objects.filter(record_id=record_pk).order_by('-created_at')
-    media = RecordMedia.objects.filter(record_id=record_pk).order_by('-pk')
+    # media = RecordMedia.objects.filter(record_id=record_pk).order_by('-pk')
     files = RecordFile.objects.filter(record_id=record_pk).order_by('-pk')
-    note_form = NoteForm()
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
 
     if request.is_ajax() and request.method == "GET":
 
@@ -1115,8 +1103,12 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
                 'app': app,
                 'list': list,
                 'record': record,
-                'note_form': note_form
-
+                'type': 'record',
+                'record_view': 'record-details',
+                "comments":comments,
+                "files": files,
+                'user' : request.user
+                
             }
         )
 
@@ -1135,198 +1127,19 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
             'app': app,
             'list': list,
             'record': record,
-            'note_form': note_form,
             'type': 'record',
             'record_view': 'record-details',
             "comments":comments,
             "files": files,
-            "media":media
-        }
-
-        return render(request, 'home/workspace.html', context=context)
-
-    if request.method == "POST":
-        form = NoteForm(request.POST)
-        if form.is_valid():
-
-            # Save the new project
-            note = form.save()
-
-            context = {
-                'organization': organization,
-                'app': app,
-                'list': list,
-                'record': record,
-                'note_form': note_form,
-                'type': 'record',
-                'record_view': 'record-details'
-            }
-
-            return render(request, 'home/workspace.html', context=context)
-
-
-#=========================================================================================
-# Tasks Views
-#=========================================================================================
-# View for create Task
-@login_required
-@csrf_exempt
-def record_tasks(request, organization_pk, app_pk, list_pk, record_pk):
-    # Record details page (placeholder for now)
-    organization = get_object_or_404(Organization, pk=organization_pk)
-    app = get_object_or_404(App, pk=app_pk)
-    list = get_object_or_404(List, pk=list_pk)
-    record = get_object_or_404(Record, pk=record_pk)
-    tasks = Task.objects.filter(status="active", record_id=record_pk).order_by('-created_at')
-    comments = RecordComment.objects.filter(record_id=record_pk).order_by('-pk')
-    task_form = TaskForm()
-
-    if request.is_ajax() and request.method == "GET":
-        # Call is ajax, just load main content needed here
-
-        html = render_to_string(
-            template_name="home/record-tasks.html",
-            context = {
-            'organization': organization,
-            'app': app,
-            'list': list,
-            'record': record,
-            'task_form': task_form,
-            'type': 'record',
-            'record_view': 'record-tasks',
-            'tasks': tasks,
-            }
-        )
-        data_dict = {"html_from_view": html}
-
-        return JsonResponse(data=data_dict, safe=False)
-    
-    elif request.method == "POST":
-        task_form = TaskForm(request.POST)
-        
-        if task_form.is_valid():
-            form = task_form.save(commit=False)
-            form.task = request.POST.get('task')
-            form.record_id = record_pk
-            form.created_user = request.user
-            form.save()
-        else:
-            print(task_form.errors)
-
-        return redirect('record_tasks', organization_pk=organization_pk, app_pk=app_pk, list_pk=list_pk, record_pk=record_pk)
-
-    elif request.method == "POST":
-        task_form = TaskForm(request.POST)
-
-        if task_form.is_valid():
-            form = task_form.save(commit=False)
-            form.task = request.POST.get('task')
-            form.record_id = record_pk
-            form.created_user = request.user
-            form.save()
-        else:
-            print(task_form.errors)
-
-        return redirect('record_tasks', organization_pk=organization_pk, app_pk=app_pk, list_pk=list_pk, record_pk=record_pk)
-
-    else:
-        # If accessing the url directly, load full page
-
-        context = {
-            'organization': organization,
-            'app': app,
-            'list': list,
-            'record': record,
-            'task_form': task_form,
-            'type': 'record',
-            'record_view': 'record-tasks',
-            'tasks': tasks,
+            "user" : request.user
+           
         }
 
         return render(request, 'home/workspace.html', context=context)
 
 
-# View for Edit Task
-@login_required
-@csrf_exempt
-def edit_task(request, organization_pk, app_pk, list_pk, record_pk, task_pk):
-    # Record details page (placeholder for now)
-    organization = get_object_or_404(Organization, pk=organization_pk)
-    app = get_object_or_404(App, pk=app_pk)
-    list = get_object_or_404(List, pk=list_pk)
-    record = get_object_or_404(Record, pk=record_pk)
-    tasks = Task.objects.filter(status="active", record_id=record_pk).order_by('-created_at').exclude(id=task_pk)
-    current_task = get_object_or_404(Task, pk=task_pk)
-    task_form = TaskForm(instance=current_task)
-
-    if request.is_ajax() and request.method == "GET":
-        # Call is ajax, just load main content needed here
-
-        html = render_to_string(
-            template_name="home/record-tasks.html",
-            context = {
-            'organization': organization,
-            'app': app,
-            'list': list,
-            'record': record,
-            'task_form': task_form,
-            'type': 'record',
-            'record_view': 'record-tasks',
-            'tasks': tasks,
-            'task_type': 'edit',
-            }
-        )
-        data_dict = {"html_from_view": html}
-
-        return JsonResponse(data=data_dict, safe=False)
-
-    elif request.method == "POST":
-        task_form = TaskForm(request.POST, instance=current_task)
-
-        if task_form.is_valid():
-            form = task_form.save(commit=False)
-            form.task = request.POST.get('task')
-            form.record_id = record_pk
-            form.created_user = request.user
-            form.last_updated = timezone.now()
-            form.save()
-        else:
-            print(task_form.errors)
-
-        return redirect('record_tasks', organization_pk=organization_pk, app_pk=app_pk, list_pk=list_pk, record_pk=record_pk)
-
-    else:
-        # If accessing the url directly, load full page
-
-        context = {
-            'organization': organization,
-            'app': app,
-            'list': list,
-            'record': record,
-            'task_form': task_form,
-            'type': 'record',
-            'record_view': 'record-tasks',
-            'tasks': tasks,
-            'task_type': 'edit',
-        }
-
-        return render(request, 'home/workspace.html', context=context)
-
-
-# View for Remove and Mark Complete Task
-def remove_mark_complete_tasks(request, organization_pk, app_pk, list_pk, record_pk, task_pk, task_kind, move_to):
-    task = get_object_or_404(Task, pk=task_pk)
-    if task_kind == "remove":
-        task.status = "deleted"
-    elif task_kind == "complete":
-        task.status = "completed"
-    task.save()
-    if move_to == "individual":
-        return redirect('record_tasks', organization_pk=organization_pk, app_pk=app_pk, list_pk=list_pk, record_pk=record_pk)
-    elif move_to == "all":
-        return redirect('tasks', organization_pk=organization_pk, app_pk=app_pk)
 #=========================================================================================
-# End Tasks Views
+# Record Links
 #=========================================================================================
 
 @login_required
@@ -1335,6 +1148,8 @@ def record_links(request, organization_pk, app_pk, list_pk, record_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
 
     # Record details page (placeholder for now)
     record = get_object_or_404(Record, pk=record_pk)
@@ -1386,7 +1201,8 @@ def edit_record(request, organization_pk, app_pk, list_pk, record_pk):
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
     record = get_object_or_404(Record, pk=record_pk)
-
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
     # Very similar to the add_record view, but includes the field values previously saved
     # Probably a way to combine these views to consolidate
 
@@ -1467,12 +1283,6 @@ def archive_record(request, organization_pk, app_pk, list_pk, record_pk):
     record.save()
     return redirect('list', organization_pk=organization_pk, app_pk=app_pk, list_pk=list_pk)
 
-# TODO need view for create task, edit task, archive task, get tasks (will use
-# standard django forms for this)
-
-# TODO need view for create note, edit note, archive note, get notes (will use
-# standard django forms for this)
-
 #===============================================================================
 # Records
 #===============================================================================
@@ -1497,67 +1307,76 @@ def post_record_comment(request,organization_pk, app_pk, list_pk, record_pk):
             record_comment.save()
             final = {}
             final['delete_url'] = record_comment.delete_url()
+            final['id'] = record_comment.pk
+            final['edit_url'] = record_comment.edit_url()
+            final['content'] =record_comment.content
             final =json.dumps(final)
             return JsonResponse(data=final, safe=False)
     else:
-        return HttpResponse('Unauthorized', status=401)
+        return HttpResponse('You are not allowed here!', status=401)
 
 
 
 @csrf_exempt
 def post_record_file(request,organization_pk, app_pk, list_pk, record_pk):
-    record_file = RecordFile(file=request.FILES['file'],record_id=record_pk,created_user = request.user)
+    record_file = RecordFile(file=request.FILES['file'],record_id=record_pk,created_user = request.user,group=request.POST['file_group'])
     record_file.id =randomstr()
     record_file.save()
     record_File = RecordFile.objects.get(pk=record_file.pk)
     final = {}
     splited_name = record_file.filename().split('.')
     record_file.name_of_file = splited_name[0]
-    record_file.file_extension ='.'+splited_name[-1] 
+    record_file.file_extension ='.'+splited_name[-1]
     record_file.save()
+    record_File = RecordFile.objects.get(pk=record_file.pk)
     final['file_name'] = splited_name[0]
-    final['file_extension'] = '.'+splited_name[-1] 
+    final['file_extension'] = '.'+splited_name[-1]
     final['file_url'] = record_File.url()
+    if str(record_File.image_thumbnail) != '':
+        final['thumbnail'] = record_File.image_thumbnail.url
+    else:
+        final['thumbnail'] = None
     final['delete_url'] = record_File.delete_url()
     final['edit_url']=record_File.edit_url()
     final['id']=record_file.pk
+    final['type'] = record_file.type
     final =json.dumps(final)
     return JsonResponse(data=final, safe=False)
 
 
-@csrf_exempt
-def post_record_media(request,organization_pk, app_pk, list_pk, record_pk):
-    record_file = RecordMedia(file=request.FILES['file'],record_id=record_pk,created_user = request.user)
-    record_file.id = randomstr()
-    record_file.save()
-    record_File = RecordMedia.objects.get(pk=record_file.pk)
-    final = {}
-    record_file.name_of_file = record_file.filename()   
-    record_file.save()
-    final['file_name'] = record_file.filename()
-    if record_file.type == "V":
-       final['file_url'] = record_File.image_thumbnail.url
-    else:
-        final['file_url'] = record_File.url()
-    final['delete_url'] = record_File.delete_url()
-    final =json.dumps(final)
-    return JsonResponse(data=final, safe=False)
+# @csrf_exempt
+# def post_record_media(request,organization_pk, app_pk, list_pk, record_pk):
+#     record_file = RecordMedia(file=request.FILES['file'],record_id=record_pk,created_user = request.user)
+#     record_file.id = randomstr()
+#     record_file.save()
+#     record_File = RecordMedia.objects.get(pk=record_file.pk)
+#     final = {}
+#     record_file.name_of_file = record_file.filename()
+#     record_file.save()
+#     final['file_name'] = record_file.filename()
+#     if record_file.type == "V":
+#        final['file_url'] = record_File.image_thumbnail.url
+#     else:
+#         final['file_url'] = record_File.url()
+#     final['delete_url'] = record_File.delete_url()
+#     final =json.dumps(final)
+#     return JsonResponse(data=final, safe=False)
 
 
 
-@csrf_exempt
-def delete_record_media(request,organization_pk, app_pk, list_pk, record_pk,record_media_pk):
-    record_File = RecordMedia.objects.get(pk=record_media_pk)
-    record_File.delete()
-    final = {}
-    final['deleted'] = "deleted"
-    final =json.dumps(final)
-    return redirect(reverse('record',kwargs={
-        'organization_pk':record_File.record.list.app.organization.pk,
-        'list_pk':record_File.record.list.pk,
-        'app_pk':record_File.record.list.app.pk,
-        'record_pk':record_File.record.pk,
-    }))
+# @csrf_exempt
+# def delete_record_media(request,organization_pk, app_pk, list_pk, record_pk,record_media_pk):
+#     record_File = RecordMedia.objects.get(pk=record_media_pk)
+#     record_File.delete()
+#     final = {}
+#     final['deleted'] = "deleted"
+#     final =json.dumps(final)
+#     return redirect(reverse('record',kwargs={
+#         'organization_pk':record_File.record.list.app.organization.pk,
+#         'list_pk':record_File.record.list.pk,
+#         'app_pk':record_File.record.list.app.pk,
+#         'record_pk':record_File.record.pk,
+#     }))
 
 
 
@@ -1579,6 +1398,8 @@ def delete_record_file(request,organization_pk, app_pk, list_pk, record_pk,recor
 @csrf_exempt
 def delete_record_comment(request,record_comment_pk,organization_pk, app_pk, list_pk, record_pk):
     record_Comment = RecordComment.objects.get(pk=record_comment_pk)
+    if record_Comment.created_user != request.user:
+         HttpResponse('Unauthorized', status=401)
     record_Comment.delete()
     final = {}
     final['deleted'] = "deleted"
@@ -1612,14 +1433,26 @@ def edit_record_comment(request,organization_pk, app_pk, list_pk, record_pk,reco
 #     file = RecordFile.objects.get(pk=file_id)
 #     filename = file.filename
 #     filename = filename.split('.')[0]
-    
+
 
 @csrf_exempt
-def edit_record_file(request,organization_pk, app_pk, list_pk, record_pk,record_file_pk):      
+def edit_record_file(request,organization_pk, app_pk, list_pk, record_pk,record_file_pk):
     record_File = RecordFile.objects.get(pk=record_file_pk)
     new_name = request.POST['content']
     record_File.name_of_file = new_name
+    new_name += record_File.file_extension
+    initial_path = record_File.file.path
+    initial_name = record_File.file.name
+    new_path = initial_name.split('/')
+    new_path.pop()
+    new_path_proto = '/'.join(new_path)
+    new_path_proto += '/'
+    new_path = settings.MEDIA_ROOT + '/' +  new_path_proto  + new_name
+    os.rename(initial_path, new_path)
+    record_File.file.name = new_path_proto + new_name
+    print(record_File.file.name,record_File.file.url,record_File.file.path)
     record_File.save()
     return JsonResponse({
-            "content":new_name
-        })
+        "content": record_File.name_of_file,
+        "file_url":record_File.file.url
+    })

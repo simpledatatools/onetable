@@ -6,16 +6,12 @@ SECRET_KEY = os.environ['SECRET_KEY']
 
 DEBUG = False
 
-# Heroku: Update database configuration from $DATABASE_URL.
 import dj_database_url
-DATABASES['default'] =  dj_database_url.config()
-#db_from_env = dj_database_url.config(conn_max_age=500)
-#DATABASES['default'].update(db_from_env)
+DATABASES['default'] = dj_database_url.config()
 
 ALLOWED_HOSTS = [
-    'onetable.herokuapp.com',
-    #'www.onetableapp.com',
-    '127.0.0.1',
+    os.environ['HOST_URL'],
+    os.environ['ACCESS_URL']
 ]
 
 # Redirect to https in production
@@ -32,12 +28,18 @@ COMPRESS_CSS_FILTERS = [
 ]
 COMPRESS_CSS_HASHING_METHOD = 'content'
 
-# AWS S3: Store production images on an S3 bucket not the django instance
-AWS_ACCESS_KEY_ID = 'AKIA2ZUWWWAZVALHY2W3'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'nano-website-uploads'
-AWS_S3_REGION_NAME = 'us-east-1'
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
+AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
+AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']
+AWS_S3_REGION_NAME = os.environ['AWS_S3_REGION_NAME']
+DEFAULT_FILE_STORAGE = os.environ['DEFAULT_FILE_STORAGE']
+
+EMAIL_HOST = os.environ['EMAIL_HOST']
+EMAIL_PORT = os.environ['EMAIL_PORT']
+EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
+EMAIL_USE_TLS = os.environ['EMAIL_USE_TLS']
+BASE_URL = os.environ['BASE_URL']
 
 # Detailed logging using  heroku logs --tail --app simple-data-tools on heroku cli
 LOGGING = {

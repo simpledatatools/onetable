@@ -12,16 +12,15 @@ from django.db import models
 from imagekit.processors import ResizeToFit
 from imagekit.models import ImageSpecField
 from .utils import save_frame_from_video
-import string 
-import random 
+import string
+import random
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
-
+from itertools import chain
 
 class Organization(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     name = models.CharField(max_length=200)
-    description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     active_users = models.ManyToManyField(User,through="OrganizationUser",through_fields=( 'organization','user'))
     inactive_users = models.ManyToManyField('InactiveUsers')
@@ -41,7 +40,7 @@ class Organization(models.Model):
     )
 
     # TODO add @property for organization users
-    
+
     def membersCount(self):
         active_users = OrganizationUser.objects.filter(organization=self,status="active").count()
         inactive_users = self.inactive_users.all().count()
@@ -50,9 +49,9 @@ class Organization(models.Model):
     #memberscount = property(MembersCount)
 
     def __str__(self):
-        return self.name        
-    
-    
+        return self.name
+
+
 class OrganizationUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True)
@@ -82,46 +81,16 @@ class OrganizationUser(models.Model):
         max_length=25,
         choices=ORGANIZATION_USER_ROLE,
         blank=False,
-        default='active',
+        default='User',
     )
 
     def __str__(self):
         return self.organization.name + ' - ' + self.user.username
 
-# class App(models.Model):
-#     id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
-
-#     name = models.CharField(max_length=200)
-#     description = models.TextField()
-#     organization = models.ForeignKey('Organization', on_delete=models.SET_NULL, null=True)
-#     created_at = models.DateTimeField(auto_now_add=True, null=False)
-#     created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-#     last_updated = models.DateTimeField(auto_now_add=True)
-
-#     APP_STATUS = (
-#         ('active', 'Active'),
-#         ('archived', 'Archived'),
-#         ('deleted', 'Deleted'),
-#     )
-
-#     status = models.CharField(
-#         max_length=25,
-#         choices=APP_STATUS,
-#         blank=False,
-#         default='active',
-#     )
-
-#     # TODO add @property for app users
-
-#     def __str__(self):
-#         return self.name
-
-
 
 class App(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     name = models.CharField(max_length=200)
-    description = models.TextField()
     organization = models.ForeignKey('Organization', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     last_updated = models.DateTimeField(auto_now_add=True)
@@ -140,15 +109,16 @@ class App(models.Model):
         blank=False,
         default='active',
     )
-    
+
     def __str__(self):
         return self.name
 
     def membersCount(self):
-        active_users = OrganizationUser.objects.filter(organization = self.organization,status='active',permitted_apps = self).count()
+        active_users = OrganizationUser.objects.filter(organization = self.organization,status='active').count()
         inactive_users = InactiveUsers.objects.filter(attached_workspaces = self).count()
         return active_users + inactive_users
 
+    
 
 class AppUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -180,34 +150,8 @@ class AppUser(models.Model):
     )
 
 
-class Menu(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
-    name = models.CharField(max_length=200)
-    app = models.ForeignKey('App', on_delete=models.SET_NULL, null=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
-    created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-    last_updated = models.DateTimeField(auto_now_add=True)
-    order = models.IntegerField()
-
-    MENU_STATUS = (
-        ('active', 'Active'),
-        ('archived', 'Archived'),
-        ('deleted', 'Deleted'),
-    )
-
-    status = models.CharField(
-        max_length=25,
-        choices=MENU_STATUS,
-        blank=False,
-        default='active',
-    )
-
-    def __str__(self):
-        return self.name
-
-
 class List(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     name = models.CharField(max_length=200)
     app = models.ForeignKey('App', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
@@ -243,10 +187,17 @@ class List(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse("list", kwargs={
+            "list_pk": self.pk,
+            "app_pk" : self.app.pk,
+            "organization_pk" : self.app.organization.pk
+            })
+    
 
 class ListField(models.Model):
     list = models.ForeignKey('List', on_delete=models.SET_NULL, null=True, related_name='list')
-    field_id = models.CharField(max_length=10)
+    field_id = models.CharField(max_length=16)
     field_label = models.TextField()
 
     FIELD_TYPE = (
@@ -299,7 +250,7 @@ class ListField(models.Model):
 
 
 class Record(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     list = models.ForeignKey('List', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
@@ -332,12 +283,30 @@ class Record(models.Model):
             .get(record=self)
 
 
+    @property
+    def primary_field_value(self):
+        return RecordField.objects.filter(status='active', list_field__primary=True, list_field__status='active') \
+            .select_related('record__list', 'record__created_user') \
+            .select_related('created_user') \
+            .get(record=self).value
+
+
     def __str__(self):
         return str(self.id)
 
+    @property
+    def get_absolute_url(self):
+        return reverse("record", kwargs={
+            "record_pk": self.pk,
+            "list_pk" : self.list.pk,
+            "app_pk" : self.list.app.pk,
+            "organization_pk" : self.list.app.organization.pk
+            })
+    
+
 
 class RecordField(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     record = models.ForeignKey('Record', on_delete=models.SET_NULL, null=True, related_name='record')
     list_field = models.ForeignKey('ListField', on_delete=models.SET_NULL, null=True)
     value = models.TextField(null=True)
@@ -364,7 +333,7 @@ class RecordField(models.Model):
 
 
 class RecordRelation(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     parent_record = models.ForeignKey('Record', on_delete=models.SET_NULL, null=True, related_name='parent_record')
     child_record = models.ForeignKey('Record', on_delete=models.SET_NULL, null=True, related_name='child_record')
     list_field = models.ForeignKey('ListField', on_delete=models.SET_NULL, null=True, related_name='list_field')
@@ -402,21 +371,22 @@ class RecordRelation(models.Model):
         return str(self.id)
 
 def record_file_path(self, filename):
-    new_path = "record" + "/" + str(self.record.pk) + '/'
+    new_path = "record" + "/" + str(self.record.pk) + '/' + self.id + '/'
     return os.path.join(new_path, filename)
 
 
-
 class RecordFile(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     file = models.FileField(upload_to=record_file_path)
+    group = models.CharField(default='',max_length=200)
     record = models.ForeignKey(Record,on_delete=models.CASCADE,related_name="files")
+    created_at = models.DateTimeField(auto_now_add=True)
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True)
     name_of_file = models.CharField(max_length=200,default='')
     file_extension = models.CharField(max_length=200,default='')
 
     def __str__(self):
-        return (str(self.record.list.name) + ' ' + str(self.created_user) )
+        return (str(self.name_of_file) + str(self.file_extension) )
 
     def filename(self):
         return os.path.basename(self.file.name)
@@ -444,16 +414,6 @@ class RecordFile(models.Model):
             })
 
 
-def record_media_path(self, filename):
-    new_path = "record" + "/media/" + str(self.record.pk) + '/'
-    return os.path.join(new_path, filename)
-
-
-class RecordMedia(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
-    file = models.FileField(upload_to=record_media_path)
-    record = models.ForeignKey(Record,on_delete=models.CASCADE,related_name="media")
-    created_user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True)
     image_types = ['image/jpeg', 'image/gif', 'image/png']
     video_types = ['video/mp4', 'video/x-matroska',
                                'video/ogg','video/quicktime', 'video/x-ms-wmv',
@@ -461,40 +421,24 @@ class RecordMedia(models.Model):
 
     IMAGE = 'I'
     VIDEO = 'V'
+    FILE = 'F'
     TYPES = [
         (IMAGE, 'Image'),
         (VIDEO, 'Video'),
+        (FILE,'File')
     ]
+
     thumbnail_millisecond = models.IntegerField(default=0)
     type = models.CharField(max_length=1, choices=TYPES, blank=True)
     thumbnail_source_image = models.ImageField(upload_to='post_files/%Y/%m/%d/', null=True, blank=True)
     image_thumbnail = ImageSpecField(source='thumbnail_source_image',
                                      processors=[
-                                         ResizeToFit(300,
-                                                     300,
-                                                     mat_color=(230, 230, 230)),
+                                         ResizeToFit(700,
+                                                     394,
+                                                     mat_color=(0,0,0)),
                                      ],
                                      format='JPEG',
                                      options={'quality': 95})
-
-    def __str__(self):
-        return (str(self.record.list.name) + ' ' + str(self.created_user) )
-
-    def filename(self):
-        return os.path.basename(self.file.name)
-
-    def url(self):
-        if self.file and hasattr(self.file, 'url'):
-            return self.file.url
-
-    def delete_url(self):
-        return reverse('delete_record_media', kwargs={
-            'organization_pk':self.record.list.app.organization.pk,
-            'list_pk':self.record.list.pk,
-            'app_pk':self.record.list.app.pk,
-            'record_pk':self.record.pk,
-            'record_media_pk':self.pk
-            })
 
     def _set_type(self):
         # max bytes to read for file type detection
@@ -508,6 +452,8 @@ class RecordMedia(models.Model):
             self.type = self.IMAGE
         elif mime in self.video_types:
             self.type = self.VIDEO
+        else:
+            self.type=self.FILE
 
     def _set_thumbnail_source_image(self):
         if self.type == self.IMAGE:
@@ -521,6 +467,8 @@ class RecordMedia(models.Model):
             media_image_path = os.path.relpath(image_path, settings.MEDIA_ROOT)
 
             self.thumbnail_source_image = media_image_path
+        else:
+            self.thumbnail_source_image=None
 
     def save(self, *args, **kwargs):
         if self.type == '':
@@ -534,8 +482,12 @@ class RecordMedia(models.Model):
         super().save(*args, **kwargs)
 
 
+
+
+
+
 class RecordComment(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
+    id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     record = models.ForeignKey(Record,on_delete=models.CASCADE,null=True,blank=True)
     content = models.TextField(default='')
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
@@ -565,30 +517,34 @@ class RecordComment(models.Model):
 
 
 
-class Note(models.Model):
-    id = models.CharField(primary_key=True, default='', editable=False,max_length=10)
-    note = models.TextField()
-    record = models.ForeignKey('Record', on_delete=models.SET_NULL, null=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
-    created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-    last_updated = models.DateTimeField(auto_now_add=True)
 
-    NOTE_STATUS = (
-        ('active', 'Active'),
-        ('archived', 'Archived'),
-        ('deleted', 'Deleted'),
+class Activity(models.Model):
+    ACTIVITY_TYPE_CHOICES = (
+        ('new_record','New Record'),
+        ('new_record_comment','New Comment'),
+        ('new_record_file','New File')
     )
-
-    status = models.CharField(
-        max_length=25,
-        choices=NOTE_STATUS,
-        blank=False,
-        default='active',
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    type = models.CharField(default='',choices=ACTIVITY_TYPE_CHOICES,max_length=200)
+    app = models.ForeignKey(App,on_delete=models.CASCADE)
+    record = models.ForeignKey(Record,on_delete=models.CASCADE,null=True,blank=True)
+    record_comment = models.ForeignKey(RecordComment,on_delete=models.CASCADE,null=True,blank=True)
+    record_file_group = models.CharField(default='',max_length=20,null=True,blank=True)
 
     def __str__(self):
-        return self.note
-
+        return self.type + str(self.pk)
+    
+    @property
+    def group_of_files(self):
+        files_i = RecordFile.objects.filter(group=self.record_file_group,type='I')
+        files_v = RecordFile.objects.filter(group=self.record_file_group,type='V')
+        files_f = RecordFile.objects.filter(group=self.record_file_group,type='F')
+        files = list(chain(files_i,files_v,files_f))
+        print(files[0])
+        return {
+            "media" : list(chain(files_i,files_v)),
+            "files" : list(chain(files_f))
+        }
 
 
 class InactiveUsers(models.Model):
@@ -620,3 +576,30 @@ def update_stock(sender, instance, **kwargs):
             org_user[0].permitted_apps.add(wrksps)
             org_user[0].save()
         inactive_user.delete()
+
+
+
+
+@receiver(post_save, sender=Record)
+def add_record_activity(sender, instance, created,**kwargs):
+    if created:
+        new_activity = Activity(type='new_record',record = instance,app=instance.list.app)
+        new_activity.save()
+
+
+@receiver(post_save, sender=RecordComment)
+def add_record_comment_activity(sender, instance, created,**kwargs):
+    if created:
+        new_activity = Activity(type='new_record_comment',record_comment = instance,app=instance.record.list.app)
+        new_activity.save()
+
+@receiver(post_save, sender=RecordFile)
+def add_record_file_activity(sender, instance, created,**kwargs):
+    if created:
+        if not Activity.objects.filter(record_file_group=instance.group).exists():
+            new_activity = Activity(type='new_record_file',record_file_group = instance.group,app=instance.record.list.app)
+            new_activity.save()
+        try:
+            Activity.objects.get(type='new_record_file',record_file_group=instance.group,app=instance.record.list.app)
+        except:
+            Activity.objects.filter(type='new_record_file',record_file_group=instance.group,app=instance.record.list.app)[0].delete()

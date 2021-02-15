@@ -1,5 +1,7 @@
+{% load static %}
+
 {% load custom_tags %}
-<div class="row mb-5">
+<div class="row mb-5 px-2">
     <div class="col-xl-12">
         <!-- Account details card-->
         <div class="card card-header-actions">
@@ -60,27 +62,32 @@
                 {% elif field.list_field.field_type == "url" %}
                 <p><b>{{ field.list_field.field_label }}:</b> <a href="{{ field.value }}" target="_blank">{{ field.value }}</a></p>
                 {% elif field.list_field.field_type == "rating" %}
-                <p><b>{{ field.list_field.field_label }}:</b>
-                  <div class="rating-show">
-                    {% for i in field.value|get_range %}
-                      <svg class="active" viewBox="0 -10 511.98685 511" xmlns="http://www.w3.org/2000/svg"><path d="m510.652344 185.902344c-3.351563-10.367188-12.546875-17.730469-23.425782-18.710938l-147.773437-13.417968-58.433594-136.769532c-4.308593-10.023437-14.121093-16.511718-25.023437-16.511718s-20.714844 6.488281-25.023438 16.535156l-58.433594 136.746094-147.796874 13.417968c-10.859376 1.003906-20.03125 8.34375-23.402344 18.710938-3.371094 10.367187-.257813 21.738281 7.957031 28.90625l111.699219 97.960937-32.9375 145.089844c-2.410156 10.667969 1.730468 21.695313 10.582031 28.09375 4.757813 3.4375 10.324219 5.1875 15.9375 5.1875 4.839844 0 9.640625-1.304687 13.949219-3.882813l127.46875-76.183593 127.421875 76.183593c9.324219 5.609376 21.078125 5.097657 29.910156-1.304687 8.855469-6.417969 12.992187-17.449219 10.582031-28.09375l-32.9375-145.089844 111.699219-97.941406c8.214844-7.1875 11.351563-18.539063 7.980469-28.925781zm0 0" /></svg>
-                    {% endfor %}
-                    {% for i in field.value|get_range_other %}
-                      <svg viewBox="0 -10 511.98685 511" xmlns="http://www.w3.org/2000/svg"><path d="m510.652344 185.902344c-3.351563-10.367188-12.546875-17.730469-23.425782-18.710938l-147.773437-13.417968-58.433594-136.769532c-4.308593-10.023437-14.121093-16.511718-25.023437-16.511718s-20.714844 6.488281-25.023438 16.535156l-58.433594 136.746094-147.796874 13.417968c-10.859376 1.003906-20.03125 8.34375-23.402344 18.710938-3.371094 10.367187-.257813 21.738281 7.957031 28.90625l111.699219 97.960937-32.9375 145.089844c-2.410156 10.667969 1.730468 21.695313 10.582031 28.09375 4.757813 3.4375 10.324219 5.1875 15.9375 5.1875 4.839844 0 9.640625-1.304687 13.949219-3.882813l127.46875-76.183593 127.421875 76.183593c9.324219 5.609376 21.078125 5.097657 29.910156-1.304687 8.855469-6.417969 12.992187-17.449219 10.582031-28.09375l-32.9375-145.089844 111.699219-97.941406c8.214844-7.1875 11.351563-18.539063 7.980469-28.925781zm0 0" /></svg>
-                    {% endfor %}
-                  </div>
-                </p>
+                <p><b>{{ field.list_field.field_label }}:</b></p>
+                <div class="rating-show">
+                  {% for i in field.value|get_range %}
+                    <svg class="active" viewBox="0 -10 511.98685 511" xmlns="http://www.w3.org/2000/svg"><path d="m510.652344 185.902344c-3.351563-10.367188-12.546875-17.730469-23.425782-18.710938l-147.773437-13.417968-58.433594-136.769532c-4.308593-10.023437-14.121093-16.511718-25.023437-16.511718s-20.714844 6.488281-25.023438 16.535156l-58.433594 136.746094-147.796874 13.417968c-10.859376 1.003906-20.03125 8.34375-23.402344 18.710938-3.371094 10.367187-.257813 21.738281 7.957031 28.90625l111.699219 97.960937-32.9375 145.089844c-2.410156 10.667969 1.730468 21.695313 10.582031 28.09375 4.757813 3.4375 10.324219 5.1875 15.9375 5.1875 4.839844 0 9.640625-1.304687 13.949219-3.882813l127.46875-76.183593 127.421875 76.183593c9.324219 5.609376 21.078125 5.097657 29.910156-1.304687 8.855469-6.417969 12.992187-17.449219 10.582031-28.09375l-32.9375-145.089844 111.699219-97.941406c8.214844-7.1875 11.351563-18.539063 7.980469-28.925781zm0 0" /></svg>
+                  {% endfor %}
+                  {% for i in field.value|get_range_other %}
+                    <svg viewBox="0 -10 511.98685 511" xmlns="http://www.w3.org/2000/svg"><path d="m510.652344 185.902344c-3.351563-10.367188-12.546875-17.730469-23.425782-18.710938l-147.773437-13.417968-58.433594-136.769532c-4.308593-10.023437-14.121093-16.511718-25.023437-16.511718s-20.714844 6.488281-25.023438 16.535156l-58.433594 136.746094-147.796874 13.417968c-10.859376 1.003906-20.03125 8.34375-23.402344 18.710938-3.371094 10.367187-.257813 21.738281 7.957031 28.90625l111.699219 97.960937-32.9375 145.089844c-2.410156 10.667969 1.730468 21.695313 10.582031 28.09375 4.757813 3.4375 10.324219 5.1875 15.9375 5.1875 4.839844 0 9.640625-1.304687 13.949219-3.882813l127.46875-76.183593 127.421875 76.183593c9.324219 5.609376 21.078125 5.097657 29.910156-1.304687 8.855469-6.417969 12.992187-17.449219 10.582031-28.09375l-32.9375-145.089844 111.699219-97.941406c8.214844-7.1875 11.351563-18.539063 7.980469-28.925781zm0 0" /></svg>
+                  {% endfor %}
+                </div>
                 {% else %}
-                <p><b>{{ field.list_field.field_label }}:</b> {{ field.value }}</p>
-                {% endif %} {% endif %} {% endfor %} {% endif %}
+                <p><b>{{ field.list_field.field_label }}:</b> {{ field.value |safe}}</p>
+                {% endif %} {% endif %} {% endfor %}
+                <p class="card-text"> <small class="text-muted">Created : {{record.created_at| date:"M d, Y"}}</small></p>
+                <p class="card-text"><small class="text-muted">Created By : {{record.created_user.first_name}}</small></p>
+                {% endif %}
+            </div>
+            <div class="card-footer text-right bg-white">
+
             </div>
         </div>
     </div>
 </div>
-<div class="p-5 container">
+<div class="mb-5 px-2 container">
     <div class="mb-3 row no-gutters">
         <div class="col-6">
-            <h5>Files and Uploads</h5>
+            <h5 class="ml-3">Files and Uploads</h5>
         </div>
         <div class="col-6">
             <div id="postRecordFile" class="btn btn-primary float-right" action="{% url 'post_record_file' organization.pk app.pk list.pk record.pk %}">
@@ -94,19 +101,50 @@
         <div id="template-preview" class="d-none"></div>
 
         {% for file in files %}
-        <div id="file-{{file.pk}}" class="col-6">
-            <div class="text-center m-3 card">
+        <div id="file-{{file.pk}}" class="col-xl-6 col-lg-6">
+            <div class="text-center my-3 card">
                 <div class="row card-body">
-                    <div class="col-10 card-text text-left">
+                    <div style="font-size:0px;" class="{% if file.type == 'F' %}col-10{% else %}col-12{% endif %} card-text text-left">
+
+                    {% if file.type == 'F' %}
+
+
                         <span class="d-inline content">
-                            <span class="d-inline name-of-file">{{file.name_of_file}}</span>
+                            <span   style="font-size:16px;" class="d-inline name-of-file">{{file.name_of_file}}</span>
                         </span>
-                        <span class="d-inline file-extension">{{file.file_extension}}</span>
+                        <span  style="font-size:16px;"  class="d-inline file-extension">{{file.file_extension}}</span>
+                        <div style="font-size:16px;display:none;" class="m-1 error_message text-danger">
+                        <ul>
+                        <li>The file name should <b>not be empty</b></li>
+                        </ul>
+                        </div>
+
+                    {% elif  file.type == 'V'%}
+                    <a href="\media\{{file.file}}" data-fslightbox="lightbox{{file.id}}" data-type="video">
+
+                  
+                    <img src="\media\{{file.thumbnail_source_image}}" class="img-fluid" />
+                </a>
+                {% else %}
+                <a href="\media\{{file.thumbnail_source_image}}" data-fslightbox="lightbox{{file.id}}" data-type="image">
+
+                  
+                    <img src="\media\{{file.thumbnail_source_image}}" class="img-fluid" />
+                </a>
+
+                    {% endif %}
+
+
                     </div>
+                    {% if file.type == 'F' %}
                     <div class="col-2"><a href="{{file.edit_url}}" data-file-id="{{file.pk}}" class="edit-file btn btn-link">Edit</a></div>
+                    {% endif %}
+
+                    
+
                 </div>
                 <div class="card-footer bg-white">
-                    <button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-file-{{file.id}}">Remove</button><a class="btn btn-link float-right" href="{{file.url}}">Download</a>
+                    <button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-file-{{file.id}}">Remove</button><a class="btn btn-link float-right download" href="{{file.url}}" target="_blank">Download</a>
                 </div>
             </div>
         </div>
@@ -114,7 +152,7 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalCenterTitle">Are you sure that you want to remove {{file.filename}}?</h5>
+                        <h5 class="modal-title" id="exampleModalCenterTitle">Are you sure that you want to remove this?</h5>
                         <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                     </div>
                     <div class="modal-footer">
@@ -127,88 +165,29 @@
         {% endfor %}
     </div>
 </div>
-<div class="p-5 container">
-    <div class="mb-3 row no-gutters">
-        <div class="col-6">
-            <h5>Images and Videos</h5>
-        </div>
-        <div class="col-6">
-            <div id="postRecordMedia" class="btn btn-primary float-right" action="{% url 'post_record_media' organization.pk app.pk list.pk record.pk %}">
-                Add File
-            </div>
-        </div>
-    </div>
+<div class="mb-5 px-2 container">
+    <h5 class="ml-3">Comments</h5>
     <hr />
-    <div id="mediaprogress"></div>
-    <div id="medialist" class="row">
-        <div id="template-preview" class="d-none"></div>
 
-        {% for file in media %}
-        <div id="media-{{file.pk}}" class="col-3 h-100">
-            <div class="text-center m-3 card">
-                <div class="card-body">
-                    <p class="card-text text-left">
-                        {% if file.type == 'V' %}
-                        <center><img src="{{file.image_thumbnail.url}}" class="img-fluid" /></center>
-                        {% else %}
-                        <center><img src="{{file.url}}" class="img-fluid" /></center>
-                        {% endif %}
-                    </p>
-
-                    <p></p>
-                </div>
-
-                <div class="card-footer bg-white">
-                    <button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-media-{{file.pk}}">Remove</button><a class="btn btn-link float-right" href="{{file.url}}">Download</a>
-                </div>
-            </div>
-        </div>
-        <div class="modal fade" id="remove-media-{{file.pk}}" tabindex="-1" role="dialog" aria-labelledby="Remove-comment" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalCenterTitle">Are you sure that you want to remove this?</h5>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                    </div>
-                    <center>
-                        <div class="modal-body">
-                            {% if file.type == 'V' %}
-                            <center><img src="{{file.image_thumbnail.url}}" class="img-fluid" /></center>
-                            {% else %}
-                            <center><img src="{{file.url}}" class="img-fluid" /></center>
-                            {% endif %}
-                        </div>
-                    </center>
-                    <div class="modal-footer">
-                        <span class="btn btn-danger remove-record-media" type="button" data-dismiss="modal" href="{{file.delete_url}}" data-content-id="{{file.id}}">Confirm</span>
-                        <span class="btn btn-light" type="button" data-dismiss="modal">No</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-<div class="p-5 container">
-    <h5>Comments</h5>
-    <hr />
-    <div class="card p-3">
-        <form id="post_record_comment" method="POST" action="{% url 'post_record_comments' organization.pk app.pk list.pk record.pk %}">
-            <textarea id="content" class="form-control bg-light mb-3" name="content" type="text" placeholder="Enter a comment here"></textarea><br />
-            <div class="text-right"><input class="btn btn-primary" id="post_record_button" type="submit" /></div>
-        </form>
-    </div>
     <div class="d-block" id="record_comments">
         {% for comment in comments %}
         <form data-comment-id="{{comment.pk}}" class="edit_comment_form" action="{% url 'edit_record_comment' organization.pk app.pk list.pk record.pk comment.pk %}" method="POST">
-            <div class="card m-3" id="comment-{{comment.pk}}" class="card text-center m-3">
+            <div class="card my-3" id="comment-{{comment.pk}}" class="card text-center m-3">
                 <div class="card-body">
                     <div class="main-change">
-                        <div id="comment-content-{{comment.pk}}"class="card-text text-left content">
-                            {% autoescape off %} {{comment.content}} {% endautoescape %}
-                        </div>
+                      <p class="card-text"><strong>{{comment.created_user.first_name}}</strong></p>
+                      <hr>
+                      <div id="comment-content-{{comment.pk}}"class="card-text text-left content">
+                          {% autoescape off %} {{comment.content}} {% endautoescape %}
+                      </div>
+                      <p class="card-text">
+
+                      <small class="text-muted">Created : {{comment.created_at| date:"M d, Y"}}
+
+                      </small>
                     </div>
                 </div>
+                {% if user == comment.created_user %}
                 <div class="card-footer bg-white">
                     <button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-comment-{{comment.pk}}">Remove</button>
                     <span id="edit-save-{{comment.pk}}">
@@ -217,6 +196,7 @@
                         <input type="submit" data-comment-id="{{comment.pk}}" class="btn btn-link float-right save" style="display: none;" value="Save" />
                     </span>
                 </div>
+                {% endif %}
             </div>
         </form>
         <div class="modal fade" id="remove-comment-{{comment.pk}}" tabindex="-1" role="dialog" aria-labelledby="Remove-comment" aria-hidden="true">
@@ -236,11 +216,17 @@
         </div>
         {% endfor %}
     </div>
+    <div class="card p-3">
+        <form id="post_record_comment" method="POST" action="{% url 'post_record_comments' organization.pk app.pk list.pk record.pk %}">
+            <textarea id="content" class="form-control bg-light mb-3" name="content" type="text" placeholder="Enter a comment here"></textarea><br />
+            <div class="text-right"><input class="btn btn-primary" id="post_record_button" type="submit" /></div>
+        </form>
+    </div>
 </div>
+
 
 <script>
 var record_files = $('#fileslist');
-var record_media = $('#medialist');
 
 function EditFile() {
     var file_edit_mode = false;
@@ -263,20 +249,27 @@ function EditFile() {
                 }
             } else {
                 this_file = $(this).attr('data-file-id');
-                console.log(this_file);
-                console.log(file_current_edit);
+                var new_file_name=$('#file-edit-' + file_id).val();
+                if( new_file_name != ''){
                 if (this_file == file_current_edit) {
                     edit_url = $(this).attr('href');
+
                     file_edit_mode = false;
                     file_current_edit = null;
                     $(this).html('Edit');
                     $.post(edit_url, {
                         "content": $('#file-edit-' + file_id).val()
                     }, function(data) {
-                        content_box.html(data['content']);
+                        content_box.html('<span   style="font-size:16px;" class="d-inline name-of-file">'+data['content']+'</span>');
                         $('#file-' + file_id + ' .file-extension').removeClass('d-none');
                         $('#file-' + file_id + ' .file-extension').addClass('d-inline');
+                        $('#file-' + file_id + ' .error_message').hide();
+                        $('#file-' + file_id + ' .download').attr('href',data['file_url'])
                     });
+                } }else{
+                    console.log('a')
+                   $('#file-' + file_id + ' .error_message').show()
+
                 }
             }
 
@@ -306,7 +299,16 @@ Dropzone.autoDiscover = false;
 var cookie = document.cookie;
 var csrftoken = getCookie('csrftoken');
 var post_file_url = $('#postRecordFile').attr('action');
-var post_media_url = $('#postRecordMedia').attr('action');
+function generate_file_group(length) {
+   var result           = '';
+   var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+   var charactersLength = characters.length;
+   for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   }
+   return result;
+}
+var file_group =generate_file_group(20);
 $(function() {
     var myDrop = new Dropzone("div#postRecordFile", {
         url: post_file_url,
@@ -321,12 +323,68 @@ $(function() {
     myDrop.on("success", function(file, data) {
         data = JSON.parse(data);
         console.log(data);
-        var file_div = ' <div id="file-' + data.id + '" class="col-6"> <div class="text-center m-3 card"> <div class="row card-body"> <div class="col-10 card-text text-left"> <span class="d-inline content"> <span class="d-inline name-of-file">' + data.file_name + '</span> </span> <span class="d-inline file-extension">' + data.file_extension + '</span> </div> <div class="col-2"><a href="' + data.edit_url + '" data-file-id="' + data.id + '" class="edit-file btn btn-link">Edit</a></div> </div> <div class="card-footer bg-white"><button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-file-' + data.id + '" >Remove</button><a class="btn btn-link float-right" href="' + data.url + '">Download</a></div> </div> </div> <div class="modal fade" id="remove-file-' + data.id + '" tabindex="-1" role="dialog" aria-labelledby="Remove-comment" aria-hidden="true"> <div class="modal-dialog modal-dialog-centered" role="document"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title" id="exampleModalCenterTitle">Are you sure that you want to remove ' + data.file_name + '?</h5> <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button> </div> <div class="modal-footer"><span class="btn btn-danger remove-record-file" type="button" data-dismiss="modal" href="' + data.delete_url + '" data-content-id="' + data.id + '">Confirm</span><span class="btn btn-light" type="button" data-dismiss="modal">No</span></div> </div> </div> </div>';
+        var file_div = `<div id="file-${data.id}" class="col-xl-6 col-lg-6">
+            <div class="text-center my-3 card">
+                <div class="row card-body">
+                    <div style="font-size:0px;" class="`+((data.type == 'F') ? 'col-10 ':'col-12 ') + `card-text text-left">`
+                    +
+
+                    ((data.type == 'F') ?
+
+                        `<span class="d-inline content">
+                            <span   style="font-size:16px;" class="d-inline name-of-file">${data.file_name}</span>
+                        </span>
+                        <span  style="font-size:16px;"  class="d-inline file-extension">${data.file_extension}</span>
+                        <div style="font-size:16px;display:none;" class="m-1 error_message text-danger">
+                        <ul>
+                        <li>The file name should <b>not be empty</b></li>
+                        </ul>
+                        </div>` :
+                    `<a data-fslightbox="lightbox${data.id}"`
+                    + ((data.type == 'V') ?` href='${data.file_url}' data-type="video"`:` href='${data.thumbnail}' data-type="image"`)+`>
+                        <img src='${data.thumbnail}' class="img-fluid" /></a>`
+                    )
+                    +
+
+        `
+                    </div>
+         `+((data.type=='F') ?
+                    `<div class="col-2"><a href="${data.edit_url}" data-file-id="${data.id}" class="edit-file btn btn-link">Edit</a></div>`
+                    : '')
+                    +
+
+                `</div>
+                <div class="card-footer bg-white">
+                    <button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-file-${data.id}">Remove</button><a class="btn btn-link float-right download" href="${data.file_url}">Download</a>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="remove-file-${data.id}" tabindex="-1" role="dialog" aria-labelledby="Remove-comment" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalCenterTitle">Are you sure that you want to remove this?</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-footer">
+                        <span class="btn btn-danger remove-record-file" type="button" data-dismiss="modal" href="${data.delete_url}" data-content-id="${data.id}">Confirm</span>
+                        <span class="btn btn-light" type="button" data-dismiss="modal">No</span>
+                    </div>
+                </div>
+            </div>
+        </div>`;
         record_files.prepend(file_div);
         RemoveContent('.remove-record-file', 'file');
         var progress_bar = '<div style="height:30px;font-size:22px;height:40px" class="progress"><div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">' + "uploaded successfully!" + '</div></div>';
         $('#fileprogress').html(progress_bar);
         EditFile();
+        refreshFsLightbox();
+
+    });
+
+
+    myDrop.on('sending', function(file, xhr, formData){
+    formData.append('file_group', file_group);
     });
 
     myDrop.on("totaluploadprogress", function(progress) {
@@ -336,6 +394,7 @@ $(function() {
     });
 
     myDrop.on("queuecomplete", function(file) {
+        file_group = generate_file_group(20);
         var progress_bar = '<div style="height:30px;font-size:22px;height:40px" class="progress"><div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">' + "uploaded successfully!" + '</div></div>';
         $('#fileprogress').html(progress_bar);
         setTimeout(function() {
@@ -363,41 +422,6 @@ function RemoveContent(className, content) {
 
 
 
-$(function() {
-    var myDrop = new Dropzone("div#postRecordMedia", {
-        url: post_media_url,
-        method: "post",
-        headers: {
-            "csrfmiddlewaretoken": csrftoken
-        },
-        previewsContainer: null,
-        previewTemplate: document.getElementById('medialist').innerHTML
-    });
-
-    myDrop.on("success", function(file, data) {
-        data = JSON.parse(data);
-        console.log(data);
-        var media_div = ' <div id="media-' + data.id + '" class="col-3 h-100"> <div class="text-center m-3 card"> <div class="card-body"> <p class="card-text text-center"> <img src="' + data.file_url + '" class="img-fluid"/> </p> </div> <div class="card-footer bg-white"><button class="btn btn-link float-right" type="button" data-toggle="modal" data-target="#remove-media-' + data.id + '">Remove</button><a class="btn btn-link float-right" href="' + data.url + '">Download</a></div> </div> </div> <div class="modal fade" id="remove-media-' + data.id + '" tabindex="-1" role="dialog" aria-labelledby="Remove-comment" aria-hidden="true"> <div class="modal-dialog modal-dialog-centered" role="document"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title" id="exampleModalCenterTitle">Are you sure that you want to remove this?</h5> <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button> </div> <div class="modal-body"><center><img src="' + data.file_url + '" class="img-fluid"/></center></div> <div class="modal-footer"><span class="btn btn-danger remove-record-media" type="button" data-dismiss="modal" href="' + data.file_url + '" data-content-id="' + data.id + '">Confirm</span><span class="btn btn-light" type="button" data-dismiss="modal">No</span></div> </div> </div></div>';
-        record_media.prepend(media_div);
-        RemoveContent('.remove-record-media', 'media');
-
-    });
-
-    myDrop.on("totaluploadprogress", function(progress) {
-        console.log(progress);
-        var progress_bar = '<div style="font-size:22px;height:40px" class="progress p-1"><div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: ' + progress + '%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">' + parseInt(progress) + '%</div></div>';
-        $('#mediaprogress').html(progress_bar);
-    });
-
-    myDrop.on("queuecomplete", function(file) {
-        var progress_bar = '<div style="font-size:22px;height:40px" class="progress"><div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">' + "uploaded successfully!" + '</div></div>';
-        $('#mediaprogress').html(progress_bar);
-        setTimeout(function() {
-            $('#mediaprogress').html('');
-        }, 5000);
-    });
-
-});
 
 
 $(document).ready(function() {
@@ -443,6 +467,8 @@ $(document).ready(function() {
 
 
             tinyMCE.triggerSave();
+
+
             $.ajax({
 
                 type: frm.attr('method'),
@@ -457,7 +483,7 @@ $(document).ready(function() {
                     console.log(data);
                     data = JSON.parse(data);
                     var comment_div = `<form data-comment-id="${data.id}" class="edit_comment_form" action="${data.edit_url}" method="POST">
-                    <div class="card m-3" id="comment-${data.id}" class="card text-center m-3">
+                    <div class="card my-3" id="comment-${data.id}" class="card text-center m-3">
                       <div class="card-body">
                         <div class="main-change">
                           <div id="comment-content-${data.id}" class="card-text text-left content">
@@ -489,9 +515,10 @@ $(document).ready(function() {
                 </div>
             </div>
         </div>`;
-                    record_comments.prepend(comment_div);
+                    record_comments.append(comment_div);
                     EditPost();
                     RemoveContent('.remove-record-comment', 'comment');
+                    tinyMCE.activeEditor.setContent('');
                 }
             });
             ev.preventDefault();
@@ -501,24 +528,24 @@ $(document).ready(function() {
 
 
     function EditPost() {
-        
+
         var current_edit = null;
         $('.edit-comment').on('click', function(ev) {
                 ev.preventDefault();
-                
-                if (current_edit == null) {
+
+
                     var comment_id = $(this).attr('data-comment-id');
 
                 var content = $('#comment-' + comment_id + ' .content');
                 var content_message = content.text()
-                    var edit_mode = false;
-                    frm = $('.edit_comment_form');
-                    if (edit_mode == false) {
-                        
-                        edit_mode = true;
-                        
 
-                        
+                    frm = $('.edit_comment_form');
+
+
+
+
+
+
                         tinyMCE.init({
                             selector: '#comment-' + comment_id + ' .content',
                         });
@@ -526,8 +553,8 @@ $(document).ready(function() {
                         $('#edit-save-' + comment_id + ' .edit').hide();
                         $('#edit-save-' + comment_id + ' .save').show();
 
-                    }
-                }
+
+
 
             }
 
@@ -549,11 +576,12 @@ $(document).ready(function() {
                         'X-CSRFToken': csrftoken
                     },
                     success: function(data) {
-                        $('#comment-' + comment_id + ' .main-change').html(data.content);
+                        $('#comment-' + comment_id + ' .main-change').html(
+                            `<div id="comment-content-${comment_id}" class="card-text text-left content">
+                             ${data.content}
+                        </div>`);
                         $('#edit-save-' + comment_id + ' .edit').show();
                         $('#edit-save-' + comment_id + ' .save').hide();
-                        edit_mode = false;
-                        current_edit = null;
                     }
                 });
 
@@ -587,7 +615,6 @@ $(document).ready(function() {
     ArchiveRecord();
 
     RemoveContent('.remove-record-file', 'file');
-    RemoveContent('.remove-record-media', 'media');
     RemoveContent('.remove-record-comment', 'comment');
 
 
@@ -601,9 +628,12 @@ $(document).ready(function() {
 
     tinyMCE.init({
         selector: "#post_record_comment #content",
+        content_style: 'body{ font-size:12pt }',
+        height:400,
+        plugins: 'lists',
+        toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | numlist bullist | outdent indent '
     });
-
-
 
 });
 </script>
+

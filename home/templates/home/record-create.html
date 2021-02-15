@@ -33,14 +33,17 @@
                 <div class="form-group">
                   <label for="field_{{ field.field_id }}">{{ field.field_label }}{% if field.required %}*{% endif %}</label>
                   <textarea data-type="textarea" data-attr="{{field.field_type}}" class="form-control form-control-solid record-field" id="field_{{ field.field_id }}" rows="3" placeholder="Input response here" {% if field.required %}required{% endif %}>{% if field.value %}{{ field.value }}{% endif %}</textarea>
-                
+
                 <script>
                 tinyMCE.init({
-    selector : "#field_{{ field.field_id }}"
-});
+                selector : "#field_{{ field.field_id }}",
+                content_style: 'body{ font-size:12pt }',
+                height:400,
+                plugins: 'lists',
+                toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | numlist bullist | outdent indent '
+                 } );
+                 </script>
 
-
-</script>
                 </div>
               {% elif field.field_type == 'number' %}
                 <div class="form-group">
@@ -235,7 +238,7 @@
     var urlregex = new RegExp(
             "^(http:\/\/www.|https:\/\/www.|ftp:\/\/www.|www.){1}([0-9A-Za-z]+\.)");
     if (urlregex.test(url_value) === false){
-      urlValue.value = "";  
+      urlValue.value = "";
     }
   };
 
@@ -246,11 +249,11 @@
     var field_values = [];
     var submit = 0;
     var required = 0;
-      
+
     $(".record-field").each(function(){
       field = {};
       var get_field_type = $(this).attr('data-attr');
-      
+
       if ($(this).is(':required')){
           required += 1;
           if (get_field_type !== 'rating'){
@@ -270,7 +273,7 @@
         field['fieldId'] = id;
         field['fieldValue'] = val;
         field['fieldType'] = get_field_type;
-        
+
         if (get_field_type === "choose-from-list"){
           var listValue = $(this).find(':selected').data('value');
           if (typeof listValue === "undefined"){

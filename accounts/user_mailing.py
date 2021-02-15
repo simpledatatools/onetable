@@ -7,7 +7,7 @@ import random
 def create_link(link_for: str):
     choice = string.ascii_letters + string.digits
     key = "".join(random.choice(choice) for _ in range(30))
-    if link_for == 'sign-up': 
+    if link_for == 'sign-up':
         link = f"{settings.BASE_URL}create-account?key={key}"
     elif link_for == 'reset-password':
         link = f"{settings.BASE_URL}forgot-password?key={key}"
@@ -26,32 +26,33 @@ class SendUserMail:
             self.content = self.__sign_up_compose_mail()
         elif mail_for == "reset-password":
             self.content = self.__reset_password_compose_mail()
-    
+
     def __sign_up_compose_mail(self):
         content = f"""
         Hello {self.recipient_name.title()},\n
-        Thanks so much for singing up for OneTable!\n
+        Thanks so much for signing up for OneTable!\n
         Use the link below to confirm your account:\n
         {self.link}\n
         If you didn't sign up for OneTable, please ignore this email.\n
         Sincerely,\n
         OneTable Support
         """
+        print(content)
         return content
-    
+
     def __reset_password_compose_mail(self):
         content = f"""
         Hello {self.recipient_name.title()},\n
-        We got a request to change the password for the account with the email {self.recipient_list}\n
+        We received a request to change the password for the account with the email {self.recipient_list}\n
         Use the link below to reset your password:\n
         {self.link}\n
-        If you don't want to reset your password, you can ignore this email.\n
-        If you didn't request this change, you may want to contact your system administrator.\n
+        If you don't want to reset your password or you did not request this change, you can ignore this email.\n
         Sincerely,\n
         OneTable Support
         """
+        print(content)
         return content
-    
+
     def send(self):
         try:
             send_mail(subject=self.subject, message=self.content, from_email=self.from_email, recipient_list=[self.recipient_list], fail_silently=True)
