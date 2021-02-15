@@ -11,13 +11,17 @@
   <meta name="description" content="" />
   <meta name="author" content="" />
   <title>
-
     {% block title %}
     OneTable
     {% endblock %}
 
   </title>
+
   <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+  <link href="{% static 'css/jquery.rateyo.min.css' %}" rel="stylesheet" />
+  {% block extracss %}
+    {# Add extra CSS files here for specific screens #}
+  {% endblock %}
 
   {% block extracss %}
   {# Add extra CSS files here for specific screens #}
