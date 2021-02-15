@@ -55,7 +55,7 @@ class="bg-white"
 <!-- Include JS here that needs template tags -->
 {% block extrajs %}
 <script src="{% static 'js/fslightbox.js' %}"></script>
-
+<div class="loading" id="loader" style="display:none;">Loading&#8230;</div>
 <script>
   function getPage(url) {
     searchValue = $('input[name=search]').val();
@@ -65,6 +65,7 @@ class="bg-white"
     $.ajax({
         type: "GET",
         url: url,
+        beforeSend: function() { $("#loader").show() },
         data: {
             'csrfmiddlewaretoken': window.CSRF_TOKEN, // from index.html
             'search_value': searchValue,
@@ -73,10 +74,11 @@ class="bg-white"
             // append html to the posts div
             $('#main-content').html(data['html_from_view']);
             refreshFsLightbox();
-
+            $("#loader").hide();
         },
         error: function(xhr, status, error) {
             // shit happens friends!
+            $("#loader").hide();
         }
     }).always(()=> {
       window.history.pushState({}, '', url);

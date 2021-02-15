@@ -1244,8 +1244,9 @@ def record_links(request, organization_pk, app_pk, list_pk, record_pk):
     record = get_object_or_404(Record, pk=record_pk)
     record_relations = RecordRelation.objects.all().filter(status='active', child_record=record, parent_record__status='active')
     records = []
-    for relation in record_relations:
-        records.append(relation.parent_record)
+    if len(record_relations) > 0:
+        for relation in record_relations:
+            records.append(relation.parent_record)
 
     if request.is_ajax() and request.method == "GET":
 
