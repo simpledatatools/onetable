@@ -27,8 +27,12 @@ class="bg-white"
 
 {% block content %}
 
-  {% if type == 'activity' %}
-    {% include 'home/activity.html' %}
+  {% if type == 'dashboard' %}
+    {% include 'home/dashboard.html' %}
+  {% elif type == 'tasks' %}
+    {% include 'home/tasks.html' %}
+  {% elif type == 'notes' %}
+    {% include 'home/notes.html' %}
   {% elif type == 'lists' %}
     {% include 'home/lists.html' %}
   {% elif type == 'list-create' %}
@@ -44,8 +48,8 @@ class="bg-white"
   {% elif type == 'edit-record' %}
     {% include 'home/record-create.html' %}
   {% else %}
-    {# Load default activity #}
-    {% include 'home/activity.html' %}
+    {# Load default dashboard #}
+    {% include 'home/dashboard.html' %}
   {% endif %}
 
 {% endblock %}
@@ -54,8 +58,6 @@ class="bg-white"
 
 <!-- Include JS here that needs template tags -->
 {% block extrajs %}
-<script src="{% static 'js/fslightbox.js' %}"></script>
-
 <script>
   function getPage(url) {
     searchValue = $('input[name=search]').val();
@@ -72,8 +74,6 @@ class="bg-white"
         success: function(data) {
             // append html to the posts div
             $('#main-content').html(data['html_from_view']);
-            refreshFsLightbox();
-
         },
         error: function(xhr, status, error) {
             // shit happens friends!
@@ -81,24 +81,6 @@ class="bg-white"
     }).always(()=> {
       window.history.pushState({}, '', url);
     });
-    if (url.indexOf("lists") > -1) {
-      $( "#lists" ).addClass( "active" );
-      $( "#activity" ).removeClass( "active" )
-
-    }
-    else
-    {
-      $( "#activity" ).addClass( "active" );
-      $( "#lists" ).removeClass( "active" )
-
-    }
-    if (document.querySelector('.sidenav-toggled') !== null) {
-      $( "body" ).removeClass( "sidenav-toggled" );
-    }
-    refreshFsLightbox();
-
-
   }
 </script>
-
 {% endblock %}

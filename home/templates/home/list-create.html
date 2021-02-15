@@ -136,17 +136,19 @@
       let newForm = fieldForm[0].cloneNode(true);
     
       const type = "{{ type | safe }}";
-
       if (type == "edit-list") {
+
         const display_form_id = fieldForm.length-1;
         $('#id_form-'+String(display_form_id)+'-id').next('div').removeAttr('style').removeClass('d-none');
         newForm = fieldForm[fieldForm.length-1].cloneNode(true);
         $('#id_form-'+String(display_form_id)+'-id').next('div').addClass('d-none');
-      } 
-      else if (type == "list-create") {
+      
+      } else if (type == "list-create") {
+
         newForm = fieldForm[0].cloneNode(true);
-      } 
-      else {
+      
+      } else {
+
         console.warn("You missed passing a composing mode (create or edit)");
         newForm = fieldForm[0].cloneNode(true);
       }
@@ -160,10 +162,9 @@
       $("input[name=form-"+String(formNum)+"-field_label]").attr('required', true);
     });
 
-    const type = '{{ type | safe }}';
-
+    const type = '{{ type | safe }}'
     if (type === 'edit-list'){
-    
+      
       var initial_form = $('#id_form-INITIAL_FORMS').val();
       // remove the required attribute in an extra list field form, to handle the validation, when user click on the update button
       $("input[name=form-"+String(initial_form)+"-field_label]").removeAttr('required');
