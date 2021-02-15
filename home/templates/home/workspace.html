@@ -54,14 +54,14 @@ class="bg-white"
 
 <!-- Include JS here that needs template tags -->
 {% block extrajs %}
+<script src="{% static 'js/fslightbox.js' %}"></script>
+
 <script>
   function getPage(url) {
     searchValue = $('input[name=search]').val();
     if (typeof searchValue === 'undefined' || searchValue === ''){
       searchValue = ''
     }
-    
-
     $.ajax({
         type: "GET",
         url: url,
@@ -72,6 +72,8 @@ class="bg-white"
         success: function(data) {
             // append html to the posts div
             $('#main-content').html(data['html_from_view']);
+            refreshFsLightbox();
+
         },
         error: function(xhr, status, error) {
             // shit happens friends!
@@ -93,6 +95,10 @@ class="bg-white"
     if (document.querySelector('.sidenav-toggled') !== null) {
       $( "body" ).removeClass( "sidenav-toggled" );
     }
+    refreshFsLightbox();
+
+
   }
 </script>
+
 {% endblock %}
