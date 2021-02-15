@@ -723,7 +723,6 @@ def edit_list(request, organization_pk, app_pk, list_pk):
         # Reduce the queryset for select_list field to just active lists in current app
         for form in formset:
             form.fields['select_list'].queryset = List.objects.filter(app=app, status='active')
-            print(form)
 
     elif request.method == 'POST':
         listform = ListForm(request.POST, instance=list)
@@ -945,7 +944,8 @@ def save_record(request, organization_pk, app_pk, list_pk):
                                     list_field=record_field.list_field,
                                     status='active',
                                     created_at=timezone.now(),
-                                    created_user=request.user)
+                                    created_user=request.user,
+                                    id=randomstr())
                                 record_relation.save()
 
                     except RecordField.DoesNotExist:
@@ -961,7 +961,8 @@ def save_record(request, organization_pk, app_pk, list_pk):
                                 list_field=list_field,
                                 status='active',
                                 created_at=timezone.now(),
-                                created_user=request.user)
+                                created_user=request.user,
+                                id=randomstr())
                             record_field.save()
 
                             if field['fieldType'] == "choose-from-list":
@@ -980,7 +981,8 @@ def save_record(request, organization_pk, app_pk, list_pk):
                                     list_field=record_field.list_field,
                                     status='active',
                                     created_at=timezone.now(),
-                                    created_user=request.user)
+                                    created_user=request.user,
+                                    id=randomstr())
                                 record_relation.save()
 
                         except ListField.DoesNotExist:
@@ -1019,7 +1021,8 @@ def save_record(request, organization_pk, app_pk, list_pk):
                                 list_field=record_field.list_field,
                                 status='active',
                                 created_at=timezone.now(),
-                                created_user=request.user)
+                                created_user=request.user,
+                                id=randomstr())
                             record_relation.save()
 
                     except ListField.DoesNotExist:
