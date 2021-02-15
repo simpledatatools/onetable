@@ -118,13 +118,13 @@
                         </div>
 
                     {% elif  file.type == 'V'%}
-                    <a href="\media\{{file.file}}" data-toggle="lightbox" data-type="video">
+                    <a href="\media\{{file.file}}" data-fslightbox="gallery" data-type="video">
 
                   
                     <img src="\media\{{file.thumbnail_source_image}}" class="img-fluid" />
                 </a>
                 {% else %}
-                <a href="\media\{{file.thumbnail_source_image}}" data-toggle="lightbox" >
+                <a href="\media\{{file.thumbnail_source_image}}" data-fslightbox="gallery" data-type="image">
 
                   
                     <img src="\media\{{file.thumbnail_source_image}}" class="img-fluid" />
