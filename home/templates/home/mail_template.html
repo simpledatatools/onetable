@@ -1,0 +1,71 @@
+{% if type == 'added_registered_user_to_org' %}
+Hi,
+
+{{added_person.username}} has added you to the Organization {{org_added}} on OneTable. Click the link below to access:
+
+<a href="{{domain}}{% url 'organizations' %}">{{domain}}{% url 'organizations' %}</a>
+
+Please let us know if you have any questions!
+
+Sincerely,
+
+OneTable Support
+
+{% elif type == 'added_unregistered_user_to_org' %}
+
+Hi,
+
+{{added_person.username}} has added you to an Organization {{org_added}} on OneTable. Click the link below to register:
+
+<a href="{{domain}}{% url 'accounts:register' %}">{{domain}}{% url 'accounts:register' %}</a>
+
+Please let us know if you have any questions!
+
+Sincerely,
+
+OneTable Support
+
+{% elif type == 'added_registered_user_to_workspace' %}
+
+
+Hi,
+
+{{added_person.username}} has added you to the Workspace {{app.name}} on OneTable. Click the link below to access:
+
+<a href="{{domain}}{% url 'apps' app.organization.pk %}">{{domain}}{% url 'apps' app.organization.pk %}</a>
+
+Please let us know if you have any questions!
+
+Sincerely,
+
+OneTable Support
+
+{% elif type == 'added_unregistered_user_to_workspace' %}
+
+Hi,
+
+{{added_person.username}} has added you to a Workspace {{app.name}} on OneTable. Click the link below to register:
+
+<a href="{{domain}}{% url 'accounts:register' %}">{{domain}}{% url 'accounts:register' %}</a>
+
+Please let us know if you have any questions!
+
+Sincerely,
+
+OneTable Support
+
+{% elif type == 'registered_user_made_admin_of_org' %}
+
+Hi,
+
+{{added_person.username}} has made you an Admin for the Organization {{org}} on OneTable. Click the link below to access:
+
+<a href="{{domain}}{% url 'organizations' %}">{{domain}}{% url 'organizations' %}</a>
+
+Please let us know if you have any questions!
+
+Sincerely,
+
+OneTable Support
+
+{% endif %}
