@@ -90,6 +90,9 @@ class="bg-white"
       $( "#lists" ).removeClass( "active" )
 
     }
+    if (document.querySelector('.sidenav-toggled') !== null) {
+      $( "body" ).removeClass( "sidenav-toggled" );
+    }
   }
 </script>
 {% endblock %}

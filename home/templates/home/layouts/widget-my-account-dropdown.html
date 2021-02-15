@@ -1,11 +1,13 @@
 {% load static %}
 
 {% if user.is_authenticated %}
-<li class="nav-item no-caret d-none d-sm-block mr-3">
-    <a class="nav-link dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      <div class="font-weight-500">My Account</div>
+<li class="nav-item dropdown no-caret mr-3 mr-lg-0 dropdown-user">
+    <a class="nav-link dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button"
+        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <div class="font-weight-500">My Account</div>
     </a>
-    <div class="dropdown-menu dropdown-menu-right border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownUserImage">
+    <div class="dropdown-menu dropdown-menu-right border-0 shadow animated--fade-in-up"
+        aria-labelledby="navbarDropdownUserImage">
         <h6 class="dropdown-header d-flex align-items-center">
             <div class="dropdown-user-details">
                 <div class="dropdown-user-details-name">{{ user.username }}</div>

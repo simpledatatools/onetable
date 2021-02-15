@@ -16,7 +16,7 @@ import string
 import random
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
-
+from itertools import chain
 
 class Organization(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
@@ -118,6 +118,7 @@ class App(models.Model):
         inactive_users = InactiveUsers.objects.filter(attached_workspaces = self).count()
         return active_users + inactive_users
 
+    
 
 class AppUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -186,6 +187,13 @@ class List(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse("list", kwargs={
+            "list_pk": self.pk,
+            "app_pk" : self.app.pk,
+            "organization_pk" : self.app.organization.pk
+            })
+    
 
 class ListField(models.Model):
     list = models.ForeignKey('List', on_delete=models.SET_NULL, null=True, related_name='list')
@@ -275,8 +283,26 @@ class Record(models.Model):
             .get(record=self)
 
 
+    @property
+    def primary_field_value(self):
+        return RecordField.objects.filter(status='active', list_field__primary=True, list_field__status='active') \
+            .select_related('record__list', 'record__created_user') \
+            .select_related('created_user') \
+            .get(record=self).value
+
+
     def __str__(self):
         return str(self.id)
+
+    @property
+    def get_absolute_url(self):
+        return reverse("record", kwargs={
+            "record_pk": self.pk,
+            "list_pk" : self.list.pk,
+            "app_pk" : self.list.app.pk,
+            "organization_pk" : self.list.app.organization.pk
+            })
+    
 
 
 class RecordField(models.Model):
@@ -352,6 +378,7 @@ def record_file_path(self, filename):
 class RecordFile(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
     file = models.FileField(upload_to=record_file_path)
+    group = models.CharField(default='',max_length=200)
     record = models.ForeignKey(Record,on_delete=models.CASCADE,related_name="files")
     created_at = models.DateTimeField(auto_now_add=True)
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True)
@@ -359,7 +386,7 @@ class RecordFile(models.Model):
     file_extension = models.CharField(max_length=200,default='')
 
     def __str__(self):
-        return (str(self.record.list.name) + ' ' + str(self.created_user) )
+        return (str(self.name_of_file) + str(self.file_extension) )
 
     def filename(self):
         return os.path.basename(self.file.name)
@@ -455,8 +482,9 @@ class RecordFile(models.Model):
         super().save(*args, **kwargs)
 
 
-def randomstr():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k = N))
+
+
+
 
 class RecordComment(models.Model):
     id = models.CharField(primary_key=True, default='', editable=False,max_length=16)
@@ -490,6 +518,34 @@ class RecordComment(models.Model):
 
 
 
+class Activity(models.Model):
+    ACTIVITY_TYPE_CHOICES = (
+        ('new_record','New Record'),
+        ('new_record_comment','New Comment'),
+        ('new_record_file','New File')
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    type = models.CharField(default='',choices=ACTIVITY_TYPE_CHOICES,max_length=200)
+    app = models.ForeignKey(App,on_delete=models.CASCADE)
+    record = models.ForeignKey(Record,on_delete=models.CASCADE,null=True,blank=True)
+    record_comment = models.ForeignKey(RecordComment,on_delete=models.CASCADE,null=True,blank=True)
+    record_file_group = models.CharField(default='',max_length=20,null=True,blank=True)
+
+    def __str__(self):
+        return self.type + str(self.pk)
+    
+    @property
+    def group_of_files(self):
+        files_i = RecordFile.objects.filter(group=self.record_file_group,type='I')
+        files_v = RecordFile.objects.filter(group=self.record_file_group,type='V')
+        files_f = RecordFile.objects.filter(group=self.record_file_group,type='F')
+        files = list(chain(files_i,files_v,files_f))
+        print(files[0])
+        return {
+            "media" : list(chain(files_i,files_v)),
+            "files" : list(chain(files_f))
+        }
+
 
 class InactiveUsers(models.Model):
     user_email = models.EmailField(null=True)
@@ -520,3 +576,30 @@ def update_stock(sender, instance, **kwargs):
             org_user[0].permitted_apps.add(wrksps)
             org_user[0].save()
         inactive_user.delete()
+
+
+
+
+@receiver(post_save, sender=Record)
+def add_record_activity(sender, instance, created,**kwargs):
+    if created:
+        new_activity = Activity(type='new_record',record = instance,app=instance.list.app)
+        new_activity.save()
+
+
+@receiver(post_save, sender=RecordComment)
+def add_record_comment_activity(sender, instance, created,**kwargs):
+    if created:
+        new_activity = Activity(type='new_record_comment',record_comment = instance,app=instance.record.list.app)
+        new_activity.save()
+
+@receiver(post_save, sender=RecordFile)
+def add_record_file_activity(sender, instance, created,**kwargs):
+    if created:
+        if not Activity.objects.filter(record_file_group=instance.group).exists():
+            new_activity = Activity(type='new_record_file',record_file_group = instance.group,app=instance.record.list.app)
+            new_activity.save()
+        try:
+            Activity.objects.get(type='new_record_file',record_file_group=instance.group,app=instance.record.list.app)
+        except:
+            Activity.objects.filter(type='new_record_file',record_file_group=instance.group,app=instance.record.list.app)[0].delete()
