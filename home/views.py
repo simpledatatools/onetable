@@ -16,6 +16,16 @@ from .forms import OrganizationForm, AppForm, ListForm, ListFieldFormset
 from django.views.decorators.csrf import csrf_exempt
 import subprocess
 from itertools import chain
+<<<<<<< HEAD
+=======
+from tempfile import NamedTemporaryFile
+from subprocess import call
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+from django.core import mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+>>>>>>> 47106faf33bcc421c2ade0a4f15bc8b1694ce0da
 
 N = 10
 
@@ -35,6 +45,8 @@ def randomstr():
 # which url routes are used for ajax, and what is used for page template rendering
 
 
+def get_domain(request):
+    return request.scheme + '://' + request.get_host()
 
 #===============================================================================
 # Static Pages / Home Page Setup
@@ -160,19 +172,57 @@ def organization_settings(request, organization_pk):
     if request.method == "POST":
     #    print(request.POST)
         if request.POST['type'] == "add_user":
-            try:
+            if User.objects.filter(email=request.POST['email']):
                 u = User.objects.get(email=request.POST['email'])
                 organization.active_users.add(u)
                 org_user = OrganizationUser.objects.get(user=u,organization=organization)
                 org_user.status='active'
                 org_user.save()
+                subject = "You have been added to " + organization.name +" on OneTable"
+                html_message = render_to_string('home/mail_template.html', {
+                    'type': 'added_registered_user_to_org',
+                    'added_person' : request.user,
+                    'org_added' : organization,
+                    "domain" : get_domain(request)
+                    })
+                plain_message = strip_tags(html_message)
+                from_email = None
+                to = [request.POST['email']]
+                print('Subject :' + subject )
+                print(html_message)
+                try:
+                    mail.send_mail(subject=subject, message=plain_message, from_email=from_email, recipient_list=to,html_message=html_message,fail_silently=True)
+                except:
+                    print('Unable to send E-mail')
                 organization.save()
-            except:
+            else:
                 u = InactiveUsers.objects.get_or_create(user_email=request.POST['email'])
                 u[0].save()
                 organization.inactive_users.add(u[0])
                 organization.save()
+<<<<<<< HEAD
                 
+=======
+                subject = "You have been added to " + organization.name + " on OneTable"
+                html_message = render_to_string('home/mail_template.html', {
+                    'type': "added_unregistered_user_to_org",
+                    'added_person' : request.user,
+                    'org_added' : organization,
+                    "domain" : get_domain(request)
+                    })
+                plain_message = strip_tags(html_message)
+                from_email = None
+                to = [request.POST['email']]
+                print('Subject :' + subject )
+                print(html_message)
+                try:
+                    mail.send_mail(subject=subject, message=plain_message, from_email=from_email, recipient_list=to,html_message=html_message,fail_silently=True)
+                except:
+                    print('Unable to send E-mail')
+                organization.save()
+            
+
+>>>>>>> 47106faf33bcc421c2ade0a4f15bc8b1694ce0da
             return JsonResponse({
                 "added" : "true"
             })
@@ -186,6 +236,36 @@ def organization_settings(request, organization_pk):
                 u = InactiveUsers.objects.get(user_email=request.POST['email'])
                 organization.inactive_users.remove(u)
                 organization.save()
+<<<<<<< HEAD
+=======
+            return JsonResponse({
+                "removed" : "true"
+            })
+
+        elif request.POST['type'] == 'change_role':
+            org_user = OrganizationUser.objects.get(organization=organization,user__email=request.POST['email'])
+            print(org_user)
+            org_user.role = request.POST['to']
+            print(request.POST['to'])
+            if request.POST['to'] == 'admin':
+                subject = "You have been made an Admin for "+ organization.name +" on OneTable"
+                html_message = render_to_string('home/mail_template.html', {
+                    'type': 'registered_user_made_admin_of_org',
+                    'added_person' : request.user,
+                    'org' : organization,
+                    "domain" : get_domain(request)
+                    })
+                plain_message = strip_tags(html_message)
+                from_email = None
+                to = [request.POST['email']]
+                print('Subject :' + subject )
+                print(html_message)
+                try:
+                    mail.send_mail(subject=subject, message=plain_message, from_email=from_email, recipient_list=to,html_message=html_message,fail_silently=True)
+                except:
+                    print('Unable to send E-mail')
+            org_user.save()
+>>>>>>> 47106faf33bcc421c2ade0a4f15bc8b1694ce0da
 
             return JsonResponse({
                 "removed" : "true"
@@ -342,7 +422,7 @@ def app_settings(request, organization_pk, app_pk):
         #print(request.POST)
         if request.POST['type'] == "add_user":
             print('if')
-            try:
+            if User.objects.filter(email=request.POST["email"]):
                 u = User.objects.get(email=request.POST['email'])
                 print(u)
                 organization.active_users.add(u)
@@ -353,14 +433,55 @@ def app_settings(request, organization_pk, app_pk):
                 org_user.save()
                 #print(org_user.permitted_apps.objects.all())
                 app.save()
+<<<<<<< HEAD
             except:
                 
                 u = InactiveUsers.objects.get_or_create(user_email=request.POST['email'])
                 u[0].attached_workspaces.add(app)
                 organization.inactive_users.add(u[0])
                 
+=======
+                subject = "You have been added to " + app.name + " on OneTable"
+                html_message = render_to_string('home/mail_template.html', {
+                    'type': "added_registered_user_to_workspace",
+                    'added_person' : request.user,
+                    'app' : app,
+                    "domain" : get_domain(request)
+                    })
+                plain_message = strip_tags(html_message)
+                from_email = None
+                to = [request.POST['email']]
+                print('Subject :' + subject )
+                print(html_message)
+                try:
+                    mail.send_mail(subject=subject, message=plain_message, from_email=from_email, recipient_list=to,html_message=html_message,fail_silently=True)
+                except:
+                    print('Unable to send E-mail')
+
+            else:
+                u = InactiveUsers.objects.get_or_create(user_email=request.POST['email'])
+                u[0].attached_workspaces.add(app)
+                organization.inactive_users.add(u[0])
+>>>>>>> 47106faf33bcc421c2ade0a4f15bc8b1694ce0da
                 u[0].save()
                 organization.save()
+                subject = "You have been added to " + app.name + " on OneTable"
+                html_message = render_to_string('home/mail_template.html', {
+                    'type': "added_unregistered_user_to_workspace",
+                    'added_person' : request.user,
+                    'app' : app,
+                    "domain" : get_domain(request)
+                    })
+                plain_message = strip_tags(html_message)
+                from_email = None
+                to = [request.POST['email']]
+                print('Subject :' + subject )
+                print(html_message)
+                try:
+                    mail.send_mail(subject=subject, message=plain_message, from_email=from_email, recipient_list=to,html_message=html_message,fail_silently=True)
+                except:
+                    print('Unable to send E-mail')
+
             return JsonResponse({
                 "added" : "true"
             })
