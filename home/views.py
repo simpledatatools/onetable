@@ -538,6 +538,8 @@ def list(request, organization_pk, app_pk, list_pk):
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
     search = request.GET.get('search', None)
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
 
     if search != None:
         fields = RecordField.objects.filter(value__icontains=search, record__list=list)
@@ -1275,6 +1277,11 @@ def edit_record(request, organization_pk, app_pk, list_pk, record_pk):
 # TODO need view for archiving records
 def archive_record(request, organization_pk, app_pk, list_pk, record_pk):
     #   this functional is call when user click on the "Archive Record" button on Record Detail Page
+    organization = get_object_or_404(Organization, pk=organization_pk)
+    app = get_object_or_404(App, pk=app_pk)
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
+    record = get_object_or_404(Record, pk=record_pk)
     record = get_object_or_404(Record, pk=record_pk)
     record.status = "archived"
     record.save()
@@ -1297,6 +1304,10 @@ def randStr(chars = string.ascii_uppercase + string.ascii_lowercase + string.dig
 
 
 def post_record_comment(request,organization_pk, app_pk, list_pk, record_pk):
+    organization = get_object_or_404(Organization, pk=organization_pk)
+    app = get_object_or_404(App, pk=app_pk)
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
     if request.method == "POST":
         if request.POST['content'] != '':
             record_comment = RecordComment(created_user=request.user,content = request.POST['content'],record_id=record_pk)
@@ -1316,6 +1327,10 @@ def post_record_comment(request,organization_pk, app_pk, list_pk, record_pk):
 
 @csrf_exempt
 def post_record_file(request,organization_pk, app_pk, list_pk, record_pk):
+    organization = get_object_or_404(Organization, pk=organization_pk)
+    app = get_object_or_404(App, pk=app_pk)
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
     record_file = RecordFile(file=request.FILES['file'],record_id=record_pk,created_user = request.user)
     record_file.id =randomstr()
     record_file.save()
@@ -1379,6 +1394,10 @@ def post_record_file(request,organization_pk, app_pk, list_pk, record_pk):
 
 @csrf_exempt
 def delete_record_file(request,organization_pk, app_pk, list_pk, record_pk,record_file_pk):
+    organization = get_object_or_404(Organization, pk=organization_pk)
+    app = get_object_or_404(App, pk=app_pk)
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
     record_File = RecordFile.objects.get(pk=record_file_pk)
     record_File.delete()
     final = {}
@@ -1434,6 +1453,10 @@ def edit_record_comment(request,organization_pk, app_pk, list_pk, record_pk,reco
 
 @csrf_exempt
 def edit_record_file(request,organization_pk, app_pk, list_pk, record_pk,record_file_pk):
+    organization = get_object_or_404(Organization, pk=organization_pk)
+    app = get_object_or_404(App, pk=app_pk)
+    if is_unauthorized(request, organization, app):
+        return HttpResponse('You are not allowed here!', status=401)
     record_File = RecordFile.objects.get(pk=record_file_pk)
     new_name = request.POST['content']
     record_File.name_of_file = new_name

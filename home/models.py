@@ -114,9 +114,11 @@ class App(models.Model):
         return self.name
 
     def membersCount(self):
-        active_users = OrganizationUser.objects.filter(organization = self.organization,status='active').count()
+        active_users = OrganizationUser.objects.filter(organization = self.organization, role='admin', status='active').count()
+        active_emails = [org.user.email for org in OrganizationUser.objects.filter(organization=self.organization, role='admin', status='active')]
         inactive_users = InactiveUsers.objects.filter(attached_workspaces = self).count()
-        return active_users + inactive_users
+        app_users = AppUser.objects.filter(app=self, status='active').exclude(user__email__in=active_emails).count()
+        return active_users + inactive_users + app_users
 
 
 class AppUser(models.Model):
