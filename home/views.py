@@ -16,8 +16,6 @@ from .forms import OrganizationForm, AppForm, ListForm, ListFieldFormset
 from django.views.decorators.csrf import csrf_exempt
 import subprocess
 from itertools import chain
-<<<<<<< HEAD
-=======
 from tempfile import NamedTemporaryFile
 from subprocess import call
 from django.core.files.storage import FileSystemStorage
@@ -25,7 +23,6 @@ from django.conf import settings
 from django.core import mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
->>>>>>> 47106faf33bcc421c2ade0a4f15bc8b1694ce0da
 
 N = 10
 
@@ -200,9 +197,6 @@ def organization_settings(request, organization_pk):
                 u[0].save()
                 organization.inactive_users.add(u[0])
                 organization.save()
-<<<<<<< HEAD
-                
-=======
                 subject = "You have been added to " + organization.name + " on OneTable"
                 html_message = render_to_string('home/mail_template.html', {
                     'type': "added_unregistered_user_to_org",
@@ -222,7 +216,6 @@ def organization_settings(request, organization_pk):
                 organization.save()
             
 
->>>>>>> 47106faf33bcc421c2ade0a4f15bc8b1694ce0da
             return JsonResponse({
                 "added" : "true"
             })
@@ -236,8 +229,6 @@ def organization_settings(request, organization_pk):
                 u = InactiveUsers.objects.get(user_email=request.POST['email'])
                 organization.inactive_users.remove(u)
                 organization.save()
-<<<<<<< HEAD
-=======
             return JsonResponse({
                 "removed" : "true"
             })
@@ -265,7 +256,6 @@ def organization_settings(request, organization_pk):
                 except:
                     print('Unable to send E-mail')
             org_user.save()
->>>>>>> 47106faf33bcc421c2ade0a4f15bc8b1694ce0da
 
             return JsonResponse({
                 "removed" : "true"
@@ -433,14 +423,6 @@ def app_settings(request, organization_pk, app_pk):
                 org_user.save()
                 #print(org_user.permitted_apps.objects.all())
                 app.save()
-<<<<<<< HEAD
-            except:
-                
-                u = InactiveUsers.objects.get_or_create(user_email=request.POST['email'])
-                u[0].attached_workspaces.add(app)
-                organization.inactive_users.add(u[0])
-                
-=======
                 subject = "You have been added to " + app.name + " on OneTable"
                 html_message = render_to_string('home/mail_template.html', {
                     'type': "added_registered_user_to_workspace",
@@ -462,7 +444,6 @@ def app_settings(request, organization_pk, app_pk):
                 u = InactiveUsers.objects.get_or_create(user_email=request.POST['email'])
                 u[0].attached_workspaces.add(app)
                 organization.inactive_users.add(u[0])
->>>>>>> 47106faf33bcc421c2ade0a4f15bc8b1694ce0da
                 u[0].save()
                 organization.save()
                 subject = "You have been added to " + app.name + " on OneTable"
