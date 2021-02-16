@@ -3,7 +3,7 @@ from .models import *
 
 
 class ListAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'app', 'created_at', 'created_user', 'last_updated', 'status']
+    list_display = ['id', 'name', 'app', 'created_at', 'created_user', 'last_updated', 'status', 'public_link', 'is_public']
 
 
 class ListFieldAdmin(admin.ModelAdmin):

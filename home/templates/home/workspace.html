@@ -2,11 +2,11 @@
 {% load static %}
 
 {% block title %}
-    OneTable - {{ app.name }}
+    OneTable{% if type != 'edit-record-anonymous' %} - {{ app.name }}{% endif %}
 {% endblock %}
 
 {% block headername %}
-  {{ app.name }}
+{% if type != 'edit-record-anonymous' %}{{ app.name }}{% else %}OneTable{% endif %}
 {% endblock %}
 
 {% block headerlink %}
@@ -43,6 +43,8 @@ class="bg-white"
     {% include 'home/record.html' %}
   {% elif type == 'edit-record' %}
     {% include 'home/record-create.html' %}
+  {% elif type == 'edit-record-anonymous' %}
+    {% include 'home/record-create-anonymous.html' %}
   {% else %}
     {# Load default activity #}
     {% include 'home/activity.html' %}

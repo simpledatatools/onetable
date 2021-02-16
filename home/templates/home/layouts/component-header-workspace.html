@@ -1,6 +1,7 @@
 {% load static %}
 <!-- Topbar header Items-->
 <ul class="navbar-nav align-items-center ml-auto">
+  {% if type != 'edit-record-anonymous' %}
   <!-- Organizations link -->
   {% if organization.pk %}
     <li class="nav-item no-caret d-none d-sm-block mr-3">
@@ -19,4 +20,11 @@
   {% endif %}
   <!-- My Account -->
   {% include 'home/layouts/widget-my-account-dropdown.html' %}
+  {% else %}
+  <li class="nav-item no-caret d-none d-sm-block mr-3">
+    <a class="nav-link dropdown-toggle" href="{% url 'login' %}" role="button" aria-haspopup="false" aria-expanded="false">
+        <div class="font-weight-500">Login</div>
+    </a>
+</li>
+  {% endif %}
 </ul>

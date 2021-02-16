@@ -1,4 +1,5 @@
 {% load static %}
+{% if type != 'edit-record-anonymous' %}
 <div id="layoutSidenav_nav">
     <nav class="sidenav shadow-right sidenav-light">
         <div class="sidenav-menu">
@@ -64,3 +65,4 @@
         </div>
     </nav>
 </div>
+{% endif %}

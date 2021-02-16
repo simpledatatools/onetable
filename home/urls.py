@@ -41,4 +41,9 @@ urlpatterns = [
 
 
     path('organizations/<organization_pk>/apps/<app_pk>/lists/<list_pk>/record/<record_pk>/', views.archive_record, name='archive_record'),
+
+    path('organizations/<organization_pk>/apps/<app_pk>/lists/<list_pk>/change_flag/', views.change_list_public_flag, name='change_list_public_flag'),
+
+    path('forms/', views.add_record_without_login, name='anomynous_record'),
+    path('organizations/<organization_pk>/apps/<app_pk>/lists/<list_pk>/save-record-without/', views.save_record_without_login, name='save_record_without_login'),
 ]
