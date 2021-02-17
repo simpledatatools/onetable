@@ -58,7 +58,13 @@
               {% endif %}
             {% endfor %}
             <p class="card-text"><small class="text-muted">Created : {{record.created_at| date:"M d, Y"}}</small></p>
-            <p class="card-text"><small class="text-muted">Created By : {{record.created_user.first_name}}</small></p>
+            <p class="card-text"><small class="text-muted">Created By : 
+            {% if record.created_user.is_superuser %}
+              Admin
+            {% else %}
+              {{record.created_user.first_name}}
+            {% endif %}
+            </small></p>
           </div>
           {% endif %}
       </div>
