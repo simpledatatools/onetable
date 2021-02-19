@@ -16,67 +16,7 @@
   </div>
 </header>
 <!-- Main page content-->
+<!--
 <div class="container bg-white mt-n10">
-{% for activity in activities %}
-{% if activity.type == 'new_record_comment' %}
-<div class="d-block w-100 py-3">
-<div class="float-left">
-{{activity.record_comment.created_user.username}} added a new comment on 
-<a href="javascript:void(0);" onclick="getPage('{{activity.record_comment.record.get_absolute_url}}')">{{activity.record_comment.record.primary_field_value}}</a> in 
-<a href="javascript:void(0);" onclick="getPage('{{activity.record_comment.record.list.get_absolute_url}}')">{{activity.record_comment.record.list}}</a>
-</div>
-<div class="float-right">
 
-{{activity.created_at | timesince}} ago</div>
-</div>
-<br/>
-{% include "home/record-comment.html" with comment=activity.record_comment record=activity.record_comment.record list=activity.record_comment.record.list app=acitivity.record_comment.record.list.app organization=activity.record_comment.record.list.app.organization %}
-{% endif %}
-{% if activity.type == 'new_record' %}
-<div class="d-block w-100 py-3">
-<div class="float-left">{{activity.record.created_user.username}} added a new record in 
-<a href="javascript:void(0);" onclick="getPage('{{activity.record.list.get_absolute_url}}')">{{activity.record.list}}</a></div>
-<div class="float-right">{{activity.created_at | timesince}} ago</div>
-<br/>
-</div>
-{% include "home/record-summary.html" with record=activity.record list=activity.record.list app=activity.record.list.app organization=activity.record.list.app.organization  %}
-{% endif %}
-{% if activity.type == 'new_record_file' %}
-<div class="d-block w-100 py-3">
-{% if activity.group_of_files.media %}
-<div class="float-left"> {{activity.group_of_files.media.0.created_user}} added new files for <a href="javascript:void(0);" onclick="getPage('{{activity.group_of_files.media.0.record.get_absolute_url}}')">{{activity.group_of_files.media.0.record.primary_field_value}}</a> in <a href="javascript:void(0);" onclick="getPage('{{activity.group_of_files.media.0.record.list.get_absolute_url}}')">{{activity.group_of_files.media.0.record.list}}</a> </div>
-{% else %}
-<div class="float-left"> {{activity.group_of_files.files.0.created_user}} added new files for <a href="javascript:void(0);" onclick="getPage('{{activity.group_of_files.media.0.record.get_absolute_url}}')">{{activity.group_of_files.media.0.record.primary_field_value}}</a> in <a href="javascript:void(0);" onclick="getPage('{{activity.group_of_files.media.0.record.list.get_absolute_url}}')">{{activity.group_of_files.media.0.record.list}}</a> </div>
-{% endif %}
-<div class="float-right">{{activity.created_at | timesince}} ago</div>
-</div>
-<div class="card my-3 p-3">
-{% for file in activity.group_of_files.media %}
-{% if forloop.first %} <div class="row"> {% endif %}
-{% if file.type == 'I' %}
-<div class="col-6 float-right">
-  <a href="\media\{{file.thumbnail_source_image}}" data-fslightbox="lightbox_{{file.id}}" data-type="image">
-
-    <img class='p-3 img-fluid' src="/media/{{file.thumbnail_source_image}}"/>
-    
-</a>
-</div>
-{% endif %}
-{% if file.type == 'V' %}
-<div class="col-6 float-right">
-  <a href="\media\{{file.file}}" data-fslightbox="lightbox_{{file.id}}" data-type="video">
-
-                  
-    <img src="\media\{{file.thumbnail_source_image}}" class="p-3 img-fluid" />
-</a>
-</div>
-{% endif %}
-{% if forloop.last %} </div> {% endif %}
-{% endfor %}
-{% for file in activity.group_of_files.files %}
-<p><a href="{{file.file.url}}">{{file.name_of_file}}{{file.file_extension}}</a></p>
-{% endfor %}
-</div>
-{% endif %}
-{% endfor %}
-</div>
+</div> -->

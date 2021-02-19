@@ -118,7 +118,7 @@ class App(models.Model):
         inactive_users = InactiveUsers.objects.filter(attached_workspaces = self).count()
         return active_users + inactive_users
 
-    
+
 
 class AppUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -193,7 +193,7 @@ class List(models.Model):
             "app_pk" : self.app.pk,
             "organization_pk" : self.app.organization.pk
             })
-    
+
 
 class ListField(models.Model):
     list = models.ForeignKey('List', on_delete=models.SET_NULL, null=True, related_name='list')
@@ -282,14 +282,12 @@ class Record(models.Model):
             .select_related('created_user') \
             .get(record=self)
 
-
     @property
     def primary_field_value(self):
         return RecordField.objects.filter(status='active', list_field__primary=True, list_field__status='active') \
             .select_related('record__list', 'record__created_user') \
             .select_related('created_user') \
             .get(record=self).value
-
 
     def __str__(self):
         return str(self.id)
@@ -302,7 +300,6 @@ class Record(models.Model):
             "app_pk" : self.list.app.pk,
             "organization_pk" : self.list.app.organization.pk
             })
-    
 
 
 class RecordField(models.Model):
@@ -533,7 +530,7 @@ class Activity(models.Model):
 
     def __str__(self):
         return self.type + str(self.pk)
-    
+
     @property
     def group_of_files(self):
         files_i = RecordFile.objects.filter(group=self.record_file_group,type='I')

@@ -207,7 +207,7 @@ def organization_settings(request, organization_pk):
                 except:
                     print('Unable to send E-mail')
                 organization.save()
-            
+
 
             return JsonResponse({
                 "added" : "true"
@@ -1141,7 +1141,7 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
                 'comments' : comments,
                 'files':files,
                 'user' : request.user
-               
+
             }
         )
 
@@ -1161,7 +1161,7 @@ def record(request, organization_pk, app_pk, list_pk, record_pk):
             'comments' : comments,
             'files':files,
             'user' : request.user
-          
+
         }
 
         return render(request, 'home/workspace.html', context=context)
@@ -1197,7 +1197,7 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
                 "comments":comments,
                 "files": files,
                 'user' : request.user
-                
+
             }
         )
 
@@ -1221,7 +1221,7 @@ def record_details(request, organization_pk, app_pk, list_pk, record_pk):
             "comments":comments,
             "files": files,
             "user" : request.user
-           
+
         }
 
         return render(request, 'home/workspace.html', context=context)
