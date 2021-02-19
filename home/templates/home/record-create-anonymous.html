@@ -2,19 +2,6 @@
 {% load custom_tags %}
 <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
   <div class="container-fluid">
-      <div class="page-header-content">
-          <div class="row align-items-center justify-content-between pt-3">
-              <div class="col-auto mb-3">
-                  <h1 class="page-header-title">
-                      <div class="page-header-icon"><i data-feather="file"></i></div>
-                      Add record in {{ list.name }}
-                  </h1>
-              </div>
-              <div class="col-12 col-xl-auto mb-3">
-                  <button class="btn btn-primary py-2" href="javascript:void(0);" onclick="saveRecord();">Save Record</button>
-              </div>
-          </div>
-      </div>
   </div>
 </header>
 <div class="container">
@@ -100,6 +87,9 @@
       </div>
     </div>
   </div>
+    <div class="col-12 col-xl-auto mb-3 text-right">
+        <button class="btn btn-primary py-2" href="javascript:void(0);" onclick="saveRecord();">Save Record</button>
+    </div>
 </div>
 
 <!-- Include JS here that does not need template tags -->
@@ -294,7 +284,7 @@
 
     const data = {
       'field_values': JSON.stringify(field_values),
-      'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+      'csrfmiddlewaretoken': window.CSRF_TOKEN, // from index.html
     };
 
     function randomstr(length) {
@@ -319,11 +309,11 @@
       $.ajax({
         type: "POST",
         dataType: 'json',
-        url: "{% url 'save_record' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk %}",
+        url: "{% url 'save_record_without_login' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk %}",
         data: data,
         success: function(data) {
           if (data.success) {
-            window.location.href = "{% url 'list' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk %}";
+            window.location.href = "{% url 'login' %}";
               // Go to the record page here
           } else {
             alert("There was an error, please try again!");

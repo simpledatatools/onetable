@@ -157,6 +157,8 @@ class List(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     last_updated = models.DateTimeField(auto_now_add=True)
+    public_link = models.CharField(default="", null=True, blank=True, max_length=255)
+    is_public = models.BooleanField(default=False, blank=True, null=True)
 
     LIST_STATUS = (
         ('active', 'Active'),

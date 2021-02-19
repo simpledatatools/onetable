@@ -50,6 +50,17 @@
               </div>
               <div class="card-body">
                 <p>Edit list details directly under the <a href="{% url 'edit_list' organization_pk=organization.pk app_pk=app.pk list_pk=list.pk %}">edit list fields page</a></p>
+                <div class="public_link mb-4">
+                  {% if list.is_public %}
+                  <a href="javascript:void(0);">{{public_link}}</a>
+                  {% endif %}
+                </div>
+                <p>Make Public
+                  <label class="switch pl-5">
+                    <input type="checkbox" class="test" {% if list.is_public %}checked{% endif %}>
+                    <span class="slider round"></span>
+                  </label>
+                </p>
               </div>
           </div>
       </div>
@@ -71,4 +82,22 @@
   </div>
 </div>
 
+{% endblock %}
+
+{% block extrajs %}
+<script>
+  $(document).on('click', '.test', function(){
+    is_public = $(this).prop('checked');
+    $.ajax({
+      url: '{% url "change_list_public_flag" organization_pk=organization.pk app_pk=app.pk list_pk=list.pk %}',
+      type: 'POST',
+      data: {
+        'is_public': is_public,
+      },
+      success: function(response){
+        window.location.reload();
+      }
+    });
+  });
+</script>
 {% endblock %}
