@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
 from django.template import loader
 from django.http import JsonResponse
 from django.template.loader import render_to_string
@@ -25,7 +25,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
 N = 16
-def randomstr():
+def randomstr(N: int=16):
     return ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k = N))
 
 def get_domain(request):
@@ -723,6 +723,7 @@ def create_list(request, organization_pk, app_pk):
             list.created_user = request.user
             list.created_at = timezone.now()
             list.id =randomstr()
+            list.public_link = randomstr(N=30)
             list.save() # Save here then update primary field once field is saved
             # Loop through the list field forms submitted
             list_field_order = 0
@@ -880,13 +881,15 @@ def list_settings(request, organization_pk, app_pk, list_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
+    public_link = f'http://{request.get_host()}/forms/?ref={list.public_link}'
     if is_unauthorized(request, organization, app):
         return HttpResponse('You are not allowed here!', status=401)
 
     context = {
         'organization': organization,
         'app': app,
-        'list': list
+        'list': list,
+        'public_link': public_link
     }
 
     return render(request, 'home/list-settings.html', context=context)
@@ -962,6 +965,7 @@ def save_record(request, organization_pk, app_pk, list_pk):
     organization = get_object_or_404(Organization, pk=organization_pk)
     app = get_object_or_404(App, pk=app_pk)
     list = get_object_or_404(List, pk=list_pk)
+
     if is_unauthorized(request, organization, app):
         return HttpResponse('You are not allowed here!', status=401)
 
@@ -1545,3 +1549,191 @@ def edit_record_file(request,organization_pk, app_pk, list_pk, record_pk,record_
         "content": record_File.name_of_file,
         "file_url":record_File.file.url
     })
+
+
+@csrf_exempt
+def change_list_public_flag(request, organization_pk, app_pk, list_pk):
+    response = {}
+    list_data = get_object_or_404(List, pk=list_pk)
+    is_public = request.POST.get('is_public')
+    if is_public == "true":
+        is_public = True
+    else:
+        is_public = False
+    list_data.is_public = is_public
+    list_data.save()
+    response['status'] = True
+    return HttpResponse(json.dumps(response), content_type="application/json")
+
+
+def add_record_without_login(request):
+    try:
+        reference = request.GET.get('ref')
+        list = get_object_or_404(List, public_link=reference)
+        organization = get_object_or_404(Organization, pk=list.app.organization.pk)
+        app = get_object_or_404(App, pk=list.app.pk)
+        fields = []
+        for list_field in list.list_fields:
+            field_object = {}
+            field_object['field_id'] = list_field.field_id
+            field_object['field_label'] = list_field.field_label
+            field_object['field_type'] = list_field.field_type
+            field_object['required'] = list_field.required
+            field_object['primary'] = list_field.primary
+            field_object['visible'] = list_field.visible
+            field_object['order'] = list_field.order
+            field_object['id'] = list_field.id
+            if list_field.field_type == "choose-from-list":
+                field_object['select_record'] = RecordField.objects.filter(record__list=list_field.select_list.id, record__status="active", status="active", list_field__primary=True).values_list('record', 'value')
+            fields.append(field_object)
+        fields.reverse()
+
+        if request.is_ajax() and request.method == "GET":
+            # Call is ajax, just load main content needed here
+
+            html = render_to_string(
+                template_name="home/record-create.html",
+                context={
+                    'organization': organization,
+                    'app': app,
+                    'list': list,
+                    'fields': fields
+                }
+            )
+
+            data_dict = {"html_from_view": html}
+
+            return JsonResponse(data=data_dict, safe=False)
+
+        else:
+            # If accessing the url directly, load full page
+
+            context = {
+                'organization': organization,
+                'app': app,
+                'list': list,
+                'fields': fields,
+                'type': 'edit-record-anonymous',
+            }
+
+            return render(request, 'home/workspace.html', context=context)
+    except Exception as e:
+        print(e)
+        return redirect('/')
+
+
+def save_record_without_login(request, organization_pk, app_pk, list_pk):
+    organization = get_object_or_404(Organization, pk=organization_pk)
+    app = get_object_or_404(App, pk=app_pk)
+    list = get_object_or_404(List, pk=list_pk)
+
+    record_id = request.POST.get('record_id', None)
+    fields = json.loads(request.POST['field_values'])
+
+    record = None
+
+    if record_id is not None:
+        record = get_object_or_404(Record, pk=record_id)
+    else:
+        record = Record.objects.create(
+            list=list,
+            status='active',
+            created_at=timezone.now(),
+            id=randomstr())
+        record.save()
+    for field in fields:
+        if record_id is not None:
+            try:
+                record_field = RecordField.objects.get(status='active', list_field__field_id=field['fieldId'], record=record)
+                if field['fieldType'] == "choose-from-list":
+                    record_field.selected_record_id = field['fieldValue']
+                    record_field.value = field['selectListValue']
+                else:
+                    record_field.value = field['fieldValue']
+                record_field.save()
+
+                if field['fieldType'] == "choose-from-list":
+                    try:
+                        record_relation = RecordRelation.objects.get(status='active', list_field__field_id=field['fieldId'], parent_record=record)
+                        record_relation.child_record_id = field['fieldValue']
+                        record_relation.save()
+                    except RecordRelation.DoesNotExist:
+                        record_relation = RecordRelation.objects.create(
+                            parent_record=record,
+                            child_record_id=record_field.selected_record_id,
+                            relation_type='choose-from-list',
+                            list_field=record_field.list_field,
+                            status='active',
+                            created_at=timezone.now(),
+                            id=randomstr())
+                        record_relation.save()
+
+            except RecordField.DoesNotExist:
+                try:
+                    list_field = ListField.objects.get(status='active', field_id=field['fieldId'], list=list)
+
+                    record_field = RecordField.objects.create(
+                        record=record,
+                        list_field=list_field,
+                        status='active',
+                        created_at=timezone.now(),
+                        id=randomstr())
+                    record_field.save()
+
+                    if field['fieldType'] == "choose-from-list":
+                        record_field.selected_record_id = field['fieldValue']
+                        record_field.value = field['selectListValue']
+                    else:
+                        record_field.value = field['fieldValue']
+                    record_field.save()
+
+                    if field['fieldType'] == "choose-from-list":
+                        record_relation = RecordRelation.objects.create(
+                            parent_record=record,
+                            child_record_id=record_field.selected_record_id,
+                            relation_type='choose-from-list',
+                            list_field=record_field.list_field,
+                            status='active',
+                            created_at=timezone.now(),
+                            id=randomstr())
+                        record_relation.save()
+
+                except ListField.DoesNotExist:
+                    pass
+
+        else:
+            try:
+                list_field = ListField.objects.get(status='active', field_id=field['fieldId'], list=list)
+
+                record_field = RecordField.objects.create(
+                    record=record,
+                    list_field=list_field,
+                    status='active',
+                    created_at=timezone.now(),
+                    id=randomstr())
+                record_field.save()
+
+                if field['fieldType'] == "choose-from-list":
+                    record_field.selected_record_id = field['fieldValue']
+                    record_field.value = field['selectListValue']
+                else:
+                    record_field.value = field['fieldValue']
+                record_field.save()
+
+                if field['fieldType'] == "choose-from-list":
+                    record_relation = RecordRelation.objects.create(
+                        parent_record=record,
+                        child_record_id=record_field.selected_record_id,
+                        relation_type='choose-from-list',
+                        list_field=record_field.list_field,
+                        status='active',
+                        created_at=timezone.now(),
+                        id=randomstr())
+                    record_relation.save()
+
+            except ListField.DoesNotExist:
+                        pass
+
+    data_dict = {"success": True}
+
+    return JsonResponse(data=data_dict, safe=False)
